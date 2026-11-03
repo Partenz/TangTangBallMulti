@@ -1,4 +1,4 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include <tchar.h>
 #include <fstream>
 #include <mmsystem.h>
@@ -65,14 +65,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	switch (iMessage) {
 	case WM_CREATE:
 
-		// ÇÃ·¹ÀÌ¾î È÷Æ®¹Ú½º ¼³Á¤
+		// í”Œë ˆì´ì–´ íˆíŠ¸ë°•ìŠ¤ ì„¤ì •
 		playerRT.left = playerX - playerSize;
 		playerRT.top = playerY - playerSize;
 		playerRT.right = playerX + playerSize;
 		playerRT.bottom = playerY + playerSize;
 
 		GetClientRect(hWnd, &clientRect);
-		// ½ÃÀÛ¸Ş´º ¹ÙÅÁ ¾Ö´Ï¸ŞÀÌ¼Ç ºñÆ®¸Ê
+		// ì‹œì‘ë©”ë‰´ ë°”íƒ• ì• ë‹ˆë©”ì´ì…˜ ë¹„íŠ¸ë§µ
 		menuAni[0] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP2));
 		menuAni[1] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP3));
 		menuAni[2] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP4));
@@ -82,122 +82,122 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		menuAni[6] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP8));
 		menuAni[7] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP9));
 		menuAni[8] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP10));
-		// ±âº» ºí·° ºñÆ®¸Ê
+		// ê¸°ë³¸ ë¸”ëŸ­ ë¹„íŠ¸ë§µ
 		BlockBitmap[BlockType_Basic] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP1));
-		// Æ¯¼öºí·°
+		// íŠ¹ìˆ˜ë¸”ëŸ­
 		BlockBitmap[BlockType_Jump] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP11));
 		BlockBitmap[BlockType_Once] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP12));
 		BlockBitmap[BlockType_Thorn] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP13));
 		BlockBitmap[BlockType_Star] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP14));
 		BlockBitmap[BlockType_DoubleJump] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP15));
 		BlockBitmap[BlockType_UpDown] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP17));
-		// ¹öÆ° ui
+		// ë²„íŠ¼ ui
 		buttonUI[0] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP16));
 		buttonUI[1] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP18));
-		// ½ºÅ×ÀÌÁö ºñÆ®¸Ê
+		// ìŠ¤í…Œì´ì§€ ë¹„íŠ¸ë§µ
 		stageBitmap[0] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP19));
 		stageBitmap[1] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP20));
 		stageBitmap[2] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP21));
 		stageBitmap[3] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP22));
 		stageBitmap[4] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP23));
 
-		// ½ºÅ×ÀÌÁö Å¬¸®¾î ¹öÆ° ºñÆ®¸Ê
+		// ìŠ¤í…Œì´ì§€ í´ë¦¬ì–´ ë²„íŠ¼ ë¹„íŠ¸ë§µ
 		retry = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP26));
 		home = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP24));
 		nextStage = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP25));
 		
-		// ½ºÅ×ÀÌÁö Å¬¸®¾î ¹öÆ° ¿µ¿ª
+		// ìŠ¤í…Œì´ì§€ í´ë¦¬ì–´ ë²„íŠ¼ ì˜ì—­
 		retryRT = { 350,400,470,520 };
 		homeRT = {650, 390, 810, 530};
 		nextStageRT = {990, 400, 1110, 520};
 
-		// ¹ÙÅÁÈ­¸é ¾Ö´Ï¸ŞÀÌ¼Ç Å¸ÀÌ¸Ó ½ÃÀÛ
+		// ë°”íƒ•í™”ë©´ ì• ë‹ˆë©”ì´ì…˜ íƒ€ì´ë¨¸ ì‹œì‘
 		SetTimer(hWnd, 2, aniTimerSpeed, (TIMERPROC)menuAniTimer);
 
-		// Å¬¸®¾î ±â·Ï ºÒ·¯¿À±â
+		// í´ë¦¬ì–´ ê¸°ë¡ ë¶ˆëŸ¬ì˜¤ê¸°
 		clearRecordLoad();
 
-		// ÆùÆ® »ı¼º
+		// í°íŠ¸ ìƒì„±
 		{
-			ZeroMemory(&lf, sizeof(LOGFONT)); // LOGFONT ±¸Á¶Ã¼ ÃÊ±âÈ­
+			ZeroMemory(&lf, sizeof(LOGFONT)); // LOGFONT êµ¬ì¡°ì²´ ì´ˆê¸°í™”
 
-			// ÆùÆ® ¼Ó¼º ¼³Á¤
-			lf.lfHeight = -30; // ÆùÆ® ³ôÀÌ (³í¸® ´ÜÀ§, À½¼ö¸é ¹®ÀÚ ¼¿ ³ôÀÌ ÁöÁ¤)
-			// ¾à 30pt Å©±â¸¦ ³ªÅ¸³À´Ï´Ù.
-			lf.lfWeight = FW_BOLD; // ±½±â: ±½°Ô (FW_NORMAL, FW_LIGHT, FW_BLACK µî)
-			lf.lfCharSet = DEFAULT_CHARSET; // ¹®ÀÚ ÁıÇÕ (ÇÑ±ÛÀ» À§ÇØ HANGUL_CHARSETµµ °¡´É)
-			lf.lfItalic = FALSE; // ±â¿ïÀÓ²Ã (TRUE/FALSE)
-			lf.lfUnderline = FALSE; // ¹ØÁÙ (TRUE/FALSE)
-			lf.lfStrikeOut = FALSE; // Ãë¼Ò¼± (TRUE/FALSE)
-			// ÆùÆ® ÆĞ¹Ğ¸® (PitchAndFamily)´Â º¸Åë DEFAULT_PITCH | FF_DONTCARE ¶Ç´Â FF_SWISS µî
+			// í°íŠ¸ ì†ì„± ì„¤ì •
+			lf.lfHeight = -30; // í°íŠ¸ ë†’ì´ (ë…¼ë¦¬ ë‹¨ìœ„, ìŒìˆ˜ë©´ ë¬¸ì ì…€ ë†’ì´ ì§€ì •)
+			// ì•½ 30pt í¬ê¸°ë¥¼ ë‚˜íƒ€ëƒ…ë‹ˆë‹¤.
+			lf.lfWeight = FW_BOLD; // êµµê¸°: êµµê²Œ (FW_NORMAL, FW_LIGHT, FW_BLACK ë“±)
+			lf.lfCharSet = DEFAULT_CHARSET; // ë¬¸ì ì§‘í•© (í•œê¸€ì„ ìœ„í•´ HANGUL_CHARSETë„ ê°€ëŠ¥)
+			lf.lfItalic = FALSE; // ê¸°ìš¸ì„ê¼´ (TRUE/FALSE)
+			lf.lfUnderline = FALSE; // ë°‘ì¤„ (TRUE/FALSE)
+			lf.lfStrikeOut = FALSE; // ì·¨ì†Œì„  (TRUE/FALSE)
+			// í°íŠ¸ íŒ¨ë°€ë¦¬ (PitchAndFamily)ëŠ” ë³´í†µ DEFAULT_PITCH | FF_DONTCARE ë˜ëŠ” FF_SWISS ë“±
 			// lf.lfPitchAndFamily = DEFAULT_PITCH | FF_SWISS;
 
-			// ÆùÆ® ÀÌ¸§ ¼³Á¤ (¹İµå½Ã ¼³Ä¡µÈ ÆùÆ®¿©¾ß ÇÕ´Ï´Ù)
-			// _tcscpy_s´Â À¯´ÏÄÚµå/¸ÖÆ¼¹ÙÀÌÆ® ¹®ÀÚ¿­¿¡ ¸ğµÎ ¾ÈÀüÇÏ°Ô »ç¿ë
-			_tcscpy_s(lf.lfFaceName, LF_FACESIZE, _T("¸¼Àº °íµñ"));
-			// ¶Ç´Â L"¸¼Àº °íµñ" (¿ÍÀÌµå ¹®ÀÚ¿­ ¸®ÅÍ·²)
+			// í°íŠ¸ ì´ë¦„ ì„¤ì • (ë°˜ë“œì‹œ ì„¤ì¹˜ëœ í°íŠ¸ì—¬ì•¼ í•©ë‹ˆë‹¤)
+			// _tcscpy_sëŠ” ìœ ë‹ˆì½”ë“œ/ë©€í‹°ë°”ì´íŠ¸ ë¬¸ìì—´ì— ëª¨ë‘ ì•ˆì „í•˜ê²Œ ì‚¬ìš©
+			_tcscpy_s(lf.lfFaceName, LF_FACESIZE, _T("ë§‘ì€ ê³ ë”•"));
+			// ë˜ëŠ” L"ë§‘ì€ ê³ ë”•" (ì™€ì´ë“œ ë¬¸ìì—´ ë¦¬í„°ëŸ´)
 
-			// ÆùÆ® »ı¼º
+			// í°íŠ¸ ìƒì„±
 			g_hCustomFont = CreateFontIndirect(&lf);
 
 			if (g_hCustomFont == NULL) {
-				// ÆùÆ® »ı¼º ½ÇÆĞ ½Ã ¿¡·¯ Ã³¸® (¿¹: MessageBox)
-				MessageBox(hWnd, _T("ÆùÆ® »ı¼º ½ÇÆĞ!"), _T("¿À·ù"), MB_ICONERROR);
+				// í°íŠ¸ ìƒì„± ì‹¤íŒ¨ ì‹œ ì—ëŸ¬ ì²˜ë¦¬ (ì˜ˆ: MessageBox)
+				MessageBox(hWnd, _T("í°íŠ¸ ìƒì„± ì‹¤íŒ¨!"), _T("ì˜¤ë¥˜"), MB_ICONERROR);
 			}
 		}
-		// ÆùÆ® »ı¼º
+		// í°íŠ¸ ìƒì„±
 		{
-			ZeroMemory(&lf1, sizeof(LOGFONT)); // LOGFONT ±¸Á¶Ã¼ ÃÊ±âÈ­
+			ZeroMemory(&lf1, sizeof(LOGFONT)); // LOGFONT êµ¬ì¡°ì²´ ì´ˆê¸°í™”
 
-			// ÆùÆ® ¼Ó¼º ¼³Á¤
-			lf1.lfHeight = -100; // ÆùÆ® ³ôÀÌ (³í¸® ´ÜÀ§, À½¼ö¸é ¹®ÀÚ ¼¿ ³ôÀÌ ÁöÁ¤)
-			// ¾à 30pt Å©±â¸¦ ³ªÅ¸³À´Ï´Ù.
-			lf1.lfWeight = FW_BOLD; // ±½±â: ±½°Ô (FW_NORMAL, FW_LIGHT, FW_BLACK µî)
-			lf1.lfCharSet = DEFAULT_CHARSET; // ¹®ÀÚ ÁıÇÕ (ÇÑ±ÛÀ» À§ÇØ HANGUL_CHARSETµµ °¡´É)
-			lf1.lfItalic = FALSE; // ±â¿ïÀÓ²Ã (TRUE/FALSE)
-			lf1.lfUnderline = FALSE; // ¹ØÁÙ (TRUE/FALSE)
-			lf1.lfStrikeOut = FALSE; // Ãë¼Ò¼± (TRUE/FALSE)
-			// ÆùÆ® ÆĞ¹Ğ¸® (PitchAndFamily)´Â º¸Åë DEFAULT_PITCH | FF_DONTCARE ¶Ç´Â FF_SWISS µî
+			// í°íŠ¸ ì†ì„± ì„¤ì •
+			lf1.lfHeight = -100; // í°íŠ¸ ë†’ì´ (ë…¼ë¦¬ ë‹¨ìœ„, ìŒìˆ˜ë©´ ë¬¸ì ì…€ ë†’ì´ ì§€ì •)
+			// ì•½ 30pt í¬ê¸°ë¥¼ ë‚˜íƒ€ëƒ…ë‹ˆë‹¤.
+			lf1.lfWeight = FW_BOLD; // êµµê¸°: êµµê²Œ (FW_NORMAL, FW_LIGHT, FW_BLACK ë“±)
+			lf1.lfCharSet = DEFAULT_CHARSET; // ë¬¸ì ì§‘í•© (í•œê¸€ì„ ìœ„í•´ HANGUL_CHARSETë„ ê°€ëŠ¥)
+			lf1.lfItalic = FALSE; // ê¸°ìš¸ì„ê¼´ (TRUE/FALSE)
+			lf1.lfUnderline = FALSE; // ë°‘ì¤„ (TRUE/FALSE)
+			lf1.lfStrikeOut = FALSE; // ì·¨ì†Œì„  (TRUE/FALSE)
+			// í°íŠ¸ íŒ¨ë°€ë¦¬ (PitchAndFamily)ëŠ” ë³´í†µ DEFAULT_PITCH | FF_DONTCARE ë˜ëŠ” FF_SWISS ë“±
 			// lf.lfPitchAndFamily = DEFAULT_PITCH | FF_SWISS;
 
-			// ÆùÆ® ÀÌ¸§ ¼³Á¤ (¹İµå½Ã ¼³Ä¡µÈ ÆùÆ®¿©¾ß ÇÕ´Ï´Ù)
-			// _tcscpy_s´Â À¯´ÏÄÚµå/¸ÖÆ¼¹ÙÀÌÆ® ¹®ÀÚ¿­¿¡ ¸ğµÎ ¾ÈÀüÇÏ°Ô »ç¿ë
-			_tcscpy_s(lf1.lfFaceName, LF_FACESIZE, _T("¸¼Àº °íµñ"));
-			// ¶Ç´Â L"¸¼Àº °íµñ" (¿ÍÀÌµå ¹®ÀÚ¿­ ¸®ÅÍ·²)
+			// í°íŠ¸ ì´ë¦„ ì„¤ì • (ë°˜ë“œì‹œ ì„¤ì¹˜ëœ í°íŠ¸ì—¬ì•¼ í•©ë‹ˆë‹¤)
+			// _tcscpy_sëŠ” ìœ ë‹ˆì½”ë“œ/ë©€í‹°ë°”ì´íŠ¸ ë¬¸ìì—´ì— ëª¨ë‘ ì•ˆì „í•˜ê²Œ ì‚¬ìš©
+			_tcscpy_s(lf1.lfFaceName, LF_FACESIZE, _T("ë§‘ì€ ê³ ë”•"));
+			// ë˜ëŠ” L"ë§‘ì€ ê³ ë”•" (ì™€ì´ë“œ ë¬¸ìì—´ ë¦¬í„°ëŸ´)
 
-			// ÆùÆ® »ı¼º
+			// í°íŠ¸ ìƒì„±
 			g_hCustomFont1 = CreateFontIndirect(&lf1);
 
 			if (g_hCustomFont1 == NULL) {
-				// ÆùÆ® »ı¼º ½ÇÆĞ ½Ã ¿¡·¯ Ã³¸® (¿¹: MessageBox)
-				MessageBox(hWnd, _T("ÆùÆ® »ı¼º ½ÇÆĞ!"), _T("¿À·ù"), MB_ICONERROR);
+				// í°íŠ¸ ìƒì„± ì‹¤íŒ¨ ì‹œ ì—ëŸ¬ ì²˜ë¦¬ (ì˜ˆ: MessageBox)
+				MessageBox(hWnd, _T("í°íŠ¸ ìƒì„± ì‹¤íŒ¨!"), _T("ì˜¤ë¥˜"), MB_ICONERROR);
 			}
 		}
 		{
-			ZeroMemory(&lf2, sizeof(LOGFONT)); // LOGFONT ±¸Á¶Ã¼ ÃÊ±âÈ­
+			ZeroMemory(&lf2, sizeof(LOGFONT)); // LOGFONT êµ¬ì¡°ì²´ ì´ˆê¸°í™”
 
-			// ÆùÆ® ¼Ó¼º ¼³Á¤
-			lf2.lfHeight = -100; // ÆùÆ® ³ôÀÌ (³í¸® ´ÜÀ§, À½¼ö¸é ¹®ÀÚ ¼¿ ³ôÀÌ ÁöÁ¤)
-			// ¾à 30pt Å©±â¸¦ ³ªÅ¸³À´Ï´Ù.
-			lf2.lfWeight = FW_BOLD; // ±½±â: ±½°Ô (FW_NORMAL, FW_LIGHT, FW_BLACK µî)
-			lf2.lfCharSet = DEFAULT_CHARSET; // ¹®ÀÚ ÁıÇÕ (ÇÑ±ÛÀ» À§ÇØ HANGUL_CHARSETµµ °¡´É)
-			lf2.lfItalic = FALSE; // ±â¿ïÀÓ²Ã (TRUE/FALSE)
-			lf2.lfUnderline = FALSE; // ¹ØÁÙ (TRUE/FALSE)
-			lf2.lfStrikeOut = FALSE; // Ãë¼Ò¼± (TRUE/FALSE)
-			// ÆùÆ® ÆĞ¹Ğ¸® (PitchAndFamily)´Â º¸Åë DEFAULT_PITCH | FF_DONTCARE ¶Ç´Â FF_SWISS µî
+			// í°íŠ¸ ì†ì„± ì„¤ì •
+			lf2.lfHeight = -100; // í°íŠ¸ ë†’ì´ (ë…¼ë¦¬ ë‹¨ìœ„, ìŒìˆ˜ë©´ ë¬¸ì ì…€ ë†’ì´ ì§€ì •)
+			// ì•½ 30pt í¬ê¸°ë¥¼ ë‚˜íƒ€ëƒ…ë‹ˆë‹¤.
+			lf2.lfWeight = FW_BOLD; // êµµê¸°: êµµê²Œ (FW_NORMAL, FW_LIGHT, FW_BLACK ë“±)
+			lf2.lfCharSet = DEFAULT_CHARSET; // ë¬¸ì ì§‘í•© (í•œê¸€ì„ ìœ„í•´ HANGUL_CHARSETë„ ê°€ëŠ¥)
+			lf2.lfItalic = FALSE; // ê¸°ìš¸ì„ê¼´ (TRUE/FALSE)
+			lf2.lfUnderline = FALSE; // ë°‘ì¤„ (TRUE/FALSE)
+			lf2.lfStrikeOut = FALSE; // ì·¨ì†Œì„  (TRUE/FALSE)
+			// í°íŠ¸ íŒ¨ë°€ë¦¬ (PitchAndFamily)ëŠ” ë³´í†µ DEFAULT_PITCH | FF_DONTCARE ë˜ëŠ” FF_SWISS ë“±
 			// lf.lfPitchAndFamily = DEFAULT_PITCH | FF_SWISS;
 
-			// ÆùÆ® ÀÌ¸§ ¼³Á¤ (¹İµå½Ã ¼³Ä¡µÈ ÆùÆ®¿©¾ß ÇÕ´Ï´Ù)
-			// _tcscpy_s´Â À¯´ÏÄÚµå/¸ÖÆ¼¹ÙÀÌÆ® ¹®ÀÚ¿­¿¡ ¸ğµÎ ¾ÈÀüÇÏ°Ô »ç¿ë
-			_tcscpy_s(lf2.lfFaceName, LF_FACESIZE, _T("¸¼Àº °íµñ"));
-			// ¶Ç´Â L"¸¼Àº °íµñ" (¿ÍÀÌµå ¹®ÀÚ¿­ ¸®ÅÍ·²)
+			// í°íŠ¸ ì´ë¦„ ì„¤ì • (ë°˜ë“œì‹œ ì„¤ì¹˜ëœ í°íŠ¸ì—¬ì•¼ í•©ë‹ˆë‹¤)
+			// _tcscpy_sëŠ” ìœ ë‹ˆì½”ë“œ/ë©€í‹°ë°”ì´íŠ¸ ë¬¸ìì—´ì— ëª¨ë‘ ì•ˆì „í•˜ê²Œ ì‚¬ìš©
+			_tcscpy_s(lf2.lfFaceName, LF_FACESIZE, _T("ë§‘ì€ ê³ ë”•"));
+			// ë˜ëŠ” L"ë§‘ì€ ê³ ë”•" (ì™€ì´ë“œ ë¬¸ìì—´ ë¦¬í„°ëŸ´)
 
-			// ÆùÆ® »ı¼º
+			// í°íŠ¸ ìƒì„±
 			g_hCustomFont2 = CreateFontIndirect(&lf2);
 
 			if (g_hCustomFont2 == NULL) {
-				// ÆùÆ® »ı¼º ½ÇÆĞ ½Ã ¿¡·¯ Ã³¸® (¿¹: MessageBox)
-				MessageBox(hWnd, _T("ÆùÆ® »ı¼º ½ÇÆĞ!"), _T("¿À·ù"), MB_ICONERROR);
+				// í°íŠ¸ ìƒì„± ì‹¤íŒ¨ ì‹œ ì—ëŸ¬ ì²˜ë¦¬ (ì˜ˆ: MessageBox)
+				MessageBox(hWnd, _T("í°íŠ¸ ìƒì„± ì‹¤íŒ¨!"), _T("ì˜¤ë¥˜"), MB_ICONERROR);
 			}
 		}
 
@@ -210,8 +210,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 		hDC = BeginPaint(hWnd, &ps);
 
-		mDC = CreateCompatibleDC(hDC); //--- ¸Ş¸ğ¸® DC ¸¸µé±â
-		hBitmap = CreateCompatibleBitmap(hDC, clientRect.right, clientRect.bottom); //--- ¸Ş¸ğ¸® DC¿Í ¿¬°áÇÒ ºñÆ®¸Ê ¸¸µé±â
+		mDC = CreateCompatibleDC(hDC); //--- ë©”ëª¨ë¦¬ DC ë§Œë“¤ê¸°
+		hBitmap = CreateCompatibleBitmap(hDC, clientRect.right, clientRect.bottom); //--- ë©”ëª¨ë¦¬ DCì™€ ì—°ê²°í•  ë¹„íŠ¸ë§µ ë§Œë“¤ê¸°
 		SelectObject(mDC, (HBITMAP)hBitmap);
 		FillRect(mDC, &clientRect, (HBRUSH)GetStockObject(WHITE_BRUSH));
 
@@ -220,146 +220,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 		if (gamestart) {
 			GetClientRect(hWnd, &clientRect);
-			// °İÀÚ ±×¸®±â
-			for (int y = 0; y <= clientRect.bottom; y += gridSpacing) {
-				MoveToEx(mDC, 0, y, NULL);
-				LineTo(mDC, clientRect.right, y);
-			}
-			for (int x = 0; x <= clientRect.right; x += gridSpacing) {
-				MoveToEx(mDC, x, 0, NULL);
-				LineTo(mDC, x, clientRect.bottom);
-			}
+			// ê²©ì ê·¸ë¦¬ê¸°
+			DrawGrid(mDC, clientRect);
 
-			// ½ºÅ×ÀÌÁö ±×¸®±â
+			// ìŠ¤í…Œì´ì§€ ê·¸ë¦¬ê¸°
 			DrawStage(mDC);
 
-			//ÇÃ·¹ÀÌ¾î ¿ø ±×¸®±â
+			//í”Œë ˆì´ì–´ ì› ê·¸ë¦¬ê¸°
 			{
+				COLORREF playerColor;
 				if(doubleJumpMode)
-					hBrush = CreateSolidBrush(RGB(100, 30, 30));
+					 playerColor= RGB(100, 30, 30);
 				else
-					hBrush = CreateSolidBrush(RGB(15, 255, 80));
-				oldBrush = (HBRUSH)SelectObject(mDC, hBrush);
-				Ellipse(mDC, playerX - playerSize, playerY - playerSize, playerX + playerSize, playerY + playerSize);
-				SelectObject(mDC, oldBrush);
-				DeleteObject(hBrush);
+					playerColor = RGB(15, 255, 80);
+				DrawPlayer(mDC, playerX, playerY, playerSize, playerColor);
 			}
 
-			if (stageClear) { // ½ºÅ×ÀÌ¾î Å¬¸®¾î ½Ã
+			if (stageClear) { // ìŠ¤í…Œì´ì–´ í´ë¦¬ì–´ ì‹œ
 				playerMoveStart = false;
-
-				hBrush = CreateSolidBrush(RGB(187, 201, 202));
-				oldBrush = (HBRUSH)SelectObject(mDC, hBrush);
-				RoundRect(mDC, stageClearBox.left, stageClearBox.top, stageClearBox.right, stageClearBox.bottom, 10, 10);
-				SelectObject(mDC, oldBrush);
-				DeleteObject(hBrush);
-
-				// 1. ÆùÆ® Àû¿ë (WM_CREATE¿¡¼­ »ı¼ºÇÑ ÆùÆ®¸¦ »ç¿ë)
-				if (g_hCustomFont1) {
-					oldFont = (HFONT)SelectObject(mDC, g_hCustomFont1); // DC¿¡ ÆùÆ® ¼±ÅÃ
-
-					// 2. ÅØ½ºÆ® »ö»ó ¹× ¹è°æ ¸ğµå ¼³Á¤
-					SetTextColor(mDC, RGB(255, 255, 0)); // ÅØ½ºÆ® »ö»óÀ» ÆÄ¶õ»öÀ¸·Î ¼³Á¤
-					SetBkColor(mDC, RGB(187, 201, 202));      // ÅØ½ºÆ® ¹è°æÀ» Åõ¸íÇÏ°Ô ¼³Á¤
-
-					// 3. ÅØ½ºÆ® Ãâ·Â
-					TextOut(mDC, 400, 150, L"STAGE CLEAR", lstrlen(L"STAGE CLEAR"));
-
-					// ´Ù½Ã ¿ø·¡ÀÇ ÆùÆ® (g_hCustomFont)¸¦ »ç¿ëÇÏ±â Àü »óÅÂ·Î µÇµ¹¸³´Ï´Ù.
-					SelectObject(mDC, oldFont); // Ã³À½ ¼±ÅÃÇß´ø ÆùÆ®(g_hCustomFont)¸¦ »ç¿ëÇÏ±â Àü »óÅÂ·Î µÇµ¹¸²
-				}
-
-				SelectObject(uiDC, retry); // ´Ù½ÃÇÏ±â ¹öÆ°
-				BitBlt(mDC,retryRT.left, retryRT.top, retryRT.right, retryRT.bottom,uiDC,0,0,SRCCOPY);
-				SelectObject(uiDC, home); // È¨ ¹öÆ°
-				BitBlt(mDC, homeRT.left, homeRT.top, homeRT.right, homeRT.bottom, uiDC, 0, 0, SRCCOPY);
-				if (stage < 5) {
-					SelectObject(uiDC, nextStage); // ´ÙÀ½ ½ºÅ×ÀÌÁö ¹öÆ°
-					BitBlt(mDC, nextStageRT.left, nextStageRT.top, nextStageRT.right, nextStageRT.bottom, uiDC, 0, 0, SRCCOPY);
-				}
+				DrawStageClear(mDC, uiDC, g_hCustomFont1);
 			}
 
 		}
 		else if (not gamestart and stageManager) {
-			hBrush = CreateSolidBrush(RGB(140, 238, 238));
-			oldBrush = (HBRUSH) SelectObject(mDC, hBrush);
-			FillRect(mDC, &clientRect, hBrush);
-			SelectObject(mDC, oldBrush);
-			DeleteObject(hBrush);
-
-			for (int i = 0; i < 5; i++) {
-				SelectObject(stageDC, stageBitmap[i]);
-				stageBitRect[i].left = 15 + i * 300;
-				stageBitRect[i].top = 150;
-				stageBitRect[i].right = 265 + i * 300;
-				stageBitRect[i].bottom = 650;
-				BitBlt(mDC, stageBitRect[i].left, stageBitRect[i].top, stageBitRect[i].right, stageBitRect[i].bottom, stageDC, 0, 0, SRCCOPY);
-
-				if (stageCleared[i]) {
-					SetBkColor(mDC, RGB(140, 238, 238));
-					TextOut(mDC, (stageBitRect[i].left + stageBitRect[i].right) / 2 - 40, stageBitRect[i].top - 50, L"Stage Cleared", _tcslen(L"Stage Cleared"));
-				}
-			}
+			DrawStageSelect(mDC, stageDC);
 		}
 		else if (not gamestart and stage == 0) {
-			SelectObject(uiDC, menuAni[menuAniNum]); //--- 4) ºñÆ®¸Ê ¼±ÅÃÇÏ±â
-			//BitBlt(mDC, 0, 0, clientRect.right, clientRect.bottom, uiDC, 0, 0, SRCCOPY);
-			StretchBlt(mDC, 0, 0, clientRect.right, clientRect.bottom, uiDC, 0, 0, 1500, 560, SRCCOPY);
-
-			//ui button
-			SelectObject(uiDC, buttonUI[buttonNum[0]]); //--- 4) ºñÆ®¸Ê ¼±ÅÃÇÏ±â
-			TransparentBlt(mDC, 650, 300, 196, 82, uiDC, 0, 0, 96, 32, RGB(255,255,255));
-
-			SelectObject(uiDC, buttonUI[buttonNum[1]]); //--- 4) ºñÆ®¸Ê ¼±ÅÃÇÏ±â
-			TransparentBlt(mDC, 650, 450, 196, 82, uiDC, 0, 0, 96, 32, RGB(255, 255, 255));
-
-			// 1. ÆùÆ® Àû¿ë (WM_CREATE¿¡¼­ »ı¼ºÇÑ ÆùÆ®¸¦ »ç¿ë)
-			if (g_hCustomFont) {
-				oldFont = (HFONT)SelectObject(mDC, g_hCustomFont); // DC¿¡ ÆùÆ® ¼±ÅÃ
-
-				// 2. ÅØ½ºÆ® »ö»ó ¹× ¹è°æ ¸ğµå ¼³Á¤
-				SetTextColor(mDC, RGB(0, 0, 255)); // ÅØ½ºÆ® »ö»óÀ» ÆÄ¶õ»öÀ¸·Î ¼³Á¤
-				SetBkColor(mDC, RGB(199,199,199));      // ÅØ½ºÆ® ¹è°æÀ» Åõ¸íÇÏ°Ô ¼³Á¤
-
-				// 3. ÅØ½ºÆ® Ãâ·Â
-				TextOut(mDC, 700, 320, L"START", lstrlen(L"START"));
-
-				TextOut(mDC, 720, 470, L"EXIT", lstrlen(L"EXIT"));
-
-
-				//ÅØ½ºÆ® »ö»ó º¯°æ (¿¹½Ã)
-				SetTextColor(mDC, RGB(0, 0, 0)); // ÃÊ·Ï»ö °è¿­ (15,255,80 = #0FFF50)
-				SetBkColor(mDC, RGB(140, 238, 238));      // ÅØ½ºÆ® ¹è°æÀ» Åõ¸íÇÏ°Ô ¼³Á¤
-				LPCTSTR text2 = _T("Tang Tang Ball");
-				TextOut(mDC, 400, 100, text2, _tcslen(text2));
-
-				// ´Ù½Ã ¿ø·¡ÀÇ ÆùÆ® (g_hCustomFont)¸¦ »ç¿ëÇÏ±â Àü »óÅÂ·Î µÇµ¹¸³´Ï´Ù.
-				SelectObject(mDC, oldFont); // Ã³À½ ¼±ÅÃÇß´ø ÆùÆ®(g_hCustomFont)¸¦ »ç¿ëÇÏ±â Àü »óÅÂ·Î µÇµ¹¸²
-			}
-			// 1. ÆùÆ® Àû¿ë (WM_CREATE¿¡¼­ »ı¼ºÇÑ ÆùÆ®¸¦ »ç¿ë)
-			if (g_hCustomFont2) {
-				oldFont = (HFONT)SelectObject(mDC, g_hCustomFont2); // DC¿¡ ÆùÆ® ¼±ÅÃ
-
-				SetTextColor(mDC, RGB(0, 0, 0)); // ÃÊ·Ï»ö °è¿­ (15,255,80 = #0FFF50)
-				SetBkColor(mDC, RGB(140, 238, 238));      // ÅØ½ºÆ® ¹è°æÀ» Åõ¸íÇÏ°Ô ¼³Á¤
-				LPCTSTR text2 = _T("Tang Tang Ball");
-				TextOut(mDC, 365, 100, text2, _tcslen(text2));
-
-				// ´Ù½Ã ¿ø·¡ÀÇ ÆùÆ® (g_hCustomFont)¸¦ »ç¿ëÇÏ±â Àü »óÅÂ·Î µÇµ¹¸³´Ï´Ù.
-				SelectObject(mDC, oldFont); // Ã³À½ ¼±ÅÃÇß´ø ÆùÆ®(g_hCustomFont)¸¦ »ç¿ëÇÏ±â Àü »óÅÂ·Î µÇµ¹¸²
-			}
-			else {
-				// g_hCustomFont°¡ NULLÀÎ °æ¿ì (ÆùÆ® »ı¼º ½ÇÆĞ µî)
-				LPCTSTR errorText = _T("ÆùÆ®¸¦ ·ÎµåÇÒ ¼ö ¾ø½À´Ï´Ù. ±âº» ÆùÆ®·Î Ç¥½ÃµË´Ï´Ù.");
-				TextOut(mDC, 50, 50, errorText, _tcslen(errorText));
-			}
+			DrawGameStart(mDC, uiDC, g_hCustomFont, g_hCustomFont2);
 		}
 		
 		BitBlt(hDC, 0, 0, clientRect.right, clientRect.bottom, mDC, 0, 0, SRCCOPY);
 
-		DeleteDC(stageDC); // »ı¼ºÇÑ ½ºÅ×ÀÌÁö ¸Ş¸ğ¸® DC »èÁ¦
-		DeleteDC(uiDC); //--- »ı¼ºÇÑ ¸Ş¸ğ¸® DC »èÁ¦
-		DeleteDC(mDC); //--- »ı¼ºÇÑ ¸Ş¸ğ¸® DC »èÁ¦
+		DeleteDC(stageDC); // ìƒì„±í•œ ìŠ¤í…Œì´ì§€ ë©”ëª¨ë¦¬ DC ì‚­ì œ
+		DeleteDC(uiDC); //--- ìƒì„±í•œ ë©”ëª¨ë¦¬ DC ì‚­ì œ
+		DeleteDC(mDC); //--- ìƒì„±í•œ ë©”ëª¨ë¦¬ DC ì‚­ì œ
 		DeleteObject(hBitmap);
 
 
@@ -404,7 +298,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			KillTimer(hWnd, 3);
 
 
-			// ¹ÙÅÁÈ­¸é ¾Ö´Ï¸ŞÀÌ¼Ç Å¸ÀÌ¸Ó ½ÃÀÛ
+			// ë°”íƒ•í™”ë©´ ì• ë‹ˆë©”ì´ì…˜ íƒ€ì´ë¨¸ ì‹œì‘
 			SetTimer(hWnd, 2, aniTimerSpeed, (TIMERPROC)menuAniTimer);
 			break;
 		}
@@ -440,15 +334,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_LBUTTONUP:
-		if (not gamestart and stage == 0 and not stageManager) // ¸ŞÀÎ ¸Ş´º
+		if (not gamestart and stage == 0 and not stageManager) // ë©”ì¸ ë©”ë‰´
 		{
-			if (mouseX > 650 and mouseX < 846 and mouseY > 300 and mouseY < 382) // ½ÃÀÛ ¹öÆ°
+			if (mouseX > 650 and mouseX < 846 and mouseY > 300 and mouseY < 382) // ì‹œì‘ ë²„íŠ¼
 			{
 				buttonNum[0] = 0;
 				stageManager = true;
 				KillTimer(hWnd, 2);
 			}
-			else if (mouseX > 650 and mouseX < 846 and mouseY > 450 and mouseY < 532) // Á¾·á ¹öÆ°
+			else if (mouseX > 650 and mouseX < 846 and mouseY > 450 and mouseY < 532) // ì¢…ë£Œ ë²„íŠ¼
 			{
 				clearRecordSave();
 				buttonNum[1] = 0;
@@ -463,7 +357,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		}
 		else if (stageClear) {
 			POINT pt{ mouseX, mouseY };
-			if (PtInRect(&retryRT, pt)) { // ´Ù½ÃÇÏ±â ¹öÆ°
+			if (PtInRect(&retryRT, pt)) { // ë‹¤ì‹œí•˜ê¸° ë²„íŠ¼
 				PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
 				playerMoveStart = false;
 				doubleJumpMode = false;
@@ -479,7 +373,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 				stageClear = false;
 			}
-			else if (PtInRect(&homeRT, pt)) { // È¨ ¹öÆ°
+			else if (PtInRect(&homeRT, pt)) { // í™ˆ ë²„íŠ¼
 				PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
 				gamestart = false;
 				doubleJumpMode = false;
@@ -495,11 +389,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				KillTimer(hWnd, 1);
 				KillTimer(hWnd, 3);
 
-				// ¹ÙÅÁÈ­¸é ¾Ö´Ï¸ŞÀÌ¼Ç Å¸ÀÌ¸Ó ½ÃÀÛ
+				// ë°”íƒ•í™”ë©´ ì• ë‹ˆë©”ì´ì…˜ íƒ€ì´ë¨¸ ì‹œì‘
 				SetTimer(hWnd, 2, aniTimerSpeed, (TIMERPROC)menuAniTimer);
 				
 			}
-			else if (PtInRect(&nextStageRT, pt) and stage < 5) { // ´ÙÀ½ ½ºÅ×ÀÌÁö ¹öÆ°
+			else if (PtInRect(&nextStageRT, pt) and stage < 5) { // ë‹¤ìŒ ìŠ¤í…Œì´ì§€ ë²„íŠ¼
 				PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
 				stageManager = false;
 				doubleJumpMode = false;
@@ -532,7 +426,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 					playerX = stageStartPoint.x;
 					playerY = stageStartPoint.y;
 
-					mapLoad(); // ¸Ê ºÒ·¯¿À±â
+					mapLoad(); // ë§µ ë¶ˆëŸ¬ì˜¤ê¸°
 
 					SetTimer(hWnd, 1, moveTimerSpeed, (TIMERPROC)MoveTimer);
 					SetTimer(hWnd, 3, 100, (TIMERPROC)checkStageClear);
@@ -551,7 +445,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 
-	case WM_RBUTTONDOWN: // ºí·° ¼³Ä¡ÇÏ±â 
+	case WM_RBUTTONDOWN: // ë¸”ëŸ­ ì„¤ì¹˜í•˜ê¸° 
 		if (not RMBHold and (GetAsyncKeyState(VK_LBUTTON) & 0x8000) and not SetBlockTypeSelect and not playerPointSet and not blockDeleteMode) {
 			playerMoveStart = true;
 			RMBHold = true;
@@ -561,7 +455,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			playerMoveStart = true;
 			RMBHold = true;
 		}
-		else if (SetBlockTypeSelect) { // ¼³Ä¡ ºí·° ¼±ÅÃµÈ °æ¿ì¿¡¸¸
+		else if (SetBlockTypeSelect) { // ì„¤ì¹˜ ë¸”ëŸ­ ì„ íƒëœ ê²½ìš°ì—ë§Œ
 			playerMoveStart = false;
 			LMBHold = false;
 			RMBHold = false;
@@ -570,8 +464,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			x -= x % gridSpacing;
 			y -= y % gridSpacing;
 			Block* p = firstBlockPointer;
-			bool alreadySet = false; // Áßº¹ °Ë»ç¿¡ °É¸®¸é ¼³Ä¡ ¾È ÇÏ°Ô
-			for (int i = 0; i < BlockCnt; i++) { // ÀÌ¹Ì ¼³Ä¡µÈ ºí·° ÀÖ´ÂÁö °Ë»ç
+			bool alreadySet = false; // ì¤‘ë³µ ê²€ì‚¬ì— ê±¸ë¦¬ë©´ ì„¤ì¹˜ ì•ˆ í•˜ê²Œ
+			for (int i = 0; i < BlockCnt; i++) { // ì´ë¯¸ ì„¤ì¹˜ëœ ë¸”ëŸ­ ìˆëŠ”ì§€ ê²€ì‚¬
 				if (p != nullptr) {
 					if (x == p->rt.left and y == p->rt.top) {
 						alreadySet = true;
@@ -584,12 +478,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				Block* newP = new Block;
 				p = firstBlockPointer;
 			
-				if (p != nullptr) { // 2°³ ÀÌ»óÀÇ ºí·° »ı¼ºÀÏ ¶§
+				if (p != nullptr) { // 2ê°œ ì´ìƒì˜ ë¸”ëŸ­ ìƒì„±ì¼ ë•Œ
 					while (p->next != nullptr and p->next != firstBlockPointer)
 						p = p->next;
 					p->next = newP;
 				}
-				else // Ã¹ ºí·° »ı¼ºÀÏ ¶§
+				else // ì²« ë¸”ëŸ­ ìƒì„±ì¼ ë•Œ
 					p = firstBlockPointer = newP;
 				newP->prev = p;
 				newP->next = firstBlockPointer;
@@ -621,7 +515,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			y -= y % gridSpacing;
 			stageStartPoint.x = playerX = x + gridSpacing / 2;
 			stageStartPoint.y = playerY = y + gridSpacing / 2;
-			playerDropping = true; // À§Ä¡ ¼³Á¤ÇÏ¸é ÀÏ´Ü ¹«Á¶°Ç ³«ÇÏ
+			playerDropping = true; // ìœ„ì¹˜ ì„¤ì •í•˜ë©´ ì¼ë‹¨ ë¬´ì¡°ê±´ ë‚™í•˜
 			playerPointSet = false;
 			InvalidateRect(hWnd, NULL, false);
 		}
@@ -666,41 +560,41 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 
 	Block* p = firstBlockPointer;
 	RECT temp{};
-	// x ÀÌµ¿
+	// x ì´ë™
 	for (int i = 0; i < BlockCnt; i++) { 
 		if (playerRT.left >= p->rt.left and playerRT.left <= p->rt.right and playerY >= p->rt.top and playerY <= p->rt.bottom 
-			and p->BlockType != BlockType_Star and p->BlockType != BlockType_DoubleJump) { // ÇÃ·¹ÀÌ¾î ¿ŞÂÊ È÷Æ®¹Ú½º°¡ ºí·°³»ºÎ·Î µé¾î¿È
+			and p->BlockType != BlockType_Star and p->BlockType != BlockType_DoubleJump) { // í”Œë ˆì´ì–´ ì™¼ìª½ íˆíŠ¸ë°•ìŠ¤ê°€ ë¸”ëŸ­ë‚´ë¶€ë¡œ ë“¤ì–´ì˜´
 			if (p->BlockType != BlockType_UpDown) {
 				playerX += playerSpeed * 0.7;
 			}
 			break;
 		}
 		else if (playerRT.right >= p->rt.left and playerRT.right <= p->rt.right and playerY >= p->rt.top and playerY <= p->rt.bottom 
-			and p->BlockType != BlockType_Star and p->BlockType != BlockType_DoubleJump) { // ÇÃ·¹ÀÌ¾î ¿À¸¥ÂÊ È÷Æ®¹Ú½º°¡ ºí·°³»ºÎ·Î µé¾î¿È
+			and p->BlockType != BlockType_Star and p->BlockType != BlockType_DoubleJump) { // í”Œë ˆì´ì–´ ì˜¤ë¥¸ìª½ íˆíŠ¸ë°•ìŠ¤ê°€ ë¸”ëŸ­ë‚´ë¶€ë¡œ ë“¤ì–´ì˜´
 			if (p->BlockType != BlockType_UpDown) {
 				playerX -= playerSpeed * 0.7;
 			}
 			break;
 		}
 		else if (playerRT.left >= p->rt.left and playerRT.left <= p->rt.right and playerY >= p->rt.top and playerY <= p->rt.bottom and 
-			(p->BlockType == BlockType_Star or p->BlockType == BlockType_DoubleJump)) { // ÇÃ·¹ÀÌ¾î ¿ŞÂÊ È÷Æ®¹Ú½º°¡ ºí·°³»ºÎ·Î µé¾î¿È
-			if (p->BlockType == BlockType_DoubleJump) { // ´õºí Á¡ÇÁ ¾ÆÀÌÅÛ ¸ÔÀ½
-				if (RMBHold and not LMBHold) { // ¿ìÃø ¹æÇâ ÀÌµ¿
+			(p->BlockType == BlockType_Star or p->BlockType == BlockType_DoubleJump)) { // í”Œë ˆì´ì–´ ì™¼ìª½ íˆíŠ¸ë°•ìŠ¤ê°€ ë¸”ëŸ­ë‚´ë¶€ë¡œ ë“¤ì–´ì˜´
+			if (p->BlockType == BlockType_DoubleJump) { // ë”ë¸” ì í”„ ì•„ì´í…œ ë¨¹ìŒ
+				if (RMBHold and not LMBHold) { // ìš°ì¸¡ ë°©í–¥ ì´ë™
 					playerX += playerSpeed * 0.7;
 				}
-				else if (LMBHold and not RMBHold) { // ÁÂÃøÀ¸·Î ÀÌµ¿ 
+				else if (LMBHold and not RMBHold) { // ì¢Œì¸¡ìœ¼ë¡œ ì´ë™ 
 					playerX -= playerSpeed * 0.7;
 				}
-				else if (LMBHold and RMBHold and doubleJumpMode) { // ´õºí Á¡ÇÁ ¸ğµå¶ó¸é ´õºí Á¡ÇÁ, ¾Æ´Ñµ¥ µÑ´Ù ´©¸£°í ÀÖÀ¸¸é x Ãà ÀÌµ¿ ¾øÀ½
+				else if (LMBHold and RMBHold and doubleJumpMode) { // ë”ë¸” ì í”„ ëª¨ë“œë¼ë©´ ë”ë¸” ì í”„, ì•„ë‹Œë° ë‘˜ë‹¤ ëˆ„ë¥´ê³  ìˆìœ¼ë©´ x ì¶• ì´ë™ ì—†ìŒ
 					playerDropping = false;
 					PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
 					playerJumpStartY = playerY + playerSize;
 					playerJumpHeight = playerJumpStartY - gridSpacing * 3;
 					doubleJumpMode = false;
-					if (RightMoving) { // ¿ìÃø ¹æÇâ ´õºí Á¡ÇÁ
+					if (RightMoving) { // ìš°ì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 						playerX += playerSpeed * 0.7;
 					}
-					else if (not RightMoving) { // ÁÂÃø ¹æÇâ ´õºí Á¡ÇÁ
+					else if (not RightMoving) { // ì¢Œì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 						playerX -= playerSpeed * 0.7;
 					}
 				}
@@ -709,24 +603,24 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 				blockDelete(temp);
 				doubleJumpMode = true;
 			}
-			else if (p->BlockType == BlockType_Star) { // º° ¸ÔÀ½
+			else if (p->BlockType == BlockType_Star) { // ë³„ ë¨¹ìŒ
 				PlaySound(L"StarSound.wav", NULL, SND_ASYNC);
-				if (RMBHold and not LMBHold) { // ¿ìÃø ¹æÇâ ÀÌµ¿
+				if (RMBHold and not LMBHold) { // ìš°ì¸¡ ë°©í–¥ ì´ë™
 					playerX += playerSpeed * 0.7;
 				}
-				else if (LMBHold and not RMBHold) { // ÁÂÃøÀ¸·Î ÀÌµ¿ 
+				else if (LMBHold and not RMBHold) { // ì¢Œì¸¡ìœ¼ë¡œ ì´ë™ 
 					playerX -= playerSpeed * 0.7;
 				}
-				else if (LMBHold and RMBHold and doubleJumpMode) { // ´õºí Á¡ÇÁ ¸ğµå¶ó¸é ´õºí Á¡ÇÁ, ¾Æ´Ñµ¥ µÑ´Ù ´©¸£°í ÀÖÀ¸¸é x Ãà ÀÌµ¿ ¾øÀ½
+				else if (LMBHold and RMBHold and doubleJumpMode) { // ë”ë¸” ì í”„ ëª¨ë“œë¼ë©´ ë”ë¸” ì í”„, ì•„ë‹Œë° ë‘˜ë‹¤ ëˆ„ë¥´ê³  ìˆìœ¼ë©´ x ì¶• ì´ë™ ì—†ìŒ
 					playerDropping = false;
 					PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
 					playerJumpStartY = playerY + playerSize;
 					playerJumpHeight = playerJumpStartY - gridSpacing * 3;
 					doubleJumpMode = false;
-					if (RightMoving) { // ¿ìÃø ¹æÇâ ´õºí Á¡ÇÁ
+					if (RightMoving) { // ìš°ì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 						playerX += playerSpeed * 0.7;
 					}
-					else if (not RightMoving) { // ÁÂÃø ¹æÇâ ´õºí Á¡ÇÁ
+					else if (not RightMoving) { // ì¢Œì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 						playerX -= playerSpeed * 0.7;
 					}
 				}
@@ -738,24 +632,24 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 			break;
 		}
 		else if (playerRT.right >= p->rt.left and playerRT.right <= p->rt.right and playerY >= p->rt.top and playerY <= p->rt.bottom 
-			and (p->BlockType == BlockType_Star or p->BlockType == BlockType_DoubleJump)) { // ÇÃ·¹ÀÌ¾î ¿À¸¥ÂÊ È÷Æ®¹Ú½º°¡ ºí·°³»ºÎ·Î µé¾î¿È
-			if (p->BlockType == BlockType_DoubleJump) { // ´õºí Á¡ÇÁ ¾ÆÀÌÅÛ ¸ÔÀ½
-				if (RMBHold and not LMBHold) { // ¿ìÃø ¹æÇâ ÀÌµ¿
+			and (p->BlockType == BlockType_Star or p->BlockType == BlockType_DoubleJump)) { // í”Œë ˆì´ì–´ ì˜¤ë¥¸ìª½ íˆíŠ¸ë°•ìŠ¤ê°€ ë¸”ëŸ­ë‚´ë¶€ë¡œ ë“¤ì–´ì˜´
+			if (p->BlockType == BlockType_DoubleJump) { // ë”ë¸” ì í”„ ì•„ì´í…œ ë¨¹ìŒ
+				if (RMBHold and not LMBHold) { // ìš°ì¸¡ ë°©í–¥ ì´ë™
 					playerX += playerSpeed * 0.7;
 				}
-				else if (LMBHold and not RMBHold) { // ÁÂÃøÀ¸·Î ÀÌµ¿ 
+				else if (LMBHold and not RMBHold) { // ì¢Œì¸¡ìœ¼ë¡œ ì´ë™ 
 					playerX -= playerSpeed * 0.7;
 				}
-				else if (LMBHold and RMBHold and doubleJumpMode) { // ´õºí Á¡ÇÁ ¸ğµå¶ó¸é ´õºí Á¡ÇÁ, ¾Æ´Ñµ¥ µÑ´Ù ´©¸£°í ÀÖÀ¸¸é x Ãà ÀÌµ¿ ¾øÀ½
+				else if (LMBHold and RMBHold and doubleJumpMode) { // ë”ë¸” ì í”„ ëª¨ë“œë¼ë©´ ë”ë¸” ì í”„, ì•„ë‹Œë° ë‘˜ë‹¤ ëˆ„ë¥´ê³  ìˆìœ¼ë©´ x ì¶• ì´ë™ ì—†ìŒ
 					playerDropping = false;
 					PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
 					playerJumpStartY = playerY + playerSize;
 					playerJumpHeight = playerJumpStartY - gridSpacing * 3;
 					doubleJumpMode = false;
-					if (RightMoving) { // ¿ìÃø ¹æÇâ ´õºí Á¡ÇÁ
+					if (RightMoving) { // ìš°ì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 						playerX += playerSpeed * 0.7;
 					}
-					else if (not RightMoving) { // ÁÂÃø ¹æÇâ ´õºí Á¡ÇÁ
+					else if (not RightMoving) { // ì¢Œì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 						playerX -= playerSpeed * 0.7;
 					}
 				}
@@ -764,24 +658,24 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 				blockDelete(temp);
 				doubleJumpMode = true;
 			}
-			else if (p->BlockType == BlockType_Star) { // º° ¸ÔÀ½
+			else if (p->BlockType == BlockType_Star) { // ë³„ ë¨¹ìŒ
 				PlaySound(L"StarSound.wav", NULL, SND_ASYNC);
-				if (RMBHold and not LMBHold) { // ¿ìÃø ¹æÇâ ÀÌµ¿
+				if (RMBHold and not LMBHold) { // ìš°ì¸¡ ë°©í–¥ ì´ë™
 					playerX += playerSpeed * 0.7;
 				}
-				else if (LMBHold and not RMBHold) { // ÁÂÃøÀ¸·Î ÀÌµ¿ 
+				else if (LMBHold and not RMBHold) { // ì¢Œì¸¡ìœ¼ë¡œ ì´ë™ 
 					playerX -= playerSpeed * 0.7;
 				}
-				else if (LMBHold and RMBHold and doubleJumpMode) { // ´õºí Á¡ÇÁ ¸ğµå¶ó¸é ´õºí Á¡ÇÁ, ¾Æ´Ñµ¥ µÑ´Ù ´©¸£°í ÀÖÀ¸¸é x Ãà ÀÌµ¿ ¾øÀ½
+				else if (LMBHold and RMBHold and doubleJumpMode) { // ë”ë¸” ì í”„ ëª¨ë“œë¼ë©´ ë”ë¸” ì í”„, ì•„ë‹Œë° ë‘˜ë‹¤ ëˆ„ë¥´ê³  ìˆìœ¼ë©´ x ì¶• ì´ë™ ì—†ìŒ
 					playerDropping = false;
 					PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
 					playerJumpStartY = playerY + playerSize;
 					playerJumpHeight = playerJumpStartY - gridSpacing * 3;
 					doubleJumpMode = false;
-					if (RightMoving) { // ¿ìÃø ¹æÇâ ´õºí Á¡ÇÁ
+					if (RightMoving) { // ìš°ì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 						playerX += playerSpeed * 0.7;
 					}
-					else if (not RightMoving) { // ÁÂÃø ¹æÇâ ´õºí Á¡ÇÁ
+					else if (not RightMoving) { // ì¢Œì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 						playerX -= playerSpeed * 0.7;
 					}
 				}
@@ -792,23 +686,23 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 			}
 			break;
 		}
-		else if (i == BlockCnt - 1) { // ¸ğµç ºí·°°ú Ãæµ¹ ¾È ÇÔ
-			if (RMBHold and not LMBHold) { // ¿ìÃø ¹æÇâ ÀÌµ¿
+		else if (i == BlockCnt - 1) { // ëª¨ë“  ë¸”ëŸ­ê³¼ ì¶©ëŒ ì•ˆ í•¨
+			if (RMBHold and not LMBHold) { // ìš°ì¸¡ ë°©í–¥ ì´ë™
 				playerX += playerSpeed * 0.7;
 			}
-			else if (LMBHold and not RMBHold) { // ÁÂÃøÀ¸·Î ÀÌµ¿ 
+			else if (LMBHold and not RMBHold) { // ì¢Œì¸¡ìœ¼ë¡œ ì´ë™ 
 				playerX -= playerSpeed * 0.7;
 			}
-			else if (LMBHold and RMBHold and doubleJumpMode) { // ´õºí Á¡ÇÁ ¸ğµå¶ó¸é ´õºí Á¡ÇÁ, ¾Æ´Ñµ¥ µÑ´Ù ´©¸£°í ÀÖÀ¸¸é x Ãà ÀÌµ¿ ¾øÀ½
+			else if (LMBHold and RMBHold and doubleJumpMode) { // ë”ë¸” ì í”„ ëª¨ë“œë¼ë©´ ë”ë¸” ì í”„, ì•„ë‹Œë° ë‘˜ë‹¤ ëˆ„ë¥´ê³  ìˆìœ¼ë©´ x ì¶• ì´ë™ ì—†ìŒ
 				playerDropping = false;
 				PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
 				playerJumpStartY = playerY + playerSize;
 				playerJumpHeight = playerJumpStartY - gridSpacing * 3;
 				doubleJumpMode = false;
-				if (RightMoving) { // ¿ìÃø ¹æÇâ ´õºí Á¡ÇÁ
+				if (RightMoving) { // ìš°ì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 					playerX += playerSpeed * 0.7;
 				}
-				else if (not RightMoving) { // ÁÂÃø ¹æÇâ ´õºí Á¡ÇÁ
+				else if (not RightMoving) { // ì¢Œì¸¡ ë°©í–¥ ë”ë¸” ì í”„
 					playerX -= playerSpeed * 0.7;
 				}
 			}
@@ -816,7 +710,7 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 		if (p->next != firstBlockPointer)
 			p = p->next;
 	}
-	// y ÀÌµ¿
+	// y ì´ë™
 	p = firstBlockPointer;
 	if (playerDropping) {
 		playerY += playerSpeed;
@@ -825,15 +719,15 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 		playerY -= playerSpeed;
 	}
 	for (int i = 0; i < BlockCnt; i++) {
-		if (playerX + playerSize / 4 >= p->rt.left and playerX - playerSize / 4 <= p->rt.right ) { // ºí·°°ú °°Àº ¿­¿¡ ÀÖÀ½
-			if (playerDropping and playerY + playerSize >= p->rt.top and playerY + playerSize <= p->rt.bottom and p->BlockType != BlockType_UpDown) { // ºí·°°ú Ãæµ¹
-				if (p->BlockType == BlockType_Basic) { // ÀÏ¹İ ºí·°°ú Ãæµ¹
+		if (playerX + playerSize / 4 >= p->rt.left and playerX - playerSize / 4 <= p->rt.right ) { // ë¸”ëŸ­ê³¼ ê°™ì€ ì—´ì— ìˆìŒ
+			if (playerDropping and playerY + playerSize >= p->rt.top and playerY + playerSize <= p->rt.bottom and p->BlockType != BlockType_UpDown) { // ë¸”ëŸ­ê³¼ ì¶©ëŒ
+				if (p->BlockType == BlockType_Basic) { // ì¼ë°˜ ë¸”ëŸ­ê³¼ ì¶©ëŒ
 					playerDropping = false;
 					PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
 					playerJumpStartY = playerY + playerSize - 3;
 					playerJumpHeight = playerJumpStartY - gridSpacing * 2;
 				}
-				else if (p->BlockType == BlockType_Thorn) { // °¡½Ã ºí·°°ú Ãæµ¹
+				else if (p->BlockType == BlockType_Thorn) { // ê°€ì‹œ ë¸”ëŸ­ê³¼ ì¶©ëŒ
 					doubleJumpMode = false;
 					PlaySound(L"DeadSound.wav", NULL, SND_ASYNC);
 					playerX = stageStartPoint.x;
@@ -841,7 +735,7 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 					mapDelete();
 					mapLoad();
 				}
-				else if (p->BlockType == BlockType_Once) { // ÀÏÈ¸¿ë ºí·°°ú Ãæµ¹
+				else if (p->BlockType == BlockType_Once) { // ì¼íšŒìš© ë¸”ëŸ­ê³¼ ì¶©ëŒ
 					playerDropping = false;
 					PlaySound(L"OnceBlockSound.wav", NULL, SND_ASYNC);
 					Block* temp = p;
@@ -850,7 +744,7 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 					playerJumpStartY = playerY + playerSize - 3;
 					playerJumpHeight = playerJumpStartY - gridSpacing * 2;
 				}
-				else if (p->BlockType == BlockType_Jump) { // Á¡ÇÁ ºí·°°ú Ãæµ¹
+				else if (p->BlockType == BlockType_Jump) { // ì í”„ ë¸”ëŸ­ê³¼ ì¶©ëŒ
 					playerDropping = false;
 					PlaySound(L"JumpBlockSound.wav", NULL, SND_ASYNC);
 					playerJumpStartY = playerY + playerSize - 3;
@@ -859,23 +753,23 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 		
 				break;
 			}
-			else if (not playerDropping and playerY - playerSize >= playerJumpHeight) { // Á¡ÇÁ
+			else if (not playerDropping and playerY - playerSize >= playerJumpHeight) { // ì í”„
 				if (playerY - playerSize <= p->rt.bottom and playerY - playerSize >= p->rt.top 
-					and p->BlockType != BlockType_UpDown and p->BlockType != BlockType_DoubleJump and p->BlockType != BlockType_Star) { // ¾÷´Ù¿î ºí·°ÀÌ ¾Æ´Ñ ºí·°°ú À§·Î Ãæµ¹ÇØ ³«ÇÏ ½ÃÀÛ
+					and p->BlockType != BlockType_UpDown and p->BlockType != BlockType_DoubleJump and p->BlockType != BlockType_Star) { // ì—…ë‹¤ìš´ ë¸”ëŸ­ì´ ì•„ë‹Œ ë¸”ëŸ­ê³¼ ìœ„ë¡œ ì¶©ëŒí•´ ë‚™í•˜ ì‹œì‘
 					playerDropping = true;
 				}
-				else if (playerY - playerSize >= p->rt.top and playerY - playerSize <= p->rt.bottom and p->BlockType == BlockType_UpDown) { // Á¡ÇÁ ÃÖ´ë ÁöÁ¡¿¡¼­ ¾÷´Ù¿î ºí·° ¸¸³²
+				else if (playerY - playerSize >= p->rt.top and playerY - playerSize <= p->rt.bottom and p->BlockType == BlockType_UpDown) { // ì í”„ ìµœëŒ€ ì§€ì ì—ì„œ ì—…ë‹¤ìš´ ë¸”ëŸ­ ë§Œë‚¨
 					playerDropping = false;
 					playerJumpStartY = p->rt.top - 3;
 					playerJumpHeight = playerJumpStartY - gridSpacing * 2;
 				}
 			}
 
-			else if (not playerDropping and playerY - playerSize < playerJumpHeight) { // Á¡ÇÁ ¿Ï·á ÈÄ ´Ù½Ã ³«ÇÏ
+			else if (not playerDropping and playerY - playerSize < playerJumpHeight) { // ì í”„ ì™„ë£Œ í›„ ë‹¤ì‹œ ë‚™í•˜
 				playerDropping = true;
 			}
 		}
-		else if (not playerDropping and playerY - playerSize < playerJumpHeight) { // Á¡ÇÁ ¿Ï·á ÈÄ ´Ù½Ã ³«ÇÏ
+		else if (not playerDropping and playerY - playerSize < playerJumpHeight) { // ì í”„ ì™„ë£Œ í›„ ë‹¤ì‹œ ë‚™í•˜
 			playerDropping = true;
 		}
 
@@ -883,7 +777,7 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 			p = p->next;
 	}
 
-	if (playerY >= 840 and not SetBlockTypeSelect and not blockDeleteMode and not playerPointSet and not stageClear) { // ¹Ù´ÚÀ¸·Î ¶³¾îÁü
+	if (playerY >= 840 and not SetBlockTypeSelect and not blockDeleteMode and not playerPointSet and not stageClear) { // ë°”ë‹¥ìœ¼ë¡œ ë–¨ì–´ì§
 		playerMoveStart = false;
 		doubleJumpMode = false;
 		PlaySound(L"DeadSound.wav", NULL, SND_ASYNC);
@@ -895,7 +789,7 @@ void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 		playerJumpHeight = playerJumpStartY - gridSpacing * 2;
 	}
 
-	// ÇÃ·¹ÀÌ¾î È÷Æ®¹Ú½º ¼³Á¤
+	// í”Œë ˆì´ì–´ íˆíŠ¸ë°•ìŠ¤ ì„¤ì •
 	playerRT.left = playerX - playerSize;
 	playerRT.top = playerY - playerSize;
 	playerRT.right = playerX + playerSize;
@@ -916,7 +810,7 @@ void CALLBACK menuAniTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 
 void CALLBACK checkStageClear(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-	if (starCnt == 0 and playerMoveStart) { // ½ºÅ×ÀÌÁö¿¡ ³²Àº º° ¾øÀ½
+	if (starCnt == 0 and playerMoveStart) { // ìŠ¤í…Œì´ì§€ì— ë‚¨ì€ ë³„ ì—†ìŒ
 		PlaySound(L"StageClearSound.wav", NULL, SND_ASYNC);
 		stageClear = true;
 		stageCleared[stage - 1] = true;
@@ -934,7 +828,7 @@ void CALLBACK checkStageClear(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTi
 
 BOOL CALLBACK mapTool(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
-	static int radio{BlockType_Basic}; // ¹«½¼ ¹öÆ° ¼±ÅÃÇß´ÂÁö ÀúÀå
+	static int radio{BlockType_Basic}; // ë¬´ìŠ¨ ë²„íŠ¼ ì„ íƒí–ˆëŠ”ì§€ ì €ì¥
 
 	switch (iMessage) {
 	case WM_INITDIALOG:
@@ -966,7 +860,7 @@ BOOL CALLBACK mapTool(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			radio = BlockType_UpDown;
 			break;
 
-		case IDC_BUTTON1: // ¸Ê ÀúÀå
+		case IDC_BUTTON1: // ë§µ ì €ì¥
 			mapSave();
 			SetBlockTypeSelect = false;
 			blockDeleteMode = false;
@@ -974,14 +868,14 @@ BOOL CALLBACK mapTool(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			EndDialog(hDlg, false);
 			break;
 
-		case IDC_BUTTON3: // ÇÃ·¹ÀÌ¾î À§Ä¡ ¼±ÅÃ
+		case IDC_BUTTON3: // í”Œë ˆì´ì–´ ìœ„ì¹˜ ì„ íƒ
 			playerPointSet = true;
 			blockDeleteMode = false;
 			SetBlockTypeSelect = false;
 			EndDialog(hDlg, false);
 			break;
 
-		case IDOK: // ¼±ÅÃÇÑ ºí·°
+		case IDOK: // ì„ íƒí•œ ë¸”ëŸ­
 			SetBlockType = radio;
 			blockDeleteMode = false;
 			SetBlockTypeSelect = true;

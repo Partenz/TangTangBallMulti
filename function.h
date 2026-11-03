@@ -1,34 +1,49 @@
-#pragma once
+﻿#pragma once
 #include "variable.h"
 
-// ����� �Լ� ���� ����
-// �÷��̾� �����̴� Ÿ�̸�
+// 사용자 함수 선언 공간
+// 플레이어 움직이는 타이머
 void CALLBACK MoveTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
-// �޴� ����ȭ�� �ִϸ��̼� Ÿ�̸�
+// 메뉴 바탕화면 애니메이션 타이머
 void CALLBACK menuAniTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
-// �������� Ŭ���� Ȯ�� Ÿ�̸�
+// 스테이지 클리어 확인 타이머
 void CALLBACK checkStageClear(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
-// ���� ��ȭ����
+// 맵툴 대화상자
 BOOL CALLBACK mapTool(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
-// �������� �׸���
+// 격자 그리기
+void DrawGrid(HDC, RECT);
+
+// 스테이지 그리기
 void DrawStage(HDC); 
 
-// �� ����
+// 플레이어 그리기
+void DrawPlayer(HDC, double, double, int, COLORREF);
+
+// 클리어 화면 그리기
+void DrawStageClear(HDC, HDC, HFONT);
+
+// 스테이지 선택 화면 그리기
+void DrawStageSelect(HDC, HDC);
+
+// 게임 시작 화면 그리기
+void DrawGameStart(HDC, HDC, HFONT, HFONT);
+
+// 맵 저장
 void mapSave();
 
-// �� �ҷ�����
+// 맵 불러오기
 void mapLoad();
 
-// Ŭ���� ��� ����
+// 클리어 기록 저장
 void clearRecordSave();
 
-// Ŭ���� ��� �ҷ�����
+// 클리어 기록 불러오기
 void clearRecordLoad();
 
-// �� �����ϱ�
+// 맵 삭제하기
 void blockDelete(Block*);
 void mapDelete();

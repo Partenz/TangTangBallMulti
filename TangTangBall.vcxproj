@@ -129,7 +129,12 @@
   <ItemGroup>
     <ClCompile Include="clearRecordLoad.cpp" />
     <ClCompile Include="clearRecordSave.cpp" />
+    <ClCompile Include="DrawGameStart.cpp" />
+    <ClCompile Include="DrawGrid.cpp" />
+    <ClCompile Include="DrawPlayer.cpp" />
     <ClCompile Include="DrawStage.cpp" />
+    <ClCompile Include="DrawStageClear.cpp" />
+    <ClCompile Include="DrawStageSelect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mapDelete.cpp" />
     <ClCompile Include="mapLoad.cpp" />
