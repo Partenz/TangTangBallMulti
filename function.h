@@ -47,3 +47,6 @@ void clearRecordLoad();
 // 맵 삭제하기
 void blockDelete(Block*);
 void mapDelete();
+
+// 플레이어 움직임 업데이트
+void UpdatePlayerMovement();
