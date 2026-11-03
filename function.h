@@ -50,3 +50,6 @@ void mapDelete();
 
 // 플레이어 움직임 업데이트
 void UpdatePlayerMovement();
+
+// 게임 시작시 초기화
+void InitializeGame(HWND hWnd);

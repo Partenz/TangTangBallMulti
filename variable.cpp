@@ -1,69 +1,75 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include "variable.h"
 
-// Àü¿ª º¯¼ö Á¤ÀÇ °ø°£
+// ì „ì—­ ë³€ìˆ˜ ì •ì˜ ê³µê°„
 
-//°İÀÚÆÇ(º¸µå)
-int gridSpacing = 40; // °İÀÚÀÇ °£°İ
-RECT clientRect{}; // Å¬¶óÀÌ¾ğÆ® ¿µ¿ª
+//ê²©ìíŒ(ë³´ë“œ)
+int gridSpacing = 40; // ê²©ìì˜ ê°„ê²©
+RECT clientRect{}; // í´ë¼ì´ì–¸íŠ¸ ì˜ì—­
 
-//°ÔÀÓ ½ÃÀÛ Àü
+//ê²Œì„ ì‹œì‘ ì „
 bool gamestart = false;
-bool stageManager = false; // ½ºÅ×ÀÌÁö ¼±ÅÃ È­¸é
+bool stageManager = false; // ìŠ¤í…Œì´ì§€ ì„ íƒ í™”ë©´
 
-// ÁÖÀÎ°ø ¿ø
-double playerX, playerY; // ÁÖÀÎ°ø ÁÂÇ¥
-int playerSize = 10; // ÇÃ·¹ÀÌ¾î ¹İÁö¸§
-double playerSpeed = 3; // ÇÃ·¹ÀÌ¾î ¼Óµµ
-int moveTimerSpeed = 15; // Å¸ÀÌ¸Ó ¼Óµµ
-double playerJumpStartY; // ÁÖÀÎ°øÀÌ Á¡ÇÁÇÑ Y ÁÂÇ¥
-double playerJumpHeight; // ÁÖÀÎ°øÀÌ Á¡ÇÁÇÑ ³ôÀÌ
+// ì£¼ì¸ê³µ ì›
+double playerX, playerY; // ì£¼ì¸ê³µ ì¢Œí‘œ
+int playerSize = 10; // í”Œë ˆì´ì–´ ë°˜ì§€ë¦„
+double playerSpeed = 3; // í”Œë ˆì´ì–´ ì†ë„
+int moveTimerSpeed = 15; // íƒ€ì´ë¨¸ ì†ë„
+double playerJumpStartY; // ì£¼ì¸ê³µì´ ì í”„í•œ Y ì¢Œí‘œ
+double playerJumpHeight; // ì£¼ì¸ê³µì´ ì í”„í•œ ë†’ì´
 RECT playerRT;
-bool doubleJumpMode = false; // ÇÃ·¹ÀÌ¾î ´õºí Á¡ÇÁ ¾ÆÀÌÅÛ ¸ÔÀ½
+bool doubleJumpMode = false; // í”Œë ˆì´ì–´ ë”ë¸” ì í”„ ì•„ì´í…œ ë¨¹ìŒ
 
-// ÁÖÀÎ°ø ÀÌµ¿ bool
-bool playerDropping = true; // ÇÃ·¹ÀÌ¾î ³«ÇÏ Áß
-bool playerMoveStart = false; // ÇÃ·¹ÀÌ¾î ¿òÁ÷ÀÌ±â ½ÃÀÛÇß´ÂÁö
-bool RightMoving = false; // ¿À¸¥ÂÊÀ¸·Î ¿òÁ÷ÀÌ°í ÀÖ¾ú´ÂÁö
+// ì£¼ì¸ê³µ ì´ë™ bool
+bool playerDropping = true; // í”Œë ˆì´ì–´ ë‚™í•˜ ì¤‘
+bool playerMoveStart = false; // í”Œë ˆì´ì–´ ì›€ì§ì´ê¸° ì‹œì‘í–ˆëŠ”ì§€
+bool RightMoving = false; // ì˜¤ë¥¸ìª½ìœ¼ë¡œ ì›€ì§ì´ê³  ìˆì—ˆëŠ”ì§€
 
-//¸¶¿ì½º
-double mouseX, mouseY; // ¸¶¿ì½º ÁÂÇ¥
-bool LMBHold = false; // ÁÂÅ¬¸¯ ´©¸£°í ÀÖ´ÂÁö
-bool RMBHold = false; // ¿ìÅ¬¸¯ ´©¸£°í ÀÖ´ÂÁö
+//ë§ˆìš°ìŠ¤
+double mouseX, mouseY; // ë§ˆìš°ìŠ¤ ì¢Œí‘œ
+bool LMBHold = false; // ì¢Œí´ë¦­ ëˆ„ë¥´ê³  ìˆëŠ”ì§€
+bool RMBHold = false; // ìš°í´ë¦­ ëˆ„ë¥´ê³  ìˆëŠ”ì§€
 
-int stage{}; // ÇöÀç ½ºÅ×ÀÌÁö
+int stage{}; // í˜„ì¬ ìŠ¤í…Œì´ì§€
 HBITMAP menuAni[9]{};
-HBITMAP BlockBitmap[7]; // °¢ ºí·°µé ºñÆ®¸Ê
+HBITMAP BlockBitmap[7]; // ê° ë¸”ëŸ­ë“¤ ë¹„íŠ¸ë§µ
 
-// ¹ÙÅÁÈ­¸é ¾Ö´Ï¸ŞÀÌ¼Ç
-int menuAniNum{};	// ¸Ş´º ¹ÙÅÁÈ­¸é ¾Ö´Ï¸ŞÀÌ¼Ç ºñÆ®¸Ê ¼±ÅÃ º¯¼ö
-int aniTimerSpeed = 120; // Å¸ÀÌ¸Ó ¼Óµµ
+// ë°”íƒ•í™”ë©´ ì• ë‹ˆë©”ì´ì…˜
+int menuAniNum{};	// ë©”ë‰´ ë°”íƒ•í™”ë©´ ì• ë‹ˆë©”ì´ì…˜ ë¹„íŠ¸ë§µ ì„ íƒ ë³€ìˆ˜
+int aniTimerSpeed = 120; // íƒ€ì´ë¨¸ ì†ë„
 
-HBITMAP stageBitmap[5]; // ½ºÅ×ÀÌÁö ±×¸²
-RECT stageBitRect[5]; // ½ºÅ×ÀÌÁö ±×¸²ÀÇ ¿µ¿ª
+HBITMAP stageBitmap[5]; // ìŠ¤í…Œì´ì§€ ê·¸ë¦¼
+RECT stageBitRect[5]; // ìŠ¤í…Œì´ì§€ ê·¸ë¦¼ì˜ ì˜ì—­
 
-Block* firstBlockPointer = nullptr; // Ã¹ ºí·°
+Block* firstBlockPointer = nullptr; // ì²« ë¸”ëŸ­
 
-int BlockCnt{}; // ºí·° ÃÑ °³¼ö
+int BlockCnt{}; // ë¸”ëŸ­ ì´ ê°œìˆ˜
 
-POINT stageStartPoint; // ½ºÅ×ÀÌÁö ½ÃÀÛ À§Ä¡
+POINT stageStartPoint; // ìŠ¤í…Œì´ì§€ ì‹œì‘ ìœ„ì¹˜
 
 int SetBlockType{};
-bool SetBlockTypeSelect = false; // ¼³Ä¡ÇÒ ºí·Ï ¼±ÅÃÇß´ÂÁö
-bool playerPointSet = false; // ÇÃ·¹ÀÌ¾î À§Ä¡ ¼³Á¤ ¸ğµå
-bool blockDeleteMode = false; // ºí·° »èÁ¦ ¸ğµå
+bool SetBlockTypeSelect = false; // ì„¤ì¹˜í•  ë¸”ë¡ ì„ íƒí–ˆëŠ”ì§€
+bool playerPointSet = false; // í”Œë ˆì´ì–´ ìœ„ì¹˜ ì„¤ì • ëª¨ë“œ
+bool blockDeleteMode = false; // ë¸”ëŸ­ ì‚­ì œ ëª¨ë“œ
 
-int starCnt{}; // ½ºÅ×ÀÌÁöÀÇ º° ³²Àº °³¼ö
-bool stageClear = false; // ½ºÅ×ÀÌÁö Å¬¸®¾î ¿©ºÎ
-RECT stageClearBox{}; // ½ºÅ×ÀÌÁö Å¬¸®¾î ÈÄ ³ª¿Ã ¹Ú½º ¿µ¿ª
-HBITMAP retry;// ½ºÅ×ÀÌÁö Å¬¸®¾î ÈÄ ³ª¿À´Â ´Ù½ÃÇÏ±â ¹öÆ°
-HBITMAP home; // ½ºÅ×ÀÌÁö Å¬¸®¾î ÈÄ ³ª¿À´Â È¨ ¹öÆ°
-HBITMAP nextStage; // ½ºÅ×ÀÌÁö Å¬¸®¾î ÈÄ ³ª¿À´Â ´ÙÀ½ ½ºÅ×ÀÌÁö ¹öÆ°
-RECT retryRT; // ´Ù½ÃÇÏ±â ¹öÆ° ¿µ¿ª
-RECT homeRT; // È¨ ¹öÆ° ¿µ¿ª
-RECT nextStageRT; // ´ÙÀ½ ½ºÅ×ÀÌÁö ¹öÆ° ¿µ¿ª
-bool stageCleared[5]{}; // ¸Ê ÆÄÀÏ¿¡ ÀúÀåµÉ °¢ ½ºÅ×ÀÌÁö Å¬¸®¾î ±â·Ï
+int starCnt{}; // ìŠ¤í…Œì´ì§€ì˜ ë³„ ë‚¨ì€ ê°œìˆ˜
+bool stageClear = false; // ìŠ¤í…Œì´ì§€ í´ë¦¬ì–´ ì—¬ë¶€
+RECT stageClearBox{}; // ìŠ¤í…Œì´ì§€ í´ë¦¬ì–´ í›„ ë‚˜ì˜¬ ë°•ìŠ¤ ì˜ì—­
+HBITMAP retry;// ìŠ¤í…Œì´ì§€ í´ë¦¬ì–´ í›„ ë‚˜ì˜¤ëŠ” ë‹¤ì‹œí•˜ê¸° ë²„íŠ¼
+HBITMAP home; // ìŠ¤í…Œì´ì§€ í´ë¦¬ì–´ í›„ ë‚˜ì˜¤ëŠ” í™ˆ ë²„íŠ¼
+HBITMAP nextStage; // ìŠ¤í…Œì´ì§€ í´ë¦¬ì–´ í›„ ë‚˜ì˜¤ëŠ” ë‹¤ìŒ ìŠ¤í…Œì´ì§€ ë²„íŠ¼
+RECT retryRT; // ë‹¤ì‹œí•˜ê¸° ë²„íŠ¼ ì˜ì—­
+RECT homeRT; // í™ˆ ë²„íŠ¼ ì˜ì—­
+RECT nextStageRT; // ë‹¤ìŒ ìŠ¤í…Œì´ì§€ ë²„íŠ¼ ì˜ì—­
+bool stageCleared[5]{}; // ë§µ íŒŒì¼ì— ì €ì¥ë  ê° ìŠ¤í…Œì´ì§€ í´ë¦¬ì–´ ê¸°ë¡
 
 //ui button bmp or animation
-HBITMAP buttonUI[2]{}; // ui ±âº», ´­·ÈÀ» ¶§
-int buttonNum[2]{}; // ¹öÆ° bmp¼±ÅÃ
+HBITMAP buttonUI[2]{}; // ui ê¸°ë³¸, ëˆŒë ¸ì„ ë•Œ
+int buttonNum[2]{}; // ë²„íŠ¼ bmpì„ íƒ
+
+// ì „ì—­ ì¸ìŠ¤í„´ìŠ¤ ë° í°íŠ¸
+HINSTANCE g_hInst;
+HFONT g_hCustomFont = NULL;
+HFONT g_hCustomFont1 = NULL;
+HFONT g_hCustomFont2 = NULL;
