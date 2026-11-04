@@ -27,7 +27,6 @@ bool playerMoveStart = false; // 플레이어 움직이기 시작했는지
 bool RightMoving = false; // 오른쪽으로 움직이고 있었는지
 
 //마우스
-double mouseX, mouseY; // 마우스 좌표
 bool LMBHold = false; // 좌클릭 누르고 있는지
 bool RMBHold = false; // 우클릭 누르고 있는지
 

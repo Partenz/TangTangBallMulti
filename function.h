@@ -56,3 +56,12 @@ void InitializeGame(HWND hWnd);
 
 // 스테이지 클리어
 void StageClear();
+
+// 마우스 좌클릭 다운
+void MLeftClickDown(HWND, int, int);
+// 마우스 좌클릭 업
+void MLeftClickUp(HWND, int, int);
+// 마우스 우클릭 다운
+void MRightClickDown(HWND, int, int);
+// 마우스 우클릭 업
+void MRightClickUp(HWND, int, int);

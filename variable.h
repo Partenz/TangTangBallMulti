@@ -43,7 +43,6 @@ extern bool playerMoveStart; // 플레이어 움직이기 시작했는지
 extern bool RightMoving; // 오른쪽으로 움직이고 있었는지
 
 //마우스
-extern double mouseX, mouseY; // 마우스 좌표
 extern bool LMBHold; // 좌클릭 누르고 있는지
 extern bool RMBHold; // 우클릭 누르고 있는지
 
