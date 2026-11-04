@@ -40,7 +40,6 @@ extern bool doubleJumpMode; // 플레이어 더블 점프 아이템 먹음
 // 주인공 이동 bool
 extern bool playerDropping; // 플레이어 낙하 중
 extern bool playerMoveStart; // 플레이어 움직이기 시작했는지
-extern bool RightMoving; // 오른쪽으로 움직이고 있었는지
 
 //마우스
 extern bool LMBHold; // 좌클릭 누르고 있는지

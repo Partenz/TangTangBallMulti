@@ -18,11 +18,6 @@ void MLeftClickDown(HWND hWnd, int mouseX, int mouseY)
 			buttonNum[1] = 1;
 		}
 	}
-	else if (not LMBHold and (GetAsyncKeyState(VK_RBUTTON) & 0x8000)) {
-		playerMoveStart = true;
-		LMBHold = true;
-		RightMoving = true;
-	}
 	else if (not LMBHold) {
 		playerMoveStart = true;
 		LMBHold = true;
@@ -137,12 +132,7 @@ void MLeftClickUp(HWND hWnd, int mouseX, int mouseY)
 // 마우스 우클릭 다운
 void MRightClickDown(HWND hWnd, int mouseX, int mouseY)
 {
-	if (not RMBHold and (GetAsyncKeyState(VK_LBUTTON) & 0x8000) and not SetBlockTypeSelect and not playerPointSet and not blockDeleteMode) {
-		playerMoveStart = true;
-		RMBHold = true;
-		RightMoving = false;
-	}
-	else if (not RMBHold and not SetBlockTypeSelect and not playerPointSet and not blockDeleteMode) {
+	if (not RMBHold and not SetBlockTypeSelect and not playerPointSet and not blockDeleteMode) {
 		playerMoveStart = true;
 		RMBHold = true;
 	}

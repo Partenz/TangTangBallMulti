@@ -8,7 +8,21 @@ void StartJump(double startY, int heightInCells)
     playerJumpHeight = startY - gridSpacing * heightInCells;
 }
 
-// 다섯 곳에 반복되던 버튼 입력 및 더블 점프 처리
+// 더블클릭 메시지에서 호출하며 아이템은 한 번만 사용합니다.
+void TryUseDoubleJump()
+{
+    if (not gamestart or stageClear or not doubleJumpMode
+        or SetBlockTypeSelect or playerPointSet or blockDeleteMode)
+        return;
+
+    doubleJumpMode = false;
+    playerMoveStart = true;
+    playerDropping = false;
+    PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
+    StartJump(playerY + playerSize, 3);
+}
+
+// 좌우 버튼의 누름 상태에 따른 수평 이동
 void ApplyHorizontalInput()
 {
     if (RMBHold and not LMBHold) { // 우측 방향 이동
@@ -16,18 +30,6 @@ void ApplyHorizontalInput()
     }
     else if (LMBHold and not RMBHold) { // 좌측으로 이동 
         playerX -= playerSpeed * 0.7;
-    }
-    else if (LMBHold and RMBHold and doubleJumpMode) { // 더블 점프 모드라면 더블 점프, 아닌데 둘다 누르고 있으면 x 축 이동 없음
-        playerDropping = false;
-        PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
-        StartJump(playerY + playerSize, 3);
-        doubleJumpMode = false;
-        if (RightMoving) { // 우측 방향 더블 점프
-            playerX += playerSpeed * 0.7;
-        }
-        else if (not RightMoving) { // 좌측 방향 더블 점프
-            playerX -= playerSpeed * 0.7;
-        }
     }
 }
 

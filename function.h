@@ -51,6 +51,9 @@ void mapDelete();
 // 플레이어 움직임 업데이트
 void UpdatePlayerMovement();
 
+// 게임 중 더블클릭으로 보유한 더블 점프 아이템 사용
+void TryUseDoubleJump();
+
 // 게임 시작시 초기화
 void InitializeGame(HWND hWnd);
 

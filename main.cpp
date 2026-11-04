@@ -50,7 +50,7 @@ ATOM RegisterGameWindow(HINSTANCE hInstance)
 	WNDCLASSEX WndClass{};
 
 	WndClass.cbSize = sizeof(WndClass);
-	WndClass.style = CS_HREDRAW | CS_VREDRAW;
+	WndClass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	WndClass.lpfnWndProc = (WNDPROC)WndProc;
 	WndClass.cbClsExtra = 0;
 	WndClass.cbWndExtra = 0;
@@ -190,7 +190,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_LBUTTONDOWN:
+	case WM_LBUTTONDBLCLK:
 		MLeftClickDown(hWnd, LOWORD(lParam), HIWORD(lParam));
+		if (iMessage == WM_LBUTTONDBLCLK)
+			TryUseDoubleJump();
 		break;
 
 	case WM_LBUTTONUP:
@@ -202,7 +205,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_RBUTTONDOWN: 
+	case WM_RBUTTONDBLCLK:
 		MRightClickDown(hWnd, LOWORD(lParam), HIWORD(lParam));
+		if (iMessage == WM_RBUTTONDBLCLK)
+			TryUseDoubleJump();
 		break;
 
 	case WM_DESTROY:
