@@ -53,3 +53,6 @@ void UpdatePlayerMovement();
 
 // 게임 시작시 초기화
 void InitializeGame(HWND hWnd);
+
+// 스테이지 클리어
+void StageClear();

@@ -454,19 +454,7 @@ void CALLBACK menuAniTimer(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 
 void CALLBACK checkStageClear(HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-	if (starCnt == 0 and playerMoveStart) { // 스테이지에 남은 별 없음
-		PlaySound(L"StageClearSound.wav", NULL, SND_ASYNC);
-		stageClear = true;
-		stageCleared[stage - 1] = true;
-		stageManager = false;
-		doubleJumpMode = false;
-		LMBHold = false;
-		RMBHold = false;
-		SetBlockTypeSelect = false;
-		playerPointSet = false;
-		blockDeleteMode = false;
-	}
-
+	if (starCnt == 0 and playerMoveStart) StageClear();
 	InvalidateRect(hWnd, NULL, false);
 }
 
