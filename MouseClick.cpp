@@ -31,8 +31,7 @@ void MLeftClickUp(HWND hWnd, int mouseX, int mouseY)
 		if (mouseX > 650 and mouseX < 846 and mouseY > 300 and mouseY < 382) // 시작 버튼
 		{
 			buttonNum[0] = 0;
-			stageManager = true;
-			KillTimer(hWnd, 2);
+			OpenStageSelect(hWnd);
 		}
 		else if (mouseX > 650 and mouseX < 846 and mouseY > 450 and mouseY < 532) // 종료 버튼
 		{
@@ -66,23 +65,7 @@ void MLeftClickUp(HWND hWnd, int mouseX, int mouseY)
 		}
 		else if (PtInRect(&homeRT, pt)) { // 홈 버튼
 			PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
-			gamestart = false;
-			doubleJumpMode = false;
-			stageManager = false;
-			LMBHold = false;
-			SetBlockTypeSelect = false;
-			playerPointSet = false;
-			blockDeleteMode = false;
-			stageClear = false;
-			if (stage != 0)
-				mapDelete();
-			stage = 0;
-			KillTimer(hWnd, 1);
-			KillTimer(hWnd, 3);
-
-			// 바탕화면 애니메이션 타이머 시작
-			SetTimer(hWnd, 2, aniTimerSpeed, (TIMERPROC)menuAniTimer);
-
+			ReturnToMenu(hWnd);
 		}
 		else if (PtInRect(&nextStageRT, pt) and stage < 5) { // 다음 스테이지 버튼
 			PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
@@ -109,18 +92,10 @@ void MLeftClickUp(HWND hWnd, int mouseX, int mouseY)
 
 		for (int i = 0; i < 5; i++) {
 			if (PtInRect(&stageBitRect[i], pt)) {
-				stageManager = false;
-				gamestart = true;
 				PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
-				stage = i + 1;
 
-				playerX = stageStartPoint.x;
-				playerY = stageStartPoint.y;
-
-				mapLoad(); // 맵 불러오기
-
-				SetTimer(hWnd, 1, moveTimerSpeed, (TIMERPROC)MoveTimer);
-				SetTimer(hWnd, 3, 100, (TIMERPROC)checkStageClear);
+				StartStage(hWnd, i + 1);
+				break;
 			}
 		}
 	}

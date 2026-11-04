@@ -166,24 +166,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case VK_ESCAPE:
-			gamestart = false;
-			stageManager = false;
-			LMBHold = false;
-			RMBHold = false;
-			SetBlockTypeSelect = false;
-			playerPointSet = false;
-			blockDeleteMode = false;
-			stageClear = false;
-			doubleJumpMode = false;
-			if (stage != 0)
-				mapDelete();
-			stage = 0;
-			KillTimer(hWnd, 1);
-			KillTimer(hWnd, 3);
-
-
-			// 바탕화면 애니메이션 타이머 시작
-			SetTimer(hWnd, 2, aniTimerSpeed, (TIMERPROC)menuAniTimer);
+			ReturnToMenu(hWnd);
 			break;
 		}
 	

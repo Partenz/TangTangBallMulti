@@ -68,3 +68,10 @@ void MLeftClickUp(HWND, int, int);
 void MRightClickDown(HWND, int, int);
 // 마우스 우클릭 업
 void MRightClickUp(HWND, int, int);
+
+// 스테이지 선택화면 열기
+void OpenStageSelect(HWND hWnd);
+// 스테이지 시작
+void StartStage(HWND hWnd, int stageNumber);
+// 메뉴로 돌아가기
+void ReturnToMenu(HWND hWnd);
