@@ -174,6 +174,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			playerPointSet = false;
 			blockDeleteMode = false;
 			stageClear = false;
+			doubleJumpMode = false;
 			if (stage != 0)
 				mapDelete();
 			stage = 0;
