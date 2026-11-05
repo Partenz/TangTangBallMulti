@@ -1,23 +1,22 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include "variable.h"
 
-HDC mDC;
 
 void DrawStage(HDC hDC)
 {
-	mDC = CreateCompatibleDC(hDC);
+	HDC mDC = CreateCompatibleDC(hDC);
 
 	Block* p = firstBlockPointer;
 	for (int i = 0; i < BlockCnt; i++) {
 		if (p != nullptr) {
-			SelectObject(mDC, (HBITMAP)BlockBitmap[p->BlockType]); // ºí·° ºñÆ®¸Ê ¼±ÅÃ
+			SelectObject(mDC, (HBITMAP)BlockBitmap[p->BlockType]); // ë¸”ëŸ­ ë¹„íŠ¸ë§µ ì„ íƒ
 
 			if (p->BlockType == BlockType_Thorn)
-				StretchBlt(hDC, p->rt.left + 1, p->rt.top + 1 - gridSpacing / 2, gridSpacing - 1, gridSpacing - 1, mDC, 0, 0, 100, 100, SRCCOPY); // ºñÆ®¸Ê ±×¸®±â
+				StretchBlt(hDC, p->rt.left + 1, p->rt.top + 1 - gridSpacing / 2, gridSpacing - 1, gridSpacing - 1, mDC, 0, 0, 100, 100, SRCCOPY); // ë¹„íŠ¸ë§µ ê·¸ë¦¬ê¸°
 			else if (p->BlockType == BlockType_Star)
-				StretchBlt(hDC, p->rt.left - 2, p->rt.top, p->rt.right - p->rt.left + 5, p->rt.bottom - p->rt.top + 5, mDC, 0, 0, 32, 32, SRCCOPY); // ºñÆ®¸Ê ±×¸®±â
+				StretchBlt(hDC, p->rt.left - 2, p->rt.top, p->rt.right - p->rt.left + 5, p->rt.bottom - p->rt.top + 5, mDC, 0, 0, 32, 32, SRCCOPY); // ë¹„íŠ¸ë§µ ê·¸ë¦¬ê¸°
 			else
-				StretchBlt(hDC, p->rt.left, p->rt.top, p->rt.right - p->rt.left, p->rt.bottom - p->rt.top, mDC, 0, 0, 100, 100, SRCCOPY); // ºñÆ®¸Ê ±×¸®±â
+				StretchBlt(hDC, p->rt.left, p->rt.top, p->rt.right - p->rt.left, p->rt.bottom - p->rt.top, mDC, 0, 0, 100, 100, SRCCOPY); // ë¹„íŠ¸ë§µ ê·¸ë¦¬ê¸°
 			p = p->next;
 		}
 	}
