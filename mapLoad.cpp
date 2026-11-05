@@ -1,27 +1,12 @@
-#include <Windows.h>
+﻿#include <Windows.h>
 #include <fstream>
+#include <string>
 #include "variable.h"
 
 void mapLoad()
 {	
-	std::string fileName{};
-
-	if (stage == 1) {
-		fileName = "stage1.txt";
-	}
-	else if (stage == 2) {
-		fileName = "stage2.txt";
-	}
-	else if (stage == 3) {
-		fileName = "stage3.txt";
-	}
-	else if (stage == 4) {
-		fileName = "stage4.txt";
-	}
-	else if (stage == 5) {
-		fileName = "stage5.txt";
-	}
-
+	const std::string fileName = "stage" + std::to_string(stage) + ".txt";
+	
 	std::ifstream in{ fileName };
 
 	in >> BlockCnt >> starCnt >> stageStartPoint.x >> stageStartPoint.y;
