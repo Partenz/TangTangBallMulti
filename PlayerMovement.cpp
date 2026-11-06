@@ -8,6 +8,67 @@ void StartJump(double startY, int heightInCells)
     playerJumpHeight = startY - gridSpacing * heightInCells;
 }
 
+// 전기블럭은 ON/OFF 타입을 모두 합산합니다.
+static bool IsLightningBlock(const Block* block)
+{
+    return block->BlockType == BlockType_LightningOnBlock
+        || block->BlockType == BlockType_LightningOffBlock;
+}
+
+// 홀수 개이면 모두 ON, 짝수 개(0개 포함)이면 모두 OFF.
+// DrawStage()가 BlockType으로 비트맵을 선택하므로 그림도 함께 바뀝니다.
+static bool UpdateLightningState()
+{
+    int count = 0;
+    Block* p = firstBlockPointer;
+    for (int i = 0; i < BlockCnt; ++i) {
+        if (IsLightningBlock(p))
+            ++count;
+        p = p->next;
+    }
+
+    const bool isOn = (count % 2 == 1);
+    p = firstBlockPointer;
+    for (int i = 0; i < BlockCnt; ++i) {
+        if (IsLightningBlock(p)) {
+            p->BlockType = isOn
+                ? BlockType_LightningOnBlock
+                : BlockType_LightningOffBlock;
+        }
+        p = p->next;
+    }
+    return isOn;
+}
+
+// 최신 좌표로 검사합니다. 위/아래/좌/우 어느 방향에서 닿아도 사망합니다.
+static bool HandleLightningContact(bool lightningOn)
+{
+    const int margin = 4;
+
+    if (!lightningOn || !gamestart || stageClear
+        || SetBlockTypeSelect || playerPointSet || blockDeleteMode)
+        return false;
+
+    Block* p = firstBlockPointer;
+    for (int i = 0; i < BlockCnt; ++i) {
+        if (IsLightningBlock(p)
+            && playerX + playerSize >= p->rt.left + margin && playerX - playerSize <= p->rt.right - margin && playerY + playerSize >= p->rt.top + margin && playerY - playerSize <= p->rt.bottom - margin) {
+            playerMoveStart = false;
+            playerDropping = true;
+            doubleJumpMode = false;
+            PlaySound(L"DeadSound.wav", NULL, SND_ASYNC);
+            mapDelete();
+            mapLoad();
+            StartJump(playerY + playerSize - 3, 2);
+            UpdateLightningState();
+            // 맵 재로딩으로 p가 삭제되었으므로 즉시 종료합니다.
+            return true;
+        }
+        p = p->next;
+    }
+    return false;
+}
+
 // 더블클릭 메시지에서 호출하며 아이템은 한 번만 사용합니다.
 void TryUseDoubleJump()
 {
@@ -40,14 +101,14 @@ void UpdateHorizontalMovement()
     // x 이동
     for (int i = 0; i < BlockCnt; i++) {
         if (playerRT.left >= p->rt.left and playerRT.left <= p->rt.right and playerY >= p->rt.top and playerY <= p->rt.bottom
-            and p->BlockType != BlockType_Star and p->BlockType != BlockType_DoubleJump) { // 플레이어 왼쪽 히트박스가 블럭내부로 들어옴
+            and p->BlockType != BlockType_Star and p->BlockType != BlockType_DoubleJump and !IsLightningBlock(p)) { // 플레이어 왼쪽 히트박스가 블럭내부로 들어옴
             if (p->BlockType != BlockType_UpDown) {
                 playerX += playerSpeed * 0.7;
             }
             break;
         }
         else if (playerRT.right >= p->rt.left and playerRT.right <= p->rt.right and playerY >= p->rt.top and playerY <= p->rt.bottom
-            and p->BlockType != BlockType_Star and p->BlockType != BlockType_DoubleJump) { // 플레이어 오른쪽 히트박스가 블럭내부로 들어옴
+            and p->BlockType != BlockType_Star and p->BlockType != BlockType_DoubleJump and !IsLightningBlock(p)) { // 플레이어 오른쪽 히트박스가 블럭내부로 들어옴
             if (p->BlockType != BlockType_UpDown) {
                 playerX -= playerSpeed * 0.7;
             }
@@ -111,7 +172,7 @@ void UpdateVerticalMovement()
         playerY -= playerSpeed;
     }
     for (int i = 0; i < BlockCnt; i++) {
-        if (playerX + playerSize / 4 >= p->rt.left and playerX - playerSize / 4 <= p->rt.right) { // 블럭과 같은 열에 있음
+        if (!IsLightningBlock(p) and playerX + playerSize / 4 >= p->rt.left and playerX - playerSize / 4 <= p->rt.right) { // 블럭과 같은 열에 있음
             if (playerDropping and playerY + playerSize >= p->rt.top and playerY + playerSize <= p->rt.bottom and p->BlockType != BlockType_UpDown) { // 블럭과 충돌
                 if (p->BlockType == BlockType_Basic) { // 일반 블럭과 충돌
                     playerDropping = false;
@@ -195,8 +256,29 @@ void UpdatePlayerHitbox()
 // 외부(main.cpp)에서 호출하는 함수는 이것 하나입니다.
 void UpdatePlayerMovement()
 {
+    const bool lightningOn = UpdateLightningState();
+    UpdatePlayerHitbox();
+
+    if (HandleLightningContact(lightningOn)) {
+        UpdatePlayerHitbox();
+        return;
+    }
+
     UpdateHorizontalMovement();
+    UpdatePlayerHitbox();
+    if (HandleLightningContact(lightningOn)) {
+        UpdatePlayerHitbox();
+        return;
+    }
+
     UpdateVerticalMovement();
+    UpdatePlayerHitbox();
+    if (HandleLightningContact(lightningOn)) {
+        UpdatePlayerHitbox();
+        return;
+    }
+
     HandleFallOut();
+    UpdateLightningState();
     UpdatePlayerHitbox();
 }
