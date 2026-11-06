@@ -264,31 +264,24 @@ BOOL CALLBACK mapTool(HWND hDlg, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 		case IDC_BUTTON1: // 맵 저장
 			mapSave();
-			SetBlockTypeSelect = false;
-			blockDeleteMode = false;
-			playerPointSet = false;
+			SetMapEditMode(MapEditMode::None);
 			EndDialog(hDlg, false);
 			break;
 
 		case IDC_BUTTON3: // 플레이어 위치 선택
-			playerPointSet = true;
-			blockDeleteMode = false;
-			SetBlockTypeSelect = false;
+			SetMapEditMode(MapEditMode::SetPlayerPoint);
 			EndDialog(hDlg, false);
 			break;
 
 		case IDOK: // 선택한 블럭
 			SetBlockType = radio;
-			blockDeleteMode = false;
-			SetBlockTypeSelect = true;
-			playerPointSet = false;
+			SetMapEditMode(MapEditMode::PlaceBlock);
+
 			EndDialog(hDlg, false);
 			break;
 
 		case IDCANCEL:
-			SetBlockTypeSelect = false;
-			blockDeleteMode = true;
-			playerPointSet = false;
+			SetMapEditMode(MapEditMode::DeleteBlock);
 			EndDialog(hDlg, false);
 			break;
 		}

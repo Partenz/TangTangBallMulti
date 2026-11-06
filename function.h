@@ -75,3 +75,6 @@ void OpenStageSelect(HWND hWnd);
 void StartStage(HWND hWnd, int stageNumber);
 // 메뉴로 돌아가기
 void ReturnToMenu(HWND hWnd);
+
+// 맵툴 모드 선택
+void SetMapEditMode(MapEditMode mode);

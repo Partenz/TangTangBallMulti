@@ -85,3 +85,11 @@ extern HINSTANCE g_hInst;
 extern HFONT g_hCustomFont;
 extern HFONT g_hCustomFont1;
 extern HFONT g_hCustomFont2;
+
+// 맵 편집 모드 거열형
+enum class MapEditMode {
+    None,
+    PlaceBlock,
+    DeleteBlock,
+    SetPlayerPoint
+};
