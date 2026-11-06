@@ -171,5 +171,17 @@
     <Image Include="retryUI.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="lightningBlock_on.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="lightningBlock_off.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="lightning_on.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="lightning_off.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

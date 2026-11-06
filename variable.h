@@ -17,6 +17,8 @@ struct Block {
 #define BlockType_Star 4
 #define BlockType_DoubleJump 5
 #define BlockType_UpDown 6
+#define BlockType_LightningOnBlock 7
+#define BlockType_LightningOffBlock 8
 
 //격자판(보드)
 extern int gridSpacing; // 격자의 간격
@@ -47,7 +49,7 @@ extern bool RMBHold; // 우클릭 누르고 있는지
 
 extern int stage; // 현재 스테이지
 extern HBITMAP menuAni[9];
-extern HBITMAP BlockBitmap[7]; // 각 블럭들 비트맵
+extern HBITMAP BlockBitmap[9]; // 각 블럭들 비트맵
 
 // 바탕화면 애니메이션
 extern int menuAniNum;	// 메뉴 바탕화면 애니메이션 비트맵 선택 변수

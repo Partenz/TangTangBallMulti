@@ -163,6 +163,10 @@
     <Image Include="doubleJump.bmp" />
     <Image Include="homeUI.bmp" />
     <Image Include="jumpBlock.bmp" />
+    <Image Include="lightningBlock_off.bmp" />
+    <Image Include="lightningBlock_on.bmp" />
+    <Image Include="lightning_off.bmp" />
+    <Image Include="lightning_on.bmp" />
     <Image Include="MenuAni1.bmp" />
     <Image Include="MenuAni2.bmp" />
     <Image Include="MenuAni3.bmp" />

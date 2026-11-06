@@ -31,7 +31,7 @@ bool RMBHold = false; // 우클릭 누르고 있는지
 
 int stage{}; // 현재 스테이지
 HBITMAP menuAni[9]{};
-HBITMAP BlockBitmap[7]; // 각 블럭들 비트맵
+HBITMAP BlockBitmap[9]; // 각 블럭들 비트맵
 
 // 바탕화면 애니메이션
 int menuAniNum{};	// 메뉴 바탕화면 애니메이션 비트맵 선택 변수
