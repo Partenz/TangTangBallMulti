@@ -35,6 +35,8 @@ void InitializeGame(HWND hWnd)
 	BlockBitmap[BlockType_Star] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP14));
 	BlockBitmap[BlockType_DoubleJump] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP15));
 	BlockBitmap[BlockType_UpDown] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP17));
+	BlockBitmap[BlockType_LightningOnBlock] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP27));
+	BlockBitmap[BlockType_LightningOffBlock] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP28));
 	// 버튼 ui
 	buttonUI[0] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP16));
 	buttonUI[1] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP18));
