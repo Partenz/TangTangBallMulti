@@ -78,3 +78,6 @@ void ReturnToMenu(HWND hWnd);
 
 // 맵툴 모드 선택
 void SetMapEditMode(MapEditMode mode);
+
+// 게임 종료
+void CleanupGame(HWND hWnd);

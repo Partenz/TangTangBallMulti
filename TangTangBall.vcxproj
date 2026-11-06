@@ -135,6 +135,7 @@
     <ClCompile Include="DrawStage.cpp" />
     <ClCompile Include="DrawStageClear.cpp" />
     <ClCompile Include="DrawStageSelect.cpp" />
+    <ClCompile Include="GameCleanup.cpp" />
     <ClCompile Include="GameInitialize.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="main.cpp" />

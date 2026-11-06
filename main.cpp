@@ -67,13 +67,6 @@ ATOM RegisterGameWindow(HINSTANCE hInstance)
 }
 
 
-void CleanupGame(HWND hWnd)
-{
-	clearRecordSave();
-	KillTimer(hWnd, 1);
-	KillTimer(hWnd, 2);
-	KillTimer(hWnd, 3);
-}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {

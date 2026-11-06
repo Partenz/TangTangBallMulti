@@ -35,11 +35,7 @@ void MLeftClickUp(HWND hWnd, int mouseX, int mouseY)
 		}
 		else if (mouseX > 650 and mouseX < 846 and mouseY > 450 and mouseY < 532) // 종료 버튼
 		{
-			clearRecordSave();
 			buttonNum[1] = 0;
-			KillTimer(hWnd, 1);
-			KillTimer(hWnd, 2);
-			KillTimer(hWnd, 3);
 			PostQuitMessage(0);
 			return;
 		}
