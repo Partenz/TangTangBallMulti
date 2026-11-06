@@ -143,6 +143,7 @@
     <ClCompile Include="mapSave.cpp" />
     <ClCompile Include="MouseClick.cpp" />
     <ClCompile Include="PlayerMovement.cpp" />
+    <ClCompile Include="SetMapEditMode.cpp" />
     <ClCompile Include="StageClear.cpp" />
     <ClCompile Include="variable.cpp" />
   </ItemGroup>
