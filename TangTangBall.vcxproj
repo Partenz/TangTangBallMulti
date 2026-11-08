@@ -145,6 +145,7 @@
     <ClCompile Include="mapLoad.cpp" />
     <ClCompile Include="mapSave.cpp" />
     <ClCompile Include="MouseClick.cpp" />
+    <ClCompile Include="NetworkCommon.cpp" />
     <ClCompile Include="PlayerMovement.cpp" />
     <ClCompile Include="RegisterUDP.cpp" />
     <ClCompile Include="SetMapEditMode.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="function.h" />
     <ClInclude Include="IsNewerSequence.h" />
+    <ClInclude Include="NetworkCommon.h" />
     <ClInclude Include="RegisterUDP.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SyncEvents.h" />
