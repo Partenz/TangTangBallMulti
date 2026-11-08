@@ -75,6 +75,18 @@
     <ClCompile Include="GameCleanup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="EnDePacket.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncEvents.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="IsNewerSequence.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterUDP.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="function.h">
@@ -84,6 +96,18 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="variable.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EnDePacket.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncEvents.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IsNewerSequence.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterUDP.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
