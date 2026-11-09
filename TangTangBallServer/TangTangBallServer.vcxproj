@@ -139,7 +139,11 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ServerConnections.cpp" />
     <ClCompile Include="ServerMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ServerConnetions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
