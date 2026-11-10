@@ -136,6 +136,7 @@
     <ClCompile Include="DrawStageClear.cpp" />
     <ClCompile Include="DrawStageSelect.cpp" />
     <ClCompile Include="EnDePacket.cpp" />
+    <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="GameCleanup.cpp" />
     <ClCompile Include="GameInitialize.cpp" />
     <ClCompile Include="GameState.cpp" />
@@ -151,16 +152,19 @@
     <ClCompile Include="SetMapEditMode.cpp" />
     <ClCompile Include="StageClear.cpp" />
     <ClCompile Include="SyncEvents.cpp" />
+    <ClCompile Include="TCPQueue.cpp" />
     <ClCompile Include="variable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnDePacket.h" />
+    <ClInclude Include="EventQueue.h" />
     <ClInclude Include="function.h" />
     <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="NetworkCommon.h" />
     <ClInclude Include="RegisterUDP.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SyncEvents.h" />
+    <ClInclude Include="TCPQueue.h" />
     <ClInclude Include="variable.h" />
   </ItemGroup>
   <ItemGroup>
