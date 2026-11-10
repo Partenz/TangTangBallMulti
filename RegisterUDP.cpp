@@ -23,8 +23,7 @@ bool RegisterUdp(uint8_t playerId, uint64_t udpKey)
 
     const BYTE UDP_REGISTER = 100;
 
-    std::vector<BYTE> packet =
-        EncodePacket(UDP_REGISTER, body);
+    std::vector<BYTE> packet = EncodePacket(UDP_REGISTER, body);
 
     if (packet.empty())
         return false;
@@ -36,12 +35,7 @@ bool RegisterUdp(uint8_t playerId, uint64_t udpKey)
     const int maxAttempts = 3;
     const DWORD retryIntervalMs = 1000;
 
-    HANDLE handles[] = {
-        hStopEvent,
-        hUdpRegisteredEvent,
-        hClientUdpSendGate,
-        hClientUdpSendReady
-    };
+    HANDLE handles[] = { hStopEvent, hUdpRegisteredEvent, hClientUdpSendGate, hClientUdpSendReady };
 
     for (int i = 0; i < 4; ++i)
     {
@@ -70,10 +64,7 @@ bool RegisterUdp(uint8_t playerId, uint64_t udpKey)
         return false;
 
     // 종료 이벤트를 먼저 배치하여 우선 처리한다.
-    HANDLE waitEvents[] = {
-        hStopEvent,
-        hUdpRegisteredEvent
-    };
+    HANDLE waitEvents[] = { hStopEvent, hUdpRegisteredEvent };
 
     for (int attempt = 0; attempt < maxAttempts; ++attempt)
     {
@@ -81,23 +72,13 @@ bool RegisterUdp(uint8_t playerId, uint64_t udpKey)
             return false;
 
         // Gate 획득 → 큐 삽입 → Ready 설정 → Gate 반납
-        if (!PushEventQueue(
-                clientUdpSendQueue,
-                event,
-                hClientUdpSendGate,
-                hClientUdpSendReady))
-        {
+        if (!PushEventQueue(clientUdpSendQueue, event, hClientUdpSendGate, hClientUdpSendReady))
             return false;
-        }
 
         // 큐 Gate를 반납한 상태에서 등록 응답을 기다린다.
         // 수신 스레드는 정상 UDP_REGISTERED(101) 수신 시
         // SetEvent(hUdpRegisteredEvent)를 호출한다.
-        DWORD result = WaitForMultipleObjects(
-            2,
-            waitEvents,
-            FALSE,
-            retryIntervalMs);
+        DWORD result = WaitForMultipleObjects(2, waitEvents, FALSE, retryIntervalMs);
 
         if (result == WAIT_OBJECT_0 + 1)
             return true;

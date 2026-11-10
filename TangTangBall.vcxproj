@@ -148,6 +148,7 @@
     <ClCompile Include="NetworkCommon.cpp" />
     <ClCompile Include="PlayerMovement.cpp" />
     <ClCompile Include="RegisterUDP.cpp" />
+    <ClCompile Include="ClientUDPSendThreadMain.cpp" />
     <ClCompile Include="SetMapEditMode.cpp" />
     <ClCompile Include="StageClear.cpp" />
     <ClCompile Include="SyncEvents.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="NetworkCommon.h" />
     <ClInclude Include="RegisterUDP.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ClientUDPSendThreadMain.h" />
     <ClInclude Include="SyncEvents.h" />
     <ClInclude Include="variable.h" />
   </ItemGroup>

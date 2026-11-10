@@ -21,9 +21,27 @@
     <ClCompile Include="ServerConnections.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="IsNewerSequence.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerUDPRecvThreadMain.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="EnDePacket.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServerConnetions.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IsNewerSequence.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerUDPRecvThreadMain.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EnDePacket.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

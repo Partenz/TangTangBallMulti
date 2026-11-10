@@ -139,11 +139,17 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EnDePacket.cpp" />
+    <ClCompile Include="IsNewerSequence.cpp" />
     <ClCompile Include="ServerConnections.cpp" />
     <ClCompile Include="ServerMain.cpp" />
+    <ClCompile Include="ServerUDPRecvThreadMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EnDePacket.h" />
+    <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="ServerConnetions.h" />
+    <ClInclude Include="ServerUDPRecvThreadMain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

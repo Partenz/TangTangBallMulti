@@ -6,27 +6,14 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-enum class ConnectionState {
-    Active,         // 통신 중
-    Stopping,       // 종료 요청 처리 중
-    ReadyToCollect  // 종료 요청 처리 완료, 스레드 종료 확인 가능
-};
-
-struct TcpConnection {
-    SOCKET socket = INVALID_SOCKET;
-    HANDLE sendThread = nullptr;
-    HANDLE recvThread = nullptr;
-    HANDLE disconnectEvent = nullptr;
-    HANDLE sendQueueGate = nullptr;
-    HANDLE sendQueueReady = nullptr;
-    ConnectionState state = ConnectionState::Active;
-};
-
 // 나중에 서버가 accept()로 받은 참가자별 연결을 등록한다.
-static std::unordered_map<std::uint8_t, TcpConnection> connections;
+std::unordered_map<std::uint8_t, TcpConnection> connections;
 
 // 서버 초기화에서 InitSyncEvents()로 생성한다.
-static HANDLE hConnectionGate = nullptr;
+HANDLE hConnectionGate = nullptr;
+
+std::unordered_map<std::uint8_t, std::uint64_t> issuedUdpKeys;
+std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
 
 // 게임 요청 큐가 만들어지면 구현할 연결 지점
 void QueueDisconnectEvent(std::uint8_t playerId);
@@ -50,6 +37,10 @@ void RequestDisconnect(std::uint8_t playerId)
 
     TcpConnection& conn = it->second;
     conn.state = ConnectionState::Stopping;
+
+    // 연결 종료를 시작하면 해당 참가자의 UDP 등록도 해제한다.
+    issuedUdpKeys.erase(playerId);
+    registeredUdpAddresses.erase(playerId);
 
     const SOCKET socket = conn.socket;
     const HANDLE disconnectEvent = conn.disconnectEvent;
