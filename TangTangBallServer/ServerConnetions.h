@@ -27,9 +27,6 @@ extern HANDLE hConnectionGate;
 extern std::unordered_map<std::uint8_t, std::uint64_t> issuedUdpKeys;
 extern std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
 
-// 게임 요청 큐에서 패킷 수신 사건을 나타낸다.
-inline constexpr BYTE receivedPacketEventKind = 1;
-
 // 종료 요청을 기록하고 이벤트 설정
 void RequestDisconnect(std::uint8_t playerId);
 // 스레드가 끝났는지 확인, 이벤트 핸들을 닫고 제거

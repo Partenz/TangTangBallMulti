@@ -163,7 +163,7 @@ DWORD WINAPI ServerUdpRecvThreadMain(LPVOID unused)
         }
         else {
             NetEvent gameRequest{};
-            gameRequest.eventKind = receivedPacketEventKind;
+            gameRequest.eventKind = NetEventPacket;
             gameRequest.playerId = senderPlayerId;
             gameRequest.packetType = packetType;
             gameRequest.packetData = std::move(packetBody);
