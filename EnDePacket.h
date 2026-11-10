@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <vector>
-
-using BYTE = unsigned char;
+#include <WinSock2.h>
 
 // 전체 길이(2바이트), 종류(1바이트), 본문 순서로 저장
 // 길이는 큰 자리 바이트부터 기록

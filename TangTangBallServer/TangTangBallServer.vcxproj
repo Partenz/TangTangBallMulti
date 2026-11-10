@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -141,11 +141,13 @@
   <ItemGroup>
     <ClCompile Include="EnDePacket.cpp" />
     <ClCompile Include="IsNewerSequence.cpp" />
+    <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="ServerConnections.cpp" />
     <ClCompile Include="ServerMain.cpp" />
     <ClCompile Include="ServerUDPRecvThreadMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="ServerConnetions.h" />

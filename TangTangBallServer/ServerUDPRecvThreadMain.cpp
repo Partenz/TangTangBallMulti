@@ -4,19 +4,7 @@
 #include "ServerUDPRecvThreadMain.h"
 #include "ServerConnetions.h"
 #include "EnDePacket.h"
-
-// TODO: 공통 큐 헤더가 준비되면 아래 선언을 해당 헤더의 include로 교체.
-struct NetEvent
-{
-    BYTE eventKind;
-    uint8_t playerId;
-    BYTE packetType;
-    std::vector<BYTE> packetData;
-};
-bool PushEventQueue(std::queue<NetEvent>& queue, const NetEvent& event, HANDLE gate, HANDLE ready)
-{
-
-}
+#include "EventQueue.h"
 
 // TODO: 서버 초기화 코드에서 정의하고 초기화.
 SOCKET serverUdpSocket;

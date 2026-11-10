@@ -3,19 +3,7 @@
 #include <vector>
 #include <string>
 #include "ClientUDPSendThreadMain.h"
-
-// TODO: 공통 큐 헤더가 생기면 해당 헤더를 include.
-struct NetEvent
-{
-    BYTE eventKind;
-    uint8_t playerId;
-    BYTE packetType;
-    std::vector<BYTE> packetData;
-};
-bool DrainEventQueue(std::queue<NetEvent>& queue, std::vector<NetEvent>& events, HANDLE gate, HANDLE ready)
-{
-
-}
+#include "EventQueue.h"
 
 // TODO: 클라이언트 네트워크 초기화 쪽에서 정의하고 초기화.
 SOCKET clientUdpSocket;

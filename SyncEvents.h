@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <WinSock2.h>
 #include <Windows.h>
 
 // 큐마다 gate/ready 핸들 변수를 준비해서 호출
