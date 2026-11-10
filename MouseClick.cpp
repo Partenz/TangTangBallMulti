@@ -1,6 +1,7 @@
 ﻿#include <Windows.h>
 #include "variable.h"
 #include "function.h"
+#include "resource.h"
 
 // 마우스 좌클릭 다운
 void MLeftClickDown(HWND hWnd, int mouseX, int mouseY)
@@ -9,12 +10,12 @@ void MLeftClickDown(HWND hWnd, int mouseX, int mouseY)
 	{
 		if (mouseX > 650 and mouseX < 846 and mouseY > 300 and mouseY < 382)
 		{
-			PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
+			PlaySound(MAKEINTRESOURCE(IDW_BUTTON), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
 			buttonNum[0] = 1;
 		}
 		else if (mouseX > 650 and mouseX < 846 and mouseY > 450 and mouseY < 532)
 		{
-			PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
+			PlaySound(MAKEINTRESOURCE(IDW_BUTTON), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
 			buttonNum[1] = 1;
 		}
 	}
@@ -44,7 +45,7 @@ void MLeftClickUp(HWND hWnd, int mouseX, int mouseY)
 	else if (stageClear) {
 		POINT pt{ mouseX, mouseY };
 		if (PtInRect(&retryRT, pt)) { // 다시하기 버튼
-			PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
+			PlaySound(MAKEINTRESOURCE(IDW_BUTTON), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
 			playerMoveStart = false;
 			doubleJumpMode = false;
 			stageManager = false;
@@ -60,11 +61,11 @@ void MLeftClickUp(HWND hWnd, int mouseX, int mouseY)
 			stageClear = false;
 		}
 		else if (PtInRect(&homeRT, pt)) { // 홈 버튼
-			PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
+			PlaySound(MAKEINTRESOURCE(IDW_BUTTON), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
 			ReturnToMenu(hWnd);
 		}
 		else if (PtInRect(&nextStageRT, pt) and stage < 5) { // 다음 스테이지 버튼
-			PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
+			PlaySound(MAKEINTRESOURCE(IDW_BUTTON), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
 			stageManager = false;
 			doubleJumpMode = false;
 			LMBHold = false;
@@ -88,7 +89,7 @@ void MLeftClickUp(HWND hWnd, int mouseX, int mouseY)
 
 		for (int i = 0; i < 5; i++) {
 			if (PtInRect(&stageBitRect[i], pt)) {
-				PlaySound(L"ButtonSound.wav", NULL, SND_ASYNC);
+				PlaySound(MAKEINTRESOURCE(IDW_BUTTON), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
 
 				StartStage(hWnd, i + 1);
 				break;

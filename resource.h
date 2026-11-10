@@ -32,6 +32,13 @@
 #define IDB_BITMAP26                    129
 #define IDB_BITMAP27                    130
 #define IDB_BITMAP28                    131
+#define IDW_BUTTON                      132
+#define IDW_DEAD                        133
+#define IDW_DEFAULT_JUMP                134
+#define IDW_JUMP_BLOCK                  135
+#define IDW_ONCE_BLOCK                  136
+#define IDW_STAGE_CLEAR                 137
+#define IDW_STAR                        138
 #define IDC_RADIO1                      1001
 #define IDC_RADIO2                      1002
 #define IDC_RADIO3                      1003
@@ -46,7 +53,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        132
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101

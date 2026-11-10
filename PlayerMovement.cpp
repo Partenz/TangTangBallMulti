@@ -1,4 +1,5 @@
 ﻿#include "function.h"
+#include "resource.h"
 
 
 // 공통 점프 상태 계산. 효과음은 각 호출 위치에서 처리합니다.
@@ -56,7 +57,7 @@ static bool HandleLightningContact(bool lightningOn)
             playerMoveStart = false;
             playerDropping = true;
             doubleJumpMode = false;
-            PlaySound(L"DeadSound.wav", NULL, SND_ASYNC);
+            PlaySound(MAKEINTRESOURCE(IDW_DEAD), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
             mapDelete();
             mapLoad();
             StartJump(playerY + playerSize - 3, 2);
@@ -79,7 +80,7 @@ void TryUseDoubleJump()
     doubleJumpMode = false;
     playerMoveStart = true;
     playerDropping = false;
-    PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
+    PlaySound(MAKEINTRESOURCE(IDW_DEFAULT_JUMP), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
     StartJump(playerY + playerSize, 3);
 }
 
@@ -124,7 +125,7 @@ void UpdateHorizontalMovement()
                 doubleJumpMode = true;
             }
             else if (p->BlockType == BlockType_Star) { // 별 먹음
-                PlaySound(L"StarSound.wav", NULL, SND_ASYNC);
+                PlaySound(MAKEINTRESOURCE(IDW_STAR), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
                 ApplyHorizontalInput();
                 Block* temp = p;
                 p = p->prev;
@@ -143,7 +144,7 @@ void UpdateHorizontalMovement()
                 doubleJumpMode = true;
             }
             else if (p->BlockType == BlockType_Star) { // 별 먹음
-                PlaySound(L"StarSound.wav", NULL, SND_ASYNC);
+                PlaySound(MAKEINTRESOURCE(IDW_STAR), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
                 ApplyHorizontalInput();
                 Block* temp = p;
                 p = p->prev;
@@ -176,12 +177,12 @@ void UpdateVerticalMovement()
             if (playerDropping and playerY + playerSize >= p->rt.top and playerY + playerSize <= p->rt.bottom and p->BlockType != BlockType_UpDown) { // 블럭과 충돌
                 if (p->BlockType == BlockType_Basic) { // 일반 블럭과 충돌
                     playerDropping = false;
-                    PlaySound(L"DefaultJumpSound.wav", NULL, SND_ASYNC);
+                    PlaySound(MAKEINTRESOURCE(IDW_DEFAULT_JUMP), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
                     StartJump(playerY + playerSize - 3, 2);
                 }
                 else if (p->BlockType == BlockType_Thorn) { // 가시 블럭과 충돌
                     doubleJumpMode = false;
-                    PlaySound(L"DeadSound.wav", NULL, SND_ASYNC);
+                    PlaySound(MAKEINTRESOURCE(IDW_DEAD), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
                     playerX = stageStartPoint.x;
                     playerY = stageStartPoint.y;
                     mapDelete();
@@ -189,7 +190,7 @@ void UpdateVerticalMovement()
                 }
                 else if (p->BlockType == BlockType_Once) { // 일회용 블럭과 충돌
                     playerDropping = false;
-                    PlaySound(L"OnceBlockSound.wav", NULL, SND_ASYNC);
+                    PlaySound(MAKEINTRESOURCE(IDW_ONCE_BLOCK), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
                     Block* temp = p;
                     p = p->prev;
                     blockDelete(temp);
@@ -197,7 +198,7 @@ void UpdateVerticalMovement()
                 }
                 else if (p->BlockType == BlockType_Jump) { // 점프 블럭과 충돌
                     playerDropping = false;
-                    PlaySound(L"JumpBlockSound.wav", NULL, SND_ASYNC);
+                    PlaySound(MAKEINTRESOURCE(IDW_JUMP_BLOCK), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
                     StartJump(playerY + playerSize - 3, 3);
                 }
 
@@ -233,7 +234,7 @@ void HandleFallOut()
     if (playerY >= 840 and not SetBlockTypeSelect and not blockDeleteMode and not playerPointSet and not stageClear) { // 바닥으로 떨어짐
         playerMoveStart = false;
         doubleJumpMode = false;
-        PlaySound(L"DeadSound.wav", NULL, SND_ASYNC);
+        PlaySound(MAKEINTRESOURCE(IDW_DEAD), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
         playerX = stageStartPoint.x;
         playerY = stageStartPoint.y;
         mapDelete();

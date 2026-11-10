@@ -1,8 +1,9 @@
 ﻿#include "function.h"
+#include "resource.h"
 
 void StageClear()
 {
-	PlaySound(L"StageClearSound.wav", NULL, SND_ASYNC);
+	PlaySound(MAKEINTRESOURCE(IDW_STAGE_CLEAR), g_hInst, SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
 	stageClear = true;
 	stageCleared[stage - 1] = true;
 	stageManager = false;

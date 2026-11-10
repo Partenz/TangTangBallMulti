@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{DDBD6CB9-45C8-4C66-BAD2-084ED09243AA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\BMP">
+      <UniqueIdentifier>{A3CC7B6E-27C4-47DB-A382-F47F1AFD9231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Sound">
+      <UniqueIdentifier>{B465729B-610A-4C89-955F-AFA64837FCE6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -123,95 +132,118 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="basicBlock.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\basicBlock.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni1.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni1.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni2.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni2.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni3.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni3.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni4.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni4.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni5.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni5.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni6.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni6.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni7.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni7.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni8.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni8.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="MenuAni9.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\MenuAni9.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="jumpBlock.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\jumpBlock.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="onceBlock.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\onceBlock.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="thornBlock.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\thornBlock.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="star.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\star.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="doubleJump.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\doubleJump.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="UpDownBlock.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\UpDownBlock.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="buttonUI1.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\buttonUI1.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="buttonUI2.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\buttonUI2.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="Stage1.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\Stage1.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="Stage2.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\Stage2.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="Stage3.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\Stage3.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="Stage4.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\Stage4.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="Stage5.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\Stage5.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="homeUI.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\homeUI.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="nextUI.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\nextUI.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="retryUI.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\retryUI.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="lightningBlock_on.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\lightningBlock_on.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="lightningBlock_off.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\lightningBlock_off.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="lightning_on.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\lightning_on.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
-    <Image Include="lightning_off.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Assets\BMP\lightning_off.bmp">
+      <Filter>Assets\BMP</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Assets\Sound\ButtonSound.wav">
+      <Filter>Assets\Sound</Filter>
+    </Media>
+    <Media Include="Assets\Sound\DeadSound.wav">
+      <Filter>Assets\Sound</Filter>
+    </Media>
+    <Media Include="Assets\Sound\DefaultJumpSound.wav">
+      <Filter>Assets\Sound</Filter>
+    </Media>
+    <Media Include="Assets\Sound\JumpBlockSound.wav">
+      <Filter>Assets\Sound</Filter>
+    </Media>
+    <Media Include="Assets\Sound\OnceBlockSound.wav">
+      <Filter>Assets\Sound</Filter>
+    </Media>
+    <Media Include="Assets\Sound\StageClearSound.wav">
+      <Filter>Assets\Sound</Filter>
+    </Media>
+    <Media Include="Assets\Sound\StarSound.wav">
+      <Filter>Assets\Sound</Filter>
+    </Media>
   </ItemGroup>
 </Project>
