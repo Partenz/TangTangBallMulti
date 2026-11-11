@@ -145,6 +145,7 @@
     <ClCompile Include="ServerConnections.cpp" />
     <ClCompile Include="ServerMain.cpp" />
     <ClCompile Include="ServerUDPRecvThreadMain.cpp" />
+    <ClCompile Include="ServerUDPSendThreadMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventQueue.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="ServerConnetions.h" />
     <ClInclude Include="ServerUDPRecvThreadMain.h" />
+    <ClInclude Include="ServerUDPSendThreadMain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
