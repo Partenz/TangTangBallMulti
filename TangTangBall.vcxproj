@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="clearRecordLoad.cpp" />
     <ClCompile Include="clearRecordSave.cpp" />
+    <ClCompile Include="ClientTcpSendThreadMain.cpp" />
     <ClCompile Include="ClientUDPRecvThreadMain.cpp" />
     <ClCompile Include="DrawGameStart.cpp" />
     <ClCompile Include="DrawGrid.cpp" />
@@ -155,9 +156,11 @@
     <ClCompile Include="StageClear.cpp" />
     <ClCompile Include="SyncEvents.cpp" />
     <ClCompile Include="TCPQueue.cpp" />
+    <ClCompile Include="TcpSendThread.cpp" />
     <ClCompile Include="variable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ClientTcpSendThreadMain.h" />
     <ClInclude Include="ClientUDPRecvThreadMain.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="EventQueue.h" />
@@ -169,6 +172,7 @@
     <ClInclude Include="ClientUDPSendThreadMain.h" />
     <ClInclude Include="SyncEvents.h" />
     <ClInclude Include="TCPQueue.h" />
+    <ClInclude Include="TcpSendThread.h" />
     <ClInclude Include="variable.h" />
   </ItemGroup>
   <ItemGroup>

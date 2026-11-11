@@ -144,16 +144,20 @@
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="ServerConnections.cpp" />
     <ClCompile Include="ServerMain.cpp" />
+    <ClCompile Include="ServerTcpSendThreadMain.cpp" />
     <ClCompile Include="ServerUDPRecvThreadMain.cpp" />
     <ClCompile Include="ServerUDPSendThreadMain.cpp" />
+    <ClCompile Include="TcpSendThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="ServerConnetions.h" />
+    <ClInclude Include="ServerTcpSendThreadMain.h" />
     <ClInclude Include="ServerUDPRecvThreadMain.h" />
     <ClInclude Include="ServerUDPSendThreadMain.h" />
+    <ClInclude Include="TcpSendThread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

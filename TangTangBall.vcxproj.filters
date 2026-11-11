@@ -111,6 +111,12 @@
     <ClCompile Include="ClientUDPRecvThreadMain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ClientTcpSendThreadMain.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpSendThread.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="function.h">
@@ -147,6 +153,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ClientUDPRecvThreadMain.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientTcpSendThreadMain.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpSendThread.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
