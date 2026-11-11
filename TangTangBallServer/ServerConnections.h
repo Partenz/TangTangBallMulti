@@ -3,6 +3,9 @@
 #include <cstdint>
 #include <unordered_map>
 
+#include <memory>
+#include "ServerTcpSendThreadMain.h"
+
 enum class ConnectionState {
     Active,         // 통신 중
     Stopping,       // 종료 요청 처리 중
@@ -16,8 +19,24 @@ struct TcpConnection {
     HANDLE disconnectEvent = nullptr;
     HANDLE sendQueueGate = nullptr;
     HANDLE sendQueueReady = nullptr;
+	std::shared_ptr<ServerTcpSendContext> sendContext = nullptr;
     ConnectionState state = ConnectionState::Active;
 };
+
+// gamestate를 사용하기 위해
+struct PlayerInfo {
+    std::uint8_t playerId = 0;
+    std::uint8_t color = 0;
+    bool ready = false;
+};
+struct PlayerState {
+    PlayerInfo info;
+};
+struct GameState {
+    std::uint8_t phase = 0; // 로비 단계
+    std::unordered_map<std::uint8_t, PlayerState> players;
+};
+extern GameState gameState;
 
 extern std::unordered_map<std::uint8_t, TcpConnection> connections;
 extern HANDLE hConnectionGate;
@@ -31,3 +50,6 @@ extern std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
 void RequestDisconnect(std::uint8_t playerId);
 // 스레드가 끝났는지 확인, 이벤트 핸들을 닫고 제거
 void CollectFinishedConnections();
+
+// 게임 입장 처리
+void HandleNewConnection(std::uint8_t playerId);

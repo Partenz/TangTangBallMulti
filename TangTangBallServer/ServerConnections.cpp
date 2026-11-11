@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <unordered_map>
 
-#include "ServerConnetions.h"
+#include "ServerConnections.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -15,8 +15,6 @@ HANDLE hConnectionGate = nullptr;
 std::unordered_map<std::uint8_t, std::uint64_t> issuedUdpKeys;
 std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
 
-// 게임 요청 큐가 만들어지면 구현할 연결 지점
-void QueueDisconnectEvent(std::uint8_t playerId);
 
 void RequestDisconnect(std::uint8_t playerId)
 {
@@ -52,8 +50,6 @@ void RequestDisconnect(std::uint8_t playerId)
     SetEvent(disconnectEvent);
     shutdown(socket, SD_BOTH);
 
-    // 현재 요청 큐가 구현이 없어서 주석 처리
-    // QueueDisconnectEvent(playerId);
 
     if (WaitForSingleObject(hConnectionGate, INFINITE) == WAIT_OBJECT_0) {
         connections.at(playerId).state = ConnectionState::ReadyToCollect;

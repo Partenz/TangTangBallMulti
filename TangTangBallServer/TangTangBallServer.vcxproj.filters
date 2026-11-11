@@ -42,11 +42,17 @@
     <ClCompile Include="TcpSendThread.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkCommon.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerAcceptThreadMain.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="HandleNewConnection.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ServerConnetions.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="IsNewerSequence.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -66,6 +72,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TcpSendThread.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkCommon.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerConnections.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

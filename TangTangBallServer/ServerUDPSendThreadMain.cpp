@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include "ServerUDPSendThreadMain.h"
 #include "EventQueue.h"
-#include "ServerConnetions.h"
+#include "ServerConnections.h"
 
 // TODO: 서버 초기화 코드에서 정의하고 초기화.
 extern SOCKET serverUdpSocket;

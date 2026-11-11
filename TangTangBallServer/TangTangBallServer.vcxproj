@@ -140,8 +140,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EnDePacket.cpp" />
+    <ClCompile Include="HandleNewConnection.cpp" />
     <ClCompile Include="IsNewerSequence.cpp" />
     <ClCompile Include="EventQueue.cpp" />
+    <ClCompile Include="NetworkCommon.cpp" />
+    <ClCompile Include="ServerAcceptThreadMain.cpp" />
     <ClCompile Include="ServerConnections.cpp" />
     <ClCompile Include="ServerMain.cpp" />
     <ClCompile Include="ServerTcpSendThreadMain.cpp" />
@@ -153,7 +156,8 @@
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="IsNewerSequence.h" />
-    <ClInclude Include="ServerConnetions.h" />
+    <ClInclude Include="NetworkCommon.h" />
+    <ClInclude Include="ServerConnections.h" />
     <ClInclude Include="ServerTcpSendThreadMain.h" />
     <ClInclude Include="ServerUDPRecvThreadMain.h" />
     <ClInclude Include="ServerUDPSendThreadMain.h" />
