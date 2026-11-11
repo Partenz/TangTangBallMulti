@@ -10,7 +10,7 @@ extern std::queue<NetEvent> serverUdpSendQueue;
 extern HANDLE hServerUdpSendGate;
 extern HANDLE hServerUdpSendReady;
 
-DWORD WINAPI ServerUdpRecvThreadMain(LPVOID unused)
+DWORD WINAPI ServerUdpSendThreadMain(LPVOID unused)
 {
     const HANDLE sendQueueWaitEvents[] = { hStopEvent, hServerUdpSendReady };
     const HANDLE connectionGateWaitEvents[] = { hStopEvent, hConnectionGate };
