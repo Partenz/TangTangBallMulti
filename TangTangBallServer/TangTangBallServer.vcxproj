@@ -147,6 +147,7 @@
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="NetworkCommon.cpp" />
     <ClCompile Include="ServerAcceptThreadMain.cpp" />
+    <ClCompile Include="ServerCollision.cpp" />
     <ClCompile Include="ServerConnections.cpp" />
     <ClCompile Include="ServerMain.cpp" />
     <ClCompile Include="ServerTcpSendThreadMain.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="HandleMoveInput.h" />
     <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="NetworkCommon.h" />
+    <ClInclude Include="ServerCollision.h" />
     <ClInclude Include="ServerConnections.h" />
     <ClInclude Include="ServerTcpSendThreadMain.h" />
     <ClInclude Include="ServerUDPRecvThreadMain.h" />
