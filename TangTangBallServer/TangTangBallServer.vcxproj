@@ -139,6 +139,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CloseSyncEvents.cpp" />
     <ClCompile Include="EnDePacket.cpp" />
     <ClCompile Include="HandleMoveInput.cpp" />
     <ClCompile Include="HandleNewConnection.cpp" />
@@ -152,9 +153,11 @@
     <ClCompile Include="ServerUDPRecvThreadMain.cpp" />
     <ClCompile Include="ServerUDPSendThreadMain.cpp" />
     <ClCompile Include="ServerVariable.cpp" />
+    <ClCompile Include="SignalStop.cpp" />
     <ClCompile Include="TcpSendThread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CloseSyncEvents.h" />
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="HandleMoveInput.h" />
@@ -165,6 +168,7 @@
     <ClInclude Include="ServerUDPRecvThreadMain.h" />
     <ClInclude Include="ServerUDPSendThreadMain.h" />
     <ClInclude Include="ServerVariable.h" />
+    <ClInclude Include="SignalStop.h" />
     <ClInclude Include="TcpSendThread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

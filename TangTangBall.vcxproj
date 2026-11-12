@@ -132,6 +132,7 @@
     <ClCompile Include="ClientTcpSendThreadMain.cpp" />
     <ClCompile Include="ClientUDPRecvThreadMain.cpp" />
     <ClCompile Include="ClientVariable.cpp" />
+    <ClCompile Include="CloseSyncEvents.cpp" />
     <ClCompile Include="ConnectToServer.cpp" />
     <ClCompile Include="DrawGameStart.cpp" />
     <ClCompile Include="DrawGrid.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="ClientTcpSendThreadMain.h" />
     <ClInclude Include="ClientUDPRecvThreadMain.h" />
     <ClInclude Include="ClientVariable.h" />
+    <ClInclude Include="CloseSyncEvents.h" />
     <ClInclude Include="ConnectToServer.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="EventQueue.h" />
