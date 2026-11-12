@@ -1,29 +1,10 @@
 ﻿#include <iostream>
-#include <queue>
 #include <utility>
 #include "ServerUDPRecvThreadMain.h"
 #include "ServerConnections.h"
 #include "EnDePacket.h"
 #include "EventQueue.h"
-
-// TODO: 서버 초기화 코드에서 정의하고 초기화.
-SOCKET serverUdpSocket;
-HANDLE hStopEvent;
-
-std::queue<NetEvent> serverUdpSendQueue;
-HANDLE hServerUdpSendGate;
-HANDLE hServerUdpSendReady;
-
-std::queue<NetEvent> gameRequestQueue;
-HANDLE hGameRequestGate;
-HANDLE hGameRequestReady;
-
-// TODO: 서버에서 한 번 정의하고 hConnectionGate로 두 목록을 보호한다.
-// TCP 입장 승인 시, JOIN_RESPONSE를 보내기 전에 발급한 UDP 키를 저장한다.
-extern std::unordered_map<std::uint8_t, std::uint64_t> issuedUdpKeys;
-
-// UDP_REGISTER가 확인되면 여기에 송신 주소를 저장한다.
-extern std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
+#include "ServerVariable.h"
 
 DWORD WINAPI ServerUdpRecvThreadMain(LPVOID unused)
 {

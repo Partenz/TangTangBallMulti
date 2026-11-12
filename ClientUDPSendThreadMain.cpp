@@ -5,14 +5,6 @@
 #include "ClientUDPSendThreadMain.h"
 #include "EventQueue.h"
 
-// TODO: 클라이언트 네트워크 초기화 쪽에서 정의하고 초기화.
-SOCKET clientUdpSocket;
-sockaddr_in serverUdpAddress;
-HANDLE hStopEvent;
-HANDLE hClientUdpSendGate;
-HANDLE hClientUdpSendReady;
-std::queue<NetEvent> clientUdpSendQueue;
-
 DWORD WINAPI ClientUdpSendThreadMain(LPVOID unused)
 {
     const HANDLE sendThreadWaitEvents[] = { hStopEvent, hClientUdpSendReady };

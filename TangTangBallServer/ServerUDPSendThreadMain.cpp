@@ -2,13 +2,7 @@
 #include "ServerUDPSendThreadMain.h"
 #include "EventQueue.h"
 #include "ServerConnections.h"
-
-// TODO: 서버 초기화 코드에서 정의하고 초기화.
-extern SOCKET serverUdpSocket;
-extern HANDLE hStopEvent;
-extern std::queue<NetEvent> serverUdpSendQueue;
-extern HANDLE hServerUdpSendGate;
-extern HANDLE hServerUdpSendReady;
+#include "ServerVariable.h"
 
 DWORD WINAPI ServerUdpSendThreadMain(LPVOID unused)
 {

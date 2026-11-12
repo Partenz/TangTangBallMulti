@@ -1,20 +1,10 @@
-﻿#include <Winsock2.h>
-#include <Windows.h>
-#include <unordered_map>
-
-#include "ServerConnections.h"
-
-#pragma comment(lib, "ws2_32.lib")
+﻿#include "ServerConnections.h"
 
 // 나중에 서버가 accept()로 받은 참가자별 연결을 등록한다.
 std::unordered_map<std::uint8_t, TcpConnection> connections;
 
 // 서버 초기화에서 InitSyncEvents()로 생성한다.
 HANDLE hConnectionGate = nullptr;
-
-std::unordered_map<std::uint8_t, std::uint64_t> issuedUdpKeys;
-std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
-
 
 void RequestDisconnect(std::uint8_t playerId)
 {

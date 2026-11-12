@@ -131,6 +131,7 @@
     <ClCompile Include="clearRecordSave.cpp" />
     <ClCompile Include="ClientTcpSendThreadMain.cpp" />
     <ClCompile Include="ClientUDPRecvThreadMain.cpp" />
+    <ClCompile Include="ClientVariable.cpp" />
     <ClCompile Include="ConnectToServer.cpp" />
     <ClCompile Include="DrawGameStart.cpp" />
     <ClCompile Include="DrawGrid.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="PlayerMovement.cpp" />
     <ClCompile Include="RegisterUDP.cpp" />
     <ClCompile Include="ClientUDPSendThreadMain.cpp" />
+    <ClCompile Include="SendMoveInput.cpp" />
     <ClCompile Include="SetMapEditMode.cpp" />
     <ClCompile Include="StageClear.cpp" />
     <ClCompile Include="SyncEvents.cpp" />
@@ -163,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="ClientTcpSendThreadMain.h" />
     <ClInclude Include="ClientUDPRecvThreadMain.h" />
+    <ClInclude Include="ClientVariable.h" />
     <ClInclude Include="ConnectToServer.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="EventQueue.h" />
@@ -172,6 +175,7 @@
     <ClInclude Include="RegisterUDP.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ClientUDPSendThreadMain.h" />
+    <ClInclude Include="SendMoveInput.h" />
     <ClInclude Include="SyncEvents.h" />
     <ClInclude Include="TCPQueue.h" />
     <ClInclude Include="TcpSendThread.h" />

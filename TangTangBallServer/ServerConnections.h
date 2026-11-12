@@ -1,10 +1,8 @@
 ﻿#pragma once
-#include <WinSock2.h>
-#include <cstdint>
-#include <unordered_map>
 
 #include <memory>
 #include "ServerTcpSendThreadMain.h"
+#include "ServerVariable.h"
 
 enum class ConnectionState {
     Active,         // 통신 중
@@ -23,28 +21,7 @@ struct TcpConnection {
     ConnectionState state = ConnectionState::Active;
 };
 
-// gamestate를 사용하기 위해
-struct PlayerInfo {
-    std::uint8_t playerId = 0;
-    std::uint8_t color = 0;
-    bool ready = false;
-};
-struct PlayerState {
-    PlayerInfo info;
-};
-struct GameState {
-    std::uint8_t phase = 0; // 로비 단계
-    std::unordered_map<std::uint8_t, PlayerState> players;
-};
-extern GameState gameState;
-
 extern std::unordered_map<std::uint8_t, TcpConnection> connections;
-extern HANDLE hConnectionGate;
-
-// 두 목록은 hConnectionGate로 보호한다.
-// TODO: HandleNewConnection()에서 입장 승인 시 발급한 키를 저장한다.
-extern std::unordered_map<std::uint8_t, std::uint64_t> issuedUdpKeys;
-extern std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
 
 // 종료 요청을 기록하고 이벤트 설정
 void RequestDisconnect(std::uint8_t playerId);

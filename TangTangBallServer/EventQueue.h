@@ -1,23 +1,5 @@
 ﻿#pragma once
-#include <WinSock2.h>
-#include <queue>
-#include <vector>
-
-// 프로그램 내부 사건 번호이며 네트워크 패킷 번호와는 별개입니다.
-enum NetEventKind : BYTE {
-    NetEventPacket = 0,
-    NetEventConnected = 1,
-    NetEventDisconnected = 2
-};
-
-struct NetEvent {
-    BYTE eventKind = NetEventPacket;
-    BYTE playerId = 0; // 해당 없음은 0
-    BYTE packetType = 0;
-    // 수신/게임 큐: DecodePacket으로 분리한 본문.
-    // 송신 큐: EncodePacket으로 만든 헤더 포함 전체 패킷.
-    std::vector<BYTE> packetData;
-};
+#include "ServerVariable.h"
 
 // InitSyncEvents로 생성한 큐별 gate/ready를 전달합니다.
 // gate: 자동 리셋, 초기 신호 / ready: 수동 리셋, 초기 비신호.

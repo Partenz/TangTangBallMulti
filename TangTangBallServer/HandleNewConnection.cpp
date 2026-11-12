@@ -2,15 +2,15 @@
 #define _CRT_RAND_S
 #endif
 #include <stdlib.h>
+#include <new>
+#include <vector>
 
 #include "ServerConnections.h"
 #include "EnDePacket.h"
 #include "EventQueue.h"
+#include "ServerVariable.h"
 
-#include <new>
-#include <vector>
-
-GameState gameState{};
+extern GameState gameState;
 
 namespace {
     constexpr BYTE lobbyPhase = 0;

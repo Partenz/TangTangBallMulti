@@ -2,10 +2,6 @@
 #include "EnDePacket.h"
 #include <new>
 
-std::queue<NetEvent> clientTcpSendQueue;
-HANDLE hClientTcpSendGate = nullptr;
-HANDLE hClientTcpSendReady = nullptr;
-
 bool QueueTcpPacket(BYTE packetType, const std::vector<BYTE>& body)
 {
     try {

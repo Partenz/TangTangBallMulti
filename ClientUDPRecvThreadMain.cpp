@@ -5,16 +5,6 @@
 #include "EnDePacket.h"
 #include "IsNewerSequence.h"
 
-// TODO: 클라이언트 네트워크 초기화 쪽에서 정의하고 초기화.
-extern SOCKET clientUdpSocket;
-extern sockaddr_in serverUdpAddress;
-extern HANDLE hStopEvent;
-
-extern HANDLE hUdpRegisteredEvent;
-extern std::queue<NetEvent> clientReceiveQueue;
-extern HANDLE hClientReceiveGate;
-extern HANDLE hClientReceiveReady;
-
 DWORD WINAPI ClientUdpRecvThreadMain(LPVOID unused)
 {
     constexpr BYTE udpRegisteredPacketType = 101;

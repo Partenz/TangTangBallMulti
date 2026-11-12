@@ -5,11 +5,6 @@
 #include "NetworkCommon.h"
 #include "EnDePacket.h"
 
-// 전역 변수
-SOCKET clientTcpSocket = INVALID_SOCKET;
-std::uint8_t clientPlayerId = 0;
-std::uint64_t clientUdpKey = 0;
-
 // 소켓에서 수신하는 함수
 namespace 
 {
