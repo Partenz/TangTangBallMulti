@@ -32,7 +32,11 @@ extern std::uint8_t clientPlayerId;
 extern std::uint64_t clientUdpKey;
 extern SOCKET clientUdpSocket;
 extern sockaddr_in serverUdpAddress;
+extern HANDLE hQueueGate;
+extern HANDLE hQueueReady;
+extern HANDLE hConnectionGate;
 extern HANDLE hStopEvent;
+extern HANDLE hDisconnectEvent;
 extern HANDLE hUdpRegisteredEvent;
 
 // TCP 송신 큐
@@ -50,3 +54,6 @@ extern std::uint32_t clientUdpSendSequence;
 extern std::queue<NetEvent> clientReceiveQueue;
 extern HANDLE hClientReceiveGate;
 extern HANDLE hClientReceiveReady;
+
+// 클라이언트 TCP 송신 루프에서 사용하는 연결 정보
+extern TcpSendConnection clientTcpConnection;

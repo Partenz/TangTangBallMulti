@@ -3,9 +3,6 @@
 // 나중에 서버가 accept()로 받은 참가자별 연결을 등록한다.
 std::unordered_map<std::uint8_t, TcpConnection> connections;
 
-// 서버 초기화에서 InitSyncEvents()로 생성한다.
-HANDLE hConnectionGate = nullptr;
-
 void RequestDisconnect(std::uint8_t playerId)
 {
     // 연결 목록을 조회하고 상태를 바꾸기 전에 접근 권한을 얻는다.

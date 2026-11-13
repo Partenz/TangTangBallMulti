@@ -15,3 +15,6 @@ HANDLE hGameRequestReady = nullptr;
 
 std::unordered_map<std::uint8_t, std::uint64_t> issuedUdpKeys;
 std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
+
+std::unordered_map<BYTE, ServerTcpSendContext*> serverTcpConnections;
+HANDLE hConnectionGate = nullptr;

@@ -100,3 +100,19 @@ extern std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
 
 // TCP 연결 목록과 UDP 키·주소 목록에 대한 접근을 보호하는 이벤트
 extern HANDLE hConnectionGate;
+
+// TCP 송신 루프가 사용하는 소켓과 종료 이벤트
+struct TcpSendConnection {
+    SOCKET socket = INVALID_SOCKET;
+    HANDLE stopEvent = nullptr;       // 서버 전체 종료를 알리는 이벤트
+    HANDLE disconnectEvent = nullptr; // 이 클라이언트 연결의 종료를 알리는 이벤트
+};
+
+// 서버 TCP 송신 스레드
+struct ServerTcpSendContext : TcpSendConnection {
+    std::queue<NetEvent> sendQueue;
+    HANDLE sendQueueGate = nullptr;
+    HANDLE sendQueueReady = nullptr;
+};
+
+extern std::unordered_map<BYTE, ServerTcpSendContext*> serverTcpConnections;

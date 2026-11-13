@@ -1,10 +1,4 @@
 ﻿#pragma once
-#include "TcpSendThread.h"
+#include <winsock2.h>
 
-struct ServerTcpSendContext : TcpSendConnection {
-    std::queue<NetEvent> sendQueue;
-    HANDLE sendQueueGate = nullptr;
-    HANDLE sendQueueReady = nullptr;
-};
-
-DWORD WINAPI ServerTcpSendThreadMain(LPVOID parameter);
+DWORD WINAPI ServerTcpSendThreadMain(LPVOID playerIdPtr);

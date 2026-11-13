@@ -1,5 +1,5 @@
-﻿#include "TcpSendThread.h"
-#include <WinSock2.h>
+﻿#include <WinSock2.h>
+#include "TcpSendThread.h"
 
 namespace
 {

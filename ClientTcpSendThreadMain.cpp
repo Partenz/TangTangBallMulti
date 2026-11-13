@@ -1,11 +1,8 @@
 ﻿#include "ClientTcpSendThreadMain.h"
-#include "TcpQueue.h"
+#include "TcpSendThread.h"
+#include "ClientVariable.h"
 
-DWORD WINAPI ClientTcpSendThreadMain(LPVOID parameter)
+DWORD WINAPI ClientTcpSendThreadMain(LPVOID unused)
 {
-    if (parameter == nullptr)
-        return ERROR_INVALID_PARAMETER;
-
-    const auto& connection = *static_cast<TcpSendConnection*>(parameter);
-    return RunTcpSendLoop(connection, clientTcpSendQueue, hClientTcpSendGate, hClientTcpSendReady);
+    return RunTcpSendLoop(clientTcpConnection, clientTcpSendQueue, hClientTcpSendGate, hClientTcpSendReady);
 }
