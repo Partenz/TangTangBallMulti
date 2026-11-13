@@ -62,10 +62,6 @@ DWORD RunTcpSendLoop(const TcpSendConnection& connection, std::queue<NetEvent>& 
         }
     }
 
-    const DWORD timeoutMs = 1000;
-    if (setsockopt(connection.socket, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char*>(&timeoutMs), sizeof(timeoutMs)) == SOCKET_ERROR)
-        return Finish(connection, static_cast<DWORD>(WSAGetLastError()));
-
     const HANDLE waitEvents[] = { connection.stopEvent, connection.disconnectEvent, ready };
     std::vector<NetEvent> packets;
     while (true) {

@@ -66,6 +66,9 @@
     <ClCompile Include="ServerCollision.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="InitSyncEvents.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IsNewerSequence.h">
@@ -108,6 +111,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ServerCollision.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InitSyncEvents.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

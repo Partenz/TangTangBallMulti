@@ -143,6 +143,7 @@
     <ClCompile Include="EnDePacket.cpp" />
     <ClCompile Include="HandleMoveInput.cpp" />
     <ClCompile Include="HandleNewConnection.cpp" />
+    <ClCompile Include="InitSyncEvents.cpp" />
     <ClCompile Include="IsNewerSequence.cpp" />
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="NetworkCommon.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="HandleMoveInput.h" />
+    <ClInclude Include="InitSyncEvents.h" />
     <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="NetworkCommon.h" />
     <ClInclude Include="ServerCollision.h" />

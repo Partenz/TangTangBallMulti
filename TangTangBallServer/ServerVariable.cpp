@@ -18,3 +18,6 @@ std::unordered_map<std::uint8_t, sockaddr_in> registeredUdpAddresses;
 
 std::unordered_map<BYTE, ServerTcpSendContext*> serverTcpConnections;
 HANDLE hConnectionGate = nullptr;
+HANDLE hQueueGate = nullptr;
+HANDLE hQueueReady = nullptr;
+HANDLE hDisconnectEvent = nullptr;
