@@ -1,12 +1,8 @@
 ﻿#include "ServerConnections.h"
 #include "NetworkCommon.h"
 #include "EventQueue.h"
+#include "ServerVariable.h"
 
-// 정의된 변수들
-extern HANDLE hStopEvent;
-extern std::queue<NetEvent> gameRequestQueue;
-extern HANDLE hGameRequestGate;
-extern HANDLE hGameRequestReady;
 
 DWORD WINAPI ServerAcceptThreadMain(LPVOID listenSocketPtr)
 {
@@ -14,7 +10,7 @@ DWORD WINAPI ServerAcceptThreadMain(LPVOID listenSocketPtr)
 
 	// listen 소켓을 가져오기
 	const SOCKET listenSocket = *static_cast<const SOCKET*>(listenSocketPtr);
-	constexpr DWORD timeoutMS = 3000; // 3초
+	constexpr DWORD timeoutMS = 1000;
 
 	while (true)
 	{

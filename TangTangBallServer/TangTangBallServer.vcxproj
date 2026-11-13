@@ -152,6 +152,7 @@
     <ClCompile Include="ServerCollision.cpp" />
     <ClCompile Include="ServerConnections.cpp" />
     <ClCompile Include="ServerMain.cpp" />
+    <ClCompile Include="ServerTcpRecvThreadMain.cpp" />
     <ClCompile Include="ServerTcpSendThreadMain.cpp" />
     <ClCompile Include="ServerUDPRecvThreadMain.cpp" />
     <ClCompile Include="ServerUDPSendThreadMain.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="NetworkCommon.h" />
     <ClInclude Include="ServerCollision.h" />
     <ClInclude Include="ServerConnections.h" />
+    <ClInclude Include="ServerTcpRecvThreadMain.h" />
     <ClInclude Include="ServerTcpSendThreadMain.h" />
     <ClInclude Include="ServerUDPRecvThreadMain.h" />
     <ClInclude Include="ServerUDPSendThreadMain.h" />

@@ -20,9 +20,9 @@ namespace {
 	constexpr float ballRadius = 10.0f;
 	constexpr float tickSeconds = 0.015f;
 
-    // 반동 속도 일단 0으로 초기화
-    constexpr float normalBounceSpeed = 0.0f;
-    constexpr float strongBounceSpeed = 0.0f;
+    // 반동 속도 일단 1로 초기화
+    constexpr float normalBounceSpeed = 1.0f;
+    constexpr float strongBounceSpeed = 1.0f;
 
 	enum ContactType : BYTE {
 		trornContact = 0,

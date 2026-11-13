@@ -1,8 +1,6 @@
 ﻿#ifndef _CRT_RAND_S
 #define _CRT_RAND_S
 #endif
-#include <stdlib.h>
-#include <new>
 #include <vector>
 
 #include "ServerConnections.h"
@@ -62,7 +60,7 @@ void HandleNewConnection(std::uint8_t playerId)
         }
         };
 
-    if (gameState.phase != lobbyPhase || gameState.players.size() >= 255) {
+    if (gameState.phase != lobbyPhase || gameState.players.size() >= 3) {
         rejectJoin();
         return;
     }
