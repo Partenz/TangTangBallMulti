@@ -135,6 +135,12 @@
     <ClCompile Include="ApplyServerEvent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ClientTcpRecvThreadMain.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpRecvThread.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="function.h">
@@ -195,6 +201,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ApplyServerEvent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientTcpRecvThreadMain.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpRecvThread.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

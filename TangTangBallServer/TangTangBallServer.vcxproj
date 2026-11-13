@@ -81,6 +81,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -99,6 +100,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -115,6 +117,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -133,6 +136,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -159,6 +163,7 @@
     <ClCompile Include="ServerUDPSendThreadMain.cpp" />
     <ClCompile Include="ServerVariable.cpp" />
     <ClCompile Include="SignalStop.cpp" />
+    <ClCompile Include="TcpRecvThread.cpp" />
     <ClCompile Include="TcpSendThread.cpp" />
     <ClCompile Include="UpdatePhysics.cpp" />
   </ItemGroup>
@@ -180,6 +185,7 @@
     <ClInclude Include="ServerUDPSendThreadMain.h" />
     <ClInclude Include="ServerVariable.h" />
     <ClInclude Include="SignalStop.h" />
+    <ClInclude Include="TcpRecvThread.h" />
     <ClInclude Include="TcpSendThread.h" />
     <ClInclude Include="UpdatePhysics.h" />
   </ItemGroup>

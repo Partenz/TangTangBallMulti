@@ -1,5 +1,4 @@
-﻿#include <stdexcept> // std::invalid_argument
-#include <Winsock2.h>
+﻿#include <Winsock2.h>
 
 #include "NetworkCommon.h"
 
@@ -37,7 +36,8 @@ std::vector<std::vector<BYTE>> ExtractTcpPackets(std::vector<BYTE>& buffer)
             static_cast<std::size_t>(buffer[offset + 1]);
 
         if (packetSize < headerSize) {
-            throw std::invalid_argument("Invalid TCP packet size");
+            SetLastError(ERROR_INVALID_DATA);
+            return {};
         }
 
         if (buffer.size() - offset < packetSize) {
@@ -51,5 +51,6 @@ std::vector<std::vector<BYTE>> ExtractTcpPackets(std::vector<BYTE>& buffer)
 
     // 꺼낸 패킷만 지우고 덜 받은 데이터는 남긴다.
     buffer.erase(buffer.begin(), buffer.begin() + offset);
+	SetLastError(ERROR_SUCCESS);
     return packets;
 }

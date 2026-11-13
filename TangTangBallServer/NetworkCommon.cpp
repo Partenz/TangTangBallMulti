@@ -51,6 +51,6 @@ std::vector<std::vector<BYTE>> ExtractTcpPackets(std::vector<BYTE>& buffer)
 
     // 꺼낸 패킷만 지우고 덜 받은 데이터는 남긴다.
     buffer.erase(buffer.begin(), buffer.begin() + offset);
-    SetLastError(ERROR_INVALID_DATA);
+    SetLastError(ERROR_SUCCESS);
     return packets;
 }
