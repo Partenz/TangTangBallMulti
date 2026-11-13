@@ -1,9 +1,8 @@
-﻿#include "NetworkCommon.h"
+﻿#include <stdexcept> // std::invalid_argument
+#include <Winsock2.h>
 
-#include <cstddef>  // size_t   
-#include <stdexcept> // std::invalid_argument
+#include "NetworkCommon.h"
 
-#pragma comment(lib, "Ws2_32.lib")
 
 // 소켓에 수신/송신 타임아웃을 적용
 bool ApplySocketTimeouts(SOCKET socket,DWORD recvTimeoutMs, DWORD sendTimeoutMs)
