@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <queue>
 #include <vector>
+#include <unordered_map>
 
 // 프로그램 내부 사건 번호이며 네트워크 패킷 번호와는 별개입니다.
 enum NetEventKind : BYTE {
@@ -57,3 +58,52 @@ extern HANDLE hClientReceiveReady;
 
 // 클라이언트 TCP 송신 루프에서 사용하는 연결 정보
 extern TcpSendConnection clientTcpConnection;
+
+
+struct PlayerInfo {
+    uint8_t playerId;
+    uint8_t color;
+    bool ready;
+};
+
+struct ObjectInfo {
+    uint32_t objectId;
+    uint8_t blockType;
+    int left, top, right, bottom;
+    bool used;
+};
+
+struct PlayerMotion {
+    uint8_t playerId;
+    float x, y;
+    float vx, vy;
+    bool falling;
+};
+
+struct PlayerState {
+    PlayerInfo info;
+    uint8_t score;
+    bool alive;
+    BYTE assignedBlockType;
+    bool placed;
+    bool doubleJumpReady;
+    bool mapReady;
+    PlayerMotion motion;
+    ULONGLONG lastMoveTime;
+    int16_t previewGridX, previewGridY;
+    bool previewVisible;
+};
+
+struct GameState {
+    BYTE phase;
+    uint16_t roundCnt;
+    std::unordered_map<uint8_t, PlayerState> players;
+    std::vector<ObjectInfo> objects;
+    uint32_t nextObjectId;
+    uint16_t mapWidth, mapHeight;
+    float spawnX, spawnY;
+    bool electricityActive;
+    uint8_t roundWinnerId;
+};
+
+extern GameState clientGameState;

@@ -1,8 +1,9 @@
 ﻿#include <array>
 #include "SignalStop.h"
 #include "ServerConnections.h"
+#include "ServerVariable.h"
 
-bool SignalStop(HANDLE hStopEvent)
+bool SignalStop()
 {
     if (!SetEvent(hStopEvent))
         return false;
