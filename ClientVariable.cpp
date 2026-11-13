@@ -26,3 +26,5 @@ HANDLE hClientReceiveGate = nullptr;
 HANDLE hClientReceiveReady = nullptr;
 
 TcpSendConnection clientTcpConnection;
+
+GameState clientGameState{};
