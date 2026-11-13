@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="CloseSyncEvents.cpp" />
     <ClCompile Include="EnDePacket.cpp" />
+    <ClCompile Include="HandleDoubleJump.cpp" />
     <ClCompile Include="HandleMoveInput.cpp" />
     <ClCompile Include="HandleNewConnection.cpp" />
     <ClCompile Include="InitSyncEvents.cpp" />
@@ -157,11 +158,13 @@
     <ClCompile Include="ServerVariable.cpp" />
     <ClCompile Include="SignalStop.cpp" />
     <ClCompile Include="TcpSendThread.cpp" />
+    <ClCompile Include="UpdatePhysics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CloseSyncEvents.h" />
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EnDePacket.h" />
+    <ClInclude Include="HandleDoubleJump.h" />
     <ClInclude Include="HandleMoveInput.h" />
     <ClInclude Include="InitSyncEvents.h" />
     <ClInclude Include="IsNewerSequence.h" />
@@ -174,6 +177,7 @@
     <ClInclude Include="ServerVariable.h" />
     <ClInclude Include="SignalStop.h" />
     <ClInclude Include="TcpSendThread.h" />
+    <ClInclude Include="UpdatePhysics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

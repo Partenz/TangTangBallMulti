@@ -36,7 +36,7 @@ namespace {
 void ApplyContact(std::uint8_t playerId, std::uint32_t objectId, std::uint8_t contactType)
 {
 	// 게임이 진행중이 아니거나 라운드 승자가 결정된 상태라면 리턴함.
-	if (gameState.phase != racingphase || gameState.rountWinnerId != 0) return;
+	if (gameState.phase != racingphase || gameState.roundWinnerId != 0) return;
 
 	// 플레이어를 찾고 없거나 살아있지 않다면 리턴함.
 	const auto it = gameState.players.find(playerId);
@@ -73,7 +73,7 @@ void ApplyContact(std::uint8_t playerId, std::uint32_t objectId, std::uint8_t co
 
 		case starContact:
 			if (object.blockType != starBlock) return;
-			gameState.rountWinnerId = playerId;
+			gameState.roundWinnerId = playerId;
 			break;
 
 		default:
@@ -87,7 +87,7 @@ void ApplyContact(std::uint8_t playerId, std::uint32_t objectId, std::uint8_t co
 
 void CheckCollisions()
 {
-    if (gameState.phase != racingphase || gameState.rountWinnerId != 0) {
+    if (gameState.phase != racingphase || gameState.roundWinnerId != 0) {
         return;
     }
 
@@ -152,7 +152,7 @@ void CheckCollisions()
                 break;
             }
 
-            if (gameState.rountWinnerId != 0) {
+            if (gameState.roundWinnerId != 0) {
                 return;
             }
 
@@ -170,7 +170,7 @@ void CheckCollisions()
         motion.vy = landingBlock->blockType == jumpBlock
             ? -strongBounceSpeed
             : -normalBounceSpeed;
-        motion.flling = false;
+        motion.falling = false;
 
         if (landingBlock->blockType == onceBlock) {
             ApplyContact(playerId, landingBlock->objectId, onceBlockContact);

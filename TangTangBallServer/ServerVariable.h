@@ -34,7 +34,7 @@ struct PlayerMotion {
     uint8_t playerId;
     float x, y;
     float vx, vy;
-    bool flling;
+    bool falling;
 };
 
 // 참가자별 게임 상태와 최신 이동 입력
@@ -65,7 +65,7 @@ struct GameState {
     uint16_t mapWidth, mapHeight;
     float spawnX, spawnY;
     bool electricityActive;
-    uint8_t rountWinnerId;
+    uint8_t roundWinnerId;
 };
 
 // 게임 요청 큐와 송신 큐에서 전달하는 이벤트

@@ -1,8 +1,7 @@
 ﻿#include "RegisterUDP.h"
 #include "EnDePacket.h"
-
-#include <Windows.h>
-#include <queue>
+#include "ClientVariable.h"
+#include "EventQueue.h"
 
 
 bool RegisterUdp(uint8_t playerId, uint64_t udpKey)
@@ -28,7 +27,6 @@ bool RegisterUdp(uint8_t playerId, uint64_t udpKey)
     if (packet.empty())
         return false;
 
-    /*
     // 큐 및 이벤트 초기화 코드와 UDP 송수신 스레드가
     // 구현된 뒤 아래 코드를 활성화한다.
 
@@ -89,7 +87,6 @@ bool RegisterUdp(uint8_t playerId, uint64_t udpKey)
         // 시간 초과 시 재전송.
         // 늦은 응답을 놓치지 않도록 여기서는 ResetEvent를 하지 않는다.
     }
-    */
 
     return false;
 }
