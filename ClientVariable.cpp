@@ -3,7 +3,7 @@
 SOCKET clientTcpSocket = INVALID_SOCKET;
 std::uint8_t clientPlayerId = 0;
 std::uint64_t clientUdpKey = 0;
-SOCKET clientUdpSocket{};
+SOCKET clientUdpSocket = INVALID_SOCKET;
 sockaddr_in serverUdpAddress{};
 HANDLE hQueueGate = nullptr;
 HANDLE hQueueReady = nullptr;

@@ -115,8 +115,6 @@ struct ServerTcpSendContext : TcpSendConnection {
     HANDLE sendQueueReady = nullptr;
 };
 
-extern std::unordered_map<BYTE, ServerTcpSendContext*> serverTcpConnections;
-
 extern HANDLE hQueueGate;
 extern HANDLE hQueueReady;
 extern HANDLE hDisconnectEvent;

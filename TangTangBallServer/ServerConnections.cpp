@@ -1,7 +1,25 @@
 ﻿#include "ServerConnections.h"
+#include "EventQueue.h"
 
 // 나중에 서버가 accept()로 받은 참가자별 연결을 등록한다.
 std::unordered_map<std::uint8_t, TcpConnection> connections;
+
+void CloseTcpConnection(const TcpConnection& connection)
+{
+    closesocket(connection.socket);
+    if (connection.sendThread != nullptr)
+        CloseHandle(connection.sendThread);
+    if (connection.recvThread != nullptr)
+        CloseHandle(connection.recvThread);
+    if (connection.disconnectEvent != nullptr)
+        CloseHandle(connection.disconnectEvent);
+    if (connection.sendContext) {
+        if (connection.sendContext->sendQueueGate != nullptr)
+            CloseHandle(connection.sendContext->sendQueueGate);
+        if (connection.sendContext->sendQueueReady != nullptr)
+            CloseHandle(connection.sendContext->sendQueueReady);
+    }
+}
 
 void RequestDisconnect(std::uint8_t playerId)
 {
@@ -37,6 +55,13 @@ void RequestDisconnect(std::uint8_t playerId)
     SetEvent(disconnectEvent);
     shutdown(socket, SD_BOTH);
 
+    // 참가자 번호를 재사용하기 전에 게임 스레드에 퇴장 사건을 보낸다.
+    if (WaitForSingleObject(hStopEvent, 0) == WAIT_TIMEOUT) {
+        NetEvent event{};
+        event.eventKind = NetEventDisconnected;
+        event.playerId = playerId;
+        PushEventQueue(gameRequestQueue, event, hGameRequestGate, hGameRequestReady);
+    }
 
     if (WaitForSingleObject(hConnectionGate, INFINITE) == WAIT_OBJECT_0) {
         connections.at(playerId).state = ConnectionState::ReadyToCollect;
@@ -74,16 +99,6 @@ void CollectFinishedConnections()
         connections.erase(it);
         SetEvent(hConnectionGate);
 
-        closesocket(finished.socket);
-        CloseHandle(finished.sendThread);
-        CloseHandle(finished.recvThread);
-        CloseHandle(finished.disconnectEvent);
-
-        if (finished.sendQueueGate != nullptr) {
-            CloseHandle(finished.sendQueueGate);
-        }
-        if (finished.sendQueueReady != nullptr) {
-            CloseHandle(finished.sendQueueReady);
-        }
+        CloseTcpConnection(finished);
     }
 }

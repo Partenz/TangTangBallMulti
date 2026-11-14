@@ -3,7 +3,11 @@
 
 bool CloseSyncEvents()
 {
-    HANDLE* handles[] = { &hQueueGate, &hQueueReady, &hConnectionGate, &hStopEvent, &hDisconnectEvent };
+    HANDLE* handles[] = {
+        &hQueueGate, &hQueueReady, &hConnectionGate, &hStopEvent, &hDisconnectEvent,
+        &hGameRequestGate, &hGameRequestReady,
+        &hServerUdpSendGate, &hServerUdpSendReady
+    };
 
     DWORD firstError = ERROR_SUCCESS;
 

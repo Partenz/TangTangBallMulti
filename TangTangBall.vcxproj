@@ -76,6 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -91,6 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -106,6 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -121,6 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -132,8 +136,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ApplyServerEvent.cpp" />
-    <ClCompile Include="clearRecordLoad.cpp" />
-    <ClCompile Include="clearRecordSave.cpp" />
+    <ClCompile Include="clearRecordLoad.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="clearRecordSave.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="ClientMain.cpp" />
     <ClCompile Include="ClientTcpRecvThreadMain.cpp" />
     <ClCompile Include="ClientTcpSendThreadMain.cpp" />
     <ClCompile Include="ClientUDPRecvThreadMain.cpp" />
@@ -141,30 +150,62 @@
     <ClCompile Include="CloseSyncEvents.cpp" />
     <ClCompile Include="ConnectToServer.cpp" />
     <ClCompile Include="DrawGameStart.cpp" />
-    <ClCompile Include="DrawGrid.cpp" />
-    <ClCompile Include="DrawPlayer.cpp" />
-    <ClCompile Include="DrawStage.cpp" />
-    <ClCompile Include="DrawStageClear.cpp" />
-    <ClCompile Include="DrawStageSelect.cpp" />
+    <ClCompile Include="DrawGrid.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="DrawPlayer.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="DrawStage.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="DrawStageClear.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="DrawStageSelect.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="EnDePacket.cpp" />
     <ClCompile Include="EventQueue.cpp" />
-    <ClCompile Include="GameCleanup.cpp" />
-    <ClCompile Include="GameInitialize.cpp" />
-    <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="GameCleanup.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GameInitialize.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GameState.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="IsNewerSequence.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="mapDelete.cpp" />
-    <ClCompile Include="mapLoad.cpp" />
-    <ClCompile Include="mapSave.cpp" />
-    <ClCompile Include="MouseClick.cpp" />
+    <ClCompile Include="main.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="mapDelete.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="mapLoad.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="mapSave.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="MouseClick.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="NetworkCommon.cpp" />
-    <ClCompile Include="PlayerMovement.cpp" />
+    <ClCompile Include="PlayerMovement.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="RegisterUDP.cpp" />
     <ClCompile Include="ClientUDPSendThreadMain.cpp" />
     <ClCompile Include="RequestDoubleJump.cpp" />
     <ClCompile Include="SendMoveInput.cpp" />
-    <ClCompile Include="SetMapEditMode.cpp" />
-    <ClCompile Include="StageClear.cpp" />
+    <ClCompile Include="SetMapEditMode.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="StageClear.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="SyncEvents.cpp" />
     <ClCompile Include="TCPQueue.cpp" />
     <ClCompile Include="TcpRecvThread.cpp" />

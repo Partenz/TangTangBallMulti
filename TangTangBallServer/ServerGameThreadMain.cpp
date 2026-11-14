@@ -15,7 +15,6 @@ void HandleMapReady(uint8_t playerId) {}                                        
 void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY) {}               // 준홍 15일
 //void HandleDoubleJump(uint8_t playerId, uint16_t roundCnt, uint8_t direction) {}  // 상준 13일 -완료
 void HandlePreview(uint8_t playerId, uint16_t roundCnt, uint32_t sequence, int16_t gridX, int16_t gridY, bool visible) {} // 상준 17일
-void HandleDisconnect(uint8_t playerId) {}                                        // 준홍 18일
 void BeginRound() {}                                                              // 준홍 15일
 void BeginRace() {}                                                               // 준홍 17일
 void ReturnToLobby() {}                                                           // 준홍 18일

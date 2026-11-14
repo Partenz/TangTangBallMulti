@@ -4,9 +4,23 @@
 
 bool InitSyncEvents()
 {
-    HANDLE* handles[] = { &hQueueGate, &hQueueReady, &hConnectionGate, &hStopEvent, &hDisconnectEvent };
-    const BOOL manualReset[] = { FALSE, TRUE,  FALSE, TRUE,  TRUE };
-    const BOOL initialSignal[] = { TRUE,  FALSE, TRUE,  FALSE, FALSE };
+    HANDLE* handles[] = {
+       &hQueueGate, &hQueueReady, &hConnectionGate, &hStopEvent, &hDisconnectEvent,
+       &hGameRequestGate, &hGameRequestReady,
+       &hServerUdpSendGate, &hServerUdpSendReady
+    };
+
+    const BOOL manualReset[] = {
+        FALSE, TRUE, FALSE, TRUE, TRUE,
+        FALSE, TRUE,
+        FALSE, TRUE
+    };
+
+    const BOOL initialSignal[] = {
+        TRUE, FALSE, TRUE, FALSE, FALSE,
+        TRUE, FALSE,
+        TRUE, FALSE
+    };
 
     for (HANDLE* handle : handles) {
         if (*handle != nullptr) {

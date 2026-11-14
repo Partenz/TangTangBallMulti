@@ -11,17 +11,19 @@ enum class ConnectionState {
 };
 
 struct TcpConnection {
+    std::uint8_t playerId = 0;
     SOCKET socket = INVALID_SOCKET;
     HANDLE sendThread = nullptr;
     HANDLE recvThread = nullptr;
     HANDLE disconnectEvent = nullptr;
-    HANDLE sendQueueGate = nullptr;
-    HANDLE sendQueueReady = nullptr;
 	std::shared_ptr<ServerTcpSendContext> sendContext = nullptr;
     ConnectionState state = ConnectionState::Active;
 };
 
 extern std::unordered_map<std::uint8_t, TcpConnection> connections;
+
+// 소켓과 연결별 핸들을 닫는다. 시작한 스레드는 먼저 종료해야 한다.
+void CloseTcpConnection(const TcpConnection& connection);
 
 // 종료 요청을 기록하고 이벤트 설정
 void RequestDisconnect(std::uint8_t playerId);
@@ -30,3 +32,4 @@ void CollectFinishedConnections();
 
 // 게임 입장 처리
 void HandleNewConnection(std::uint8_t playerId);
+void HandleDisconnect(std::uint8_t playerId);

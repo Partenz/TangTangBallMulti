@@ -176,6 +176,7 @@
     <ClInclude Include="InitSyncEvents.h" />
     <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="NetworkCommon.h" />
+    <ClInclude Include="ServerAcceptThreadMain.h" />
     <ClInclude Include="ServerCollision.h" />
     <ClInclude Include="ServerConnections.h" />
     <ClInclude Include="ServerTcpRecvThreadMain.h" />

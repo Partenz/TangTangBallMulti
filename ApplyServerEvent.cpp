@@ -7,7 +7,7 @@
 #include "ApplyServerEvent.h"
 
 // The map handler fills clientGameState and sends MAP_READY when the map is complete.
-bool ApplyMapData(const std::vector<BYTE>& body) {}           // 준하 16일
+bool ApplyMapData(const std::vector<BYTE>& body) { return false; } // 준하 16일
 
 namespace {
     constexpr BYTE lobbyPhase = 0;

@@ -16,16 +16,8 @@ void InitializeGame(HWND hWnd)
 	playerRT.bottom = playerY + playerSize;
 
 	GetClientRect(hWnd, &clientRect);
-	// 시작메뉴 바탕 애니메이션 비트맵
-	menuAni[0] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP2));
-	menuAni[1] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP3));
-	menuAni[2] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP4));
-	menuAni[3] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP5));
-	menuAni[4] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP6));
-	menuAni[5] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP7));
-	menuAni[6] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP8));
-	menuAni[7] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP9));
-	menuAni[8] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP10));
+	// 시작 화면 애니메이션과 버튼 비트맵
+	LoadMenuBitmaps(g_hInst, menuAni, buttonUI);
 	// 기본 블럭 비트맵
 	BlockBitmap[BlockType_Basic] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP1));
 	// 특수블럭
@@ -37,9 +29,6 @@ void InitializeGame(HWND hWnd)
 	BlockBitmap[BlockType_UpDown] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP17));
 	BlockBitmap[BlockType_LightningOnBlock] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP27));
 	BlockBitmap[BlockType_LightningOffBlock] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP28));
-	// 버튼 ui
-	buttonUI[0] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP16));
-	buttonUI[1] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP18));
 	// 스테이지 비트맵
 	stageBitmap[0] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP19));
 	stageBitmap[1] = LoadBitmap(g_hInst, MAKEINTRESOURCE(IDB_BITMAP20));

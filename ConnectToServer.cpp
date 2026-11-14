@@ -1,4 +1,5 @@
 ﻿#include <Winsock2.h>
+#include <WS2tcpip.h>
 #include <vector>
 
 #include "ConnectToServer.h"
@@ -11,8 +12,13 @@ namespace
     bool ReceiveExact(SOCKET socket, BYTE* data, int size)
     {
         int received = 0;
+        const ULONGLONG deadline = GetTickCount64() + 3000;
 
         while (received < size) {
+            if (WaitForSingleObject(hStopEvent, 0) == WAIT_OBJECT_0 ||
+                GetTickCount64() >= deadline)
+                return false;
+
             const int count = recv(socket, reinterpret_cast<char*>(data + received),size - received, 0);
 
             // 0은 상대가 연결을 닫은 경우, SOCKET_ERROR는 수신 실패.
@@ -37,7 +43,8 @@ bool ConnectToServer(const char* serverIp, std::uint16_t tcpPort)
     sockaddr_in address{};
     address.sin_family = AF_INET;
     address.sin_port = htons(tcpPort);
-	address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    if (inet_pton(AF_INET, serverIp, &address.sin_addr) != 1)
+        return false;
     
 
     const SOCKET socketHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -45,9 +52,39 @@ bool ConnectToServer(const char* serverIp, std::uint16_t tcpPort)
         return false;
     }
 
+    // 접속을 기다리는 동안에도 창을 닫거나 접속을 취소할 수 있게 한다.
+    u_long nonBlocking = 1;
+    if (ioctlsocket(socketHandle, FIONBIO, &nonBlocking) == SOCKET_ERROR) {
+        closesocket(socketHandle);
+        return false;
+    }
+
+    bool connected = connect(socketHandle, reinterpret_cast<const sockaddr*>(&address),
+        sizeof(address)) == 0;
+    if (!connected && WSAGetLastError() == WSAEWOULDBLOCK) {
+        const ULONGLONG deadline = GetTickCount64() + 5000;
+        while (GetTickCount64() < deadline &&
+            WaitForSingleObject(hStopEvent, 0) != WAIT_OBJECT_0) {
+            fd_set writable;
+            fd_set failed;
+            FD_ZERO(&writable);
+            FD_ZERO(&failed);
+            FD_SET(socketHandle, &writable);
+            FD_SET(socketHandle, &failed);
+
+            timeval waitTime{ 0, 100000 };
+            const int ready = select(0, nullptr, &writable, &failed, &waitTime);
+            if (ready != 0) {
+                connected = ready > 0 && FD_ISSET(socketHandle, &writable);
+                break;
+            }
+        }
+    }
+
+    nonBlocking = 0;
     constexpr DWORD timeoutMs = 1000;
-    if (connect(socketHandle, reinterpret_cast<const sockaddr*>(&address),
-        static_cast<int>(sizeof(address))) == SOCKET_ERROR ||
+    if (!connected || WaitForSingleObject(hStopEvent, 0) == WAIT_OBJECT_0 ||
+        ioctlsocket(socketHandle, FIONBIO, &nonBlocking) == SOCKET_ERROR ||
         !ApplySocketTimeouts(socketHandle, timeoutMs, timeoutMs)) {
         closesocket(socketHandle);
         return false;

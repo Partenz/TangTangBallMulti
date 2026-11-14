@@ -14,8 +14,8 @@ DWORD WINAPI ClientUdpRecvThreadMain(LPVOID unused)
     BYTE receiveBuffer[512];
 
     // 0번은 PLAYERS_STATE, 1~255번은 참가자별 PLAYERS_PREVIEW.
-    std::uint32_t lastReceivedSequence[4]{};
-    bool hasReceivedSequence[4]{};
+    std::uint32_t lastReceivedSequence[256]{};
+    bool hasReceivedSequence[256]{};
 
     while (true) {
         const DWORD stopEventWaitResult = WaitForSingleObject(hStopEvent, 0);

@@ -138,3 +138,16 @@ void HandleNewConnection(std::uint8_t playerId)
         }
     }
 }
+
+void HandleDisconnect(std::uint8_t playerId)
+{
+    if (gameState.players.erase(playerId) == 0)
+        return;
+
+    constexpr BYTE playerLeaveType = 8;
+    const std::vector<BYTE> leaveBody{ playerId };
+    for (const auto& entry : gameState.players) {
+        if (!QueueServerTcpPacket(entry.first, playerLeaveType, leaveBody))
+            RequestDisconnect(entry.first);
+    }
+}

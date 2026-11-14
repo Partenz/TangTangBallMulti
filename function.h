@@ -31,6 +31,9 @@ void DrawStageSelect(HDC, HDC);
 
 // 게임 시작 화면 그리기
 void DrawGameStart(HDC, HDC, HFONT, HFONT);
+void DrawGameStart(HDC target, HDC bitmapDC, const RECT& bounds, HBITMAP frame);
+void DrawMenuButtonBitmap(HDC target, HDC bitmapDC, const RECT& bounds, HBITMAP bitmap);
+bool LoadMenuBitmaps(HINSTANCE instance, HBITMAP (&frames)[9], HBITMAP (&buttons)[2]);
 
 // 맵 저장
 void mapSave();

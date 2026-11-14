@@ -1,4 +1,7 @@
-﻿#include "ServerConnections.h"
+﻿#include "ServerAcceptThreadMain.h"
+#include <new>
+#include "ServerConnections.h"
+#include "ServerTcpRecvThreadMain.h"
 #include "NetworkCommon.h"
 #include "EventQueue.h"
 #include "ServerVariable.h"
@@ -18,7 +21,9 @@ DWORD WINAPI ServerAcceptThreadMain(LPVOID listenSocketPtr)
 		if (stopResult == WAIT_OBJECT_0) return 0;
 		if (stopResult != WAIT_TIMEOUT) return GetLastError();
 
-		// 종료 이벤트 확인
+		CollectFinishedConnections();
+
+		// 접속 요청이나 종료 신호를 다시 확인할 때까지 기다린다.
 		fd_set readable;
 		FD_ZERO(&readable);
 		FD_SET(listenSocket, &readable);
@@ -43,21 +48,46 @@ DWORD WINAPI ServerAcceptThreadMain(LPVOID listenSocketPtr)
 			continue;
 		}
 
-		// disconnect 이벤트 생성
-		HANDLE disconnectEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-		if (disconnectEvent == nullptr)
-		{
-			const int err = GetLastError();
-			closesocket(clientSocket);
-			return err;
+		TcpConnection connection{};
+		connection.socket = clientSocket;
+		try {
+			connection.sendContext = std::make_shared<ServerTcpSendContext>();
+		}
+		catch (const std::bad_alloc&) {
+			CloseTcpConnection(connection);
+			return ERROR_NOT_ENOUGH_MEMORY;
 		}
 
-		// singleObject로 연결 제어
+		// 참가자별 종료 이벤트와 TCP 송신 큐 이벤트를 준비한다.
+		auto& sendContext = *connection.sendContext;
+		connection.disconnectEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+		if (connection.disconnectEvent == nullptr) {
+			const DWORD error = GetLastError();
+			CloseTcpConnection(connection);
+			return error;
+		}
+
+		sendContext.socket = clientSocket;
+		sendContext.stopEvent = hStopEvent;
+		sendContext.disconnectEvent = connection.disconnectEvent;
+		sendContext.sendQueueGate = CreateEvent(nullptr, FALSE, TRUE, nullptr);
+		if (sendContext.sendQueueGate == nullptr) {
+			const DWORD error = GetLastError();
+			CloseTcpConnection(connection);
+			return error;
+		}
+
+		sendContext.sendQueueReady = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+		if (sendContext.sendQueueReady == nullptr) {
+			const DWORD error = GetLastError();
+			CloseTcpConnection(connection);
+			return error;
+		}
+
 		if (WaitForSingleObject(hConnectionGate, INFINITE) != WAIT_OBJECT_0) {
-			const int err = GetLastError();
-			closesocket(clientSocket);
-			CloseHandle(disconnectEvent);
-			return err;
+			const DWORD error = GetLastError();
+			CloseTcpConnection(connection);
+			return error;
 		}
 
 		// 목록을 보호한 상태에서 사용 중이지 않은 참가자 번호를 찾는다.
@@ -72,31 +102,55 @@ DWORD WINAPI ServerAcceptThreadMain(LPVOID listenSocketPtr)
 
 		if (playerId == 0) {
 			SetEvent(hConnectionGate);
-			CloseHandle(disconnectEvent);
-			closesocket(clientSocket);
+			CloseTcpConnection(connection);
 			continue;
 		}
 
-		TcpConnection connection{};
-		connection.socket = clientSocket;
-		connection.disconnectEvent = disconnectEvent;
-		
-		connections.emplace(playerId, connection);
-		// 참가자별 컨텍스트
-		connection.sendContext = std::make_shared<ServerTcpSendContext>();
+		connection.playerId = playerId;
+		TcpConnection* registeredConnection = nullptr;
+		try {
+			registeredConnection = &connections.emplace(playerId, connection).first->second;
+		}
+		catch (const std::bad_alloc&) {
+			SetEvent(hConnectionGate);
+			CloseTcpConnection(connection);
+			return ERROR_NOT_ENOUGH_MEMORY;
+		}
 
-		SetEvent(hConnectionGate);
+		// 연결 목록에 저장된 ID를 두 스레드에 전달한다.
+		TcpConnection& registered = *registeredConnection;
+		registered.sendThread = CreateThread(nullptr, 0, ServerTcpSendThreadMain, &registered.playerId, 0, nullptr);
+		if (registered.sendThread != nullptr)
+			registered.recvThread = CreateThread(nullptr, 0, ServerTcpRecvThreadMain, &registered.playerId, 0, nullptr);
 
-		// 연결 등록을 마친 뒤 게임 요청 큐에 새 접속을 알린다.
+		// TCP 스레드가 Gate를 얻기 전에 새 접속 사건을 큐에 넣는다.
 		NetEvent event{};
 		event.eventKind = NetEventConnected;
 		event.playerId = playerId;
 
-		if (!PushEventQueue(gameRequestQueue, event,
-			hGameRequestGate, hGameRequestReady)) {
-			return GetLastError();
+		if (registered.recvThread != nullptr &&
+			PushEventQueue(gameRequestQueue, event, hGameRequestGate, hGameRequestReady)) {
+			SetEvent(hConnectionGate);
+			continue;
 		}
 
+		const DWORD error = GetLastError();
+		registered.state = ConnectionState::Stopping;
+		SetEvent(hConnectionGate);
+
+		// 생성된 스레드가 연결 목록을 확인하고 끝날 때까지 기다린다.
+		if (registered.sendThread != nullptr)
+			WaitForSingleObject(registered.sendThread, INFINITE);
+		if (registered.recvThread != nullptr)
+			WaitForSingleObject(registered.recvThread, INFINITE);
+
+		if (WaitForSingleObject(hConnectionGate, INFINITE) != WAIT_OBJECT_0)
+			return GetLastError();
+		const TcpConnection failedConnection = registered;
+		connections.erase(playerId);
+		SetEvent(hConnectionGate);
+		CloseTcpConnection(failedConnection);
+		return error;
 	}
 
 }
