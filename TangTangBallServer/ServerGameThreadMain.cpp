@@ -1,4 +1,6 @@
 ﻿#include "ServerGameThreadMain.h"
+#include "BeginRound.h"
+#include "HandlePlace.h"
 #include "EventQueue.h"
 #include "HandleMoveInput.h"
 #include "ServerConnections.h"
@@ -13,10 +15,10 @@ extern GameState gameState;
 // 서버 프로젝트에서 제공하는 핸들러용 플랜의 선언
 void HandleReady(uint8_t playerId, bool ready) {}                                 // 준하 15일
 void HandleMapReady(uint8_t playerId) {}                                          // 준하 16일
-void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY) {}               // 준홍 15일
+//void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY) {}
 //void HandleDoubleJump(uint8_t playerId, uint16_t roundCnt, uint8_t direction) {}  // 상준 13일 -완료
 void HandlePreview(uint8_t playerId, uint16_t roundCnt, uint32_t sequence, int16_t gridX, int16_t gridY, bool visible) {} // 상준 17일
-void BeginRound() {}                                                              // 준홍 15일
+//void BeginRound() {}
 void BeginRace() {}                                                               // 준홍 17일
 void ReturnToLobby() {}                                                           // 준홍 18일
 //void UpdatePhysics(float deltaSeconds) {}                                         // 상준 13일 -완료

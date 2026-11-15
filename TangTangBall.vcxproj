@@ -199,6 +199,7 @@
     <ClCompile Include="RegisterUDP.cpp" />
     <ClCompile Include="ClientUDPSendThreadMain.cpp" />
     <ClCompile Include="RequestDoubleJump.cpp" />
+    <ClCompile Include="RequestPlaceBlock.cpp" />
     <ClCompile Include="SendMoveInput.cpp" />
     <ClCompile Include="SetMapEditMode.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -228,6 +229,7 @@
     <ClInclude Include="NetworkCommon.h" />
     <ClInclude Include="RegisterUDP.h" />
     <ClInclude Include="RequestDoubleJump.h" />
+    <ClInclude Include="RequestPlaceBlock.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ClientUDPSendThreadMain.h" />
     <ClInclude Include="SendMoveInput.h" />
