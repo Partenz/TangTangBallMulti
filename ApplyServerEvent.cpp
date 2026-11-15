@@ -245,6 +245,7 @@ void ApplyServerEvent(const NetEvent& event)
                 ReadFloat(body, offset + 13),
                 body[offset + 17] != 0
             };
+            player->second.lastMoveTime = GetTickCount64();
         }
         break;
     }

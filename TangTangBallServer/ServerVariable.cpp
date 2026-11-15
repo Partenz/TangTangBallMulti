@@ -20,3 +20,5 @@ HANDLE hConnectionGate = nullptr;
 HANDLE hQueueGate = nullptr;
 HANDLE hQueueReady = nullptr;
 HANDLE hDisconnectEvent = nullptr;
+
+std::uint32_t serverUdpSendSequence{0};

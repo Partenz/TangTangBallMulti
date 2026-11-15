@@ -78,6 +78,8 @@ struct NetEvent {
     std::vector<BYTE> packetData;
 };
 
+extern GameState gameState;
+
 // 서버 UDP 소켓과 전체 종료 이벤트
 extern SOCKET serverUdpSocket;
 extern HANDLE hStopEvent;
@@ -118,3 +120,5 @@ struct ServerTcpSendContext : TcpSendConnection {
 extern HANDLE hQueueGate;
 extern HANDLE hQueueReady;
 extern HANDLE hDisconnectEvent;
+
+extern std::uint32_t serverUdpSendSequence;

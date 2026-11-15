@@ -143,6 +143,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BroadcastPlayerStates.cpp" />
     <ClCompile Include="CloseSyncEvents.cpp" />
     <ClCompile Include="EnDePacket.cpp" />
     <ClCompile Include="HandleDoubleJump.cpp" />
@@ -168,6 +169,7 @@
     <ClCompile Include="UpdatePhysics.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BroadcastPlayerStates.h" />
     <ClInclude Include="CloseSyncEvents.h" />
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EnDePacket.h" />

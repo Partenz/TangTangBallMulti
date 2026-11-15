@@ -18,6 +18,7 @@
 #include "ClientTcpSendThreadMain.h"
 #include "EventQueue.h"
 #include "ApplyServerEvent.h"
+#include "UpdatePlayerDisplays.h"
 #include "function.h"
 #include "resource.h"
 
@@ -637,6 +638,7 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     case WM_TIMER:
         if (wParam == networkTimer) {
             UpdateNetwork(*client);
+            UpdatePlayerDisplays(GetTickCount64());
             return 0;
         }
         if (wParam == menuTimer) {

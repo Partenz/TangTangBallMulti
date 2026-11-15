@@ -84,6 +84,9 @@
     <ClCompile Include="TcpRecvThread.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="BroadcastPlayerStates.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IsNewerSequence.h">
@@ -147,6 +150,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ServerAcceptThreadMain.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BroadcastPlayerStates.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

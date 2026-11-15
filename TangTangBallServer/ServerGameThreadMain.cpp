@@ -5,6 +5,7 @@
 #include "HandleDoubleJump.h"
 #include "UpdatePhysics.h"
 #include "ServerCollision.h"
+#include "BroadcastPlayerStates.h"
 #include "ServerVariable.h"
 
 extern GameState gameState;
@@ -20,7 +21,7 @@ void BeginRace() {}                                                             
 void ReturnToLobby() {}                                                           // 준홍 18일
 //void UpdatePhysics(float deltaSeconds) {}                                         // 상준 13일 -완료
 //void CheckCollisions() {}                                                         // 준하 12일 -완료
-void BroadcastPlayerStates() {}                                                   // 상준 15일
+//void BroadcastPlayerStates() {}                                                   // 상준 15일
 
 namespace {
     constexpr BYTE placingPhase = 2;
