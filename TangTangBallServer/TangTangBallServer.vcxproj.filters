@@ -93,6 +93,12 @@
     <ClCompile Include="HandlePlace.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="HandleReady.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorRequest.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IsNewerSequence.h">
@@ -165,6 +171,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="HandlePlace.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="HandleReady.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorRequest.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

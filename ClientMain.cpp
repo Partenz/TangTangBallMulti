@@ -425,7 +425,15 @@ static void UpdateNetwork(ClientWindow& client)
     }
 
     bool lobbyChanged = false;
+    const wchar_t* colorStatus = nullptr;
     for (const NetEvent& event : events) {
+        if (event.eventKind == NetEventPacket && event.packetType == 4 &&
+            event.packetData.size() == 1) {
+            colorStatus = event.packetData[0] == 1
+                ? L"색상이 변경되었습니다."
+                : L"색상을 변경할 수 없습니다.";
+            continue;
+        }
         ApplyServerEvent(event);
         if (event.packetType == 2 || event.packetType == 8)
             lobbyChanged = true;
@@ -434,6 +442,10 @@ static void UpdateNetwork(ClientWindow& client)
         UpdateLobby(client);
         SetWindowTextW(client.status, L"서버에 연결되었습니다.");
     }
+    if (colorStatus != nullptr) {
+        SetWindowTextW(client.status, colorStatus);
+    }
+
 }
 
 static bool LoadMenuResources(ClientWindow& client, HINSTANCE instance)

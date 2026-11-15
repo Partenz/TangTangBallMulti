@@ -33,3 +33,7 @@ void CollectFinishedConnections();
 // 게임 입장 처리
 void HandleNewConnection(std::uint8_t playerId);
 void HandleDisconnect(std::uint8_t playerId);
+
+// TCP 송신 큐 패킷
+bool QueueServerTcpPacket(std::uint8_t playerId, BYTE packetType,
+    const std::vector<BYTE>& body);

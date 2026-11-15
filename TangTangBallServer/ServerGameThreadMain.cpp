@@ -9,11 +9,12 @@
 #include "ServerCollision.h"
 #include "BroadcastPlayerStates.h"
 #include "ServerVariable.h"
+#include "HandleReady.h"
+#include "ColorRequest.h"
 
 extern GameState gameState;
 
 // 서버 프로젝트에서 제공하는 핸들러용 플랜의 선언
-void HandleReady(uint8_t playerId, bool ready) {}                                 // 준하 15일
 void HandleMapReady(uint8_t playerId) {}                                          // 준하 16일
 //void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY) {}
 //void HandleDoubleJump(uint8_t playerId, uint16_t roundCnt, uint8_t direction) {}  // 상준 13일 -완료
@@ -68,7 +69,10 @@ namespace {
 
         const auto& body = event.packetData;
         switch (event.packetType) {
-            // COLOR_REQUEST is assigned to the separate lobby implementation in the plan. // 준하 15일
+		case 3: // COLOR_REQUEST
+            if(body.size() == 1)
+				ColorRequest(playerId, body[0]);
+            break;
         case 5: // READY_REQUEST
             if (body.size() == 1 && body[0] <= 1)
                 HandleReady(playerId, body[0] != 0);

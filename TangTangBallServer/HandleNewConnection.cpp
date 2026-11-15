@@ -14,35 +14,34 @@ namespace {
     constexpr BYTE lobbyPhase = 0;
     constexpr BYTE joinResponseType = 1;
     constexpr BYTE lobbyStateType = 2;
+}
+bool QueueServerTcpPacket(std::uint8_t playerId, BYTE packetType,
+    const std::vector<BYTE>& body)
+{
+    NetEvent event{};
+    event.playerId = playerId;
+    event.packetType = packetType;
+    event.packetData = EncodePacket(packetType, body);
 
-    bool QueueServerTcpPacket(std::uint8_t playerId, BYTE packetType,
-        const std::vector<BYTE>& body)
-    {
-        NetEvent event{};
-        event.playerId = playerId;
-        event.packetType = packetType;
-        event.packetData = EncodePacket(packetType, body);
-
-        if (event.packetData.empty() ||
-            WaitForSingleObject(hConnectionGate, INFINITE) != WAIT_OBJECT_0) {
-            return false;
-        }
-
-        const auto it = connections.find(playerId);
-        bool queued = false;
-
-        if (it != connections.end() &&
-            it->second.state == ConnectionState::Active &&
-            it->second.sendContext) {
-            auto& context = *it->second.sendContext;
-            queued = PushEventQueue(context.sendQueue, event,
-                context.sendQueueGate,
-                context.sendQueueReady);
-        }
-
-        SetEvent(hConnectionGate);
-        return queued;
+    if (event.packetData.empty() ||
+        WaitForSingleObject(hConnectionGate, INFINITE) != WAIT_OBJECT_0) {
+        return false;
     }
+
+    const auto it = connections.find(playerId);
+    bool queued = false;
+
+    if (it != connections.end() &&
+        it->second.state == ConnectionState::Active &&
+        it->second.sendContext) {
+        auto& context = *it->second.sendContext;
+        queued = PushEventQueue(context.sendQueue, event,
+            context.sendQueueGate,
+            context.sendQueueReady);
+    }
+
+    SetEvent(hConnectionGate);
+    return queued;
 }
 
 void HandleNewConnection(std::uint8_t playerId)
