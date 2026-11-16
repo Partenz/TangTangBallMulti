@@ -215,6 +215,7 @@
     <ClCompile Include="variable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ApplyMapData.h" />
     <ClInclude Include="ApplyServerEvent.h" />
     <ClInclude Include="ClientTcpRecvThreadMain.h" />
     <ClInclude Include="ClientTcpSendThreadMain.h" />

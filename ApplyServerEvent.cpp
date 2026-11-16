@@ -5,9 +5,8 @@
 #include <vector>
 
 #include "ApplyServerEvent.h"
+#include "TCPQueue.h"
 
-// The map handler fills clientGameState and sends MAP_READY when the map is complete.
-bool ApplyMapData(const std::vector<BYTE>& body) { return false; } // 준하 16일
 
 namespace {
     constexpr BYTE lobbyPhase = 0;
@@ -59,6 +58,51 @@ namespace {
         player.alive = true;
         player.motion = { info.playerId, spawnX, spawnY, 0.0f, 0.0f, false };
     }
+}
+
+bool ApplyMapData(const std::vector<BYTE>& body)
+{
+    constexpr std::size_t mapFieldsSize = 18;
+    constexpr std::size_t objectSize = 22;
+    constexpr BYTE mapReadyType = 11;
+
+    if (body.size() < mapFieldsSize) {
+        return false;
+    }
+
+    const auto width = ReadUnsigned<std::uint16_t>(body, 0);
+    const auto height = ReadUnsigned<std::uint16_t>(body, 2);
+    const auto objectCount = ReadUnsigned<std::uint32_t>(body, 4);
+    const auto count = ReadUnsigned<std::uint16_t>(body, 16);
+
+    // 현재 SendMap()은 맵 전체를 패킷 하나에 담는다.
+    if (width == 0 || height == 0 || objectCount != count ||
+        body.size() != mapFieldsSize + std::size_t(count) * objectSize) {
+        return false;
+    }
+
+    std::vector<ObjectInfo> objects;
+    objects.reserve(count);
+
+    for (std::size_t offset = mapFieldsSize; offset < body.size(); offset += objectSize) {
+        ObjectInfo object{};
+        object.objectId = ReadUnsigned<std::uint32_t>(body, offset);
+        object.blockType = body[offset + 4];
+        object.left = static_cast<std::int32_t>(ReadUnsigned<std::uint32_t>(body, offset + 5));
+        object.top = static_cast<std::int32_t>(ReadUnsigned<std::uint32_t>(body, offset + 9));
+        object.right = static_cast<std::int32_t>(ReadUnsigned<std::uint32_t>(body, offset + 13));
+        object.bottom = static_cast<std::int32_t>(ReadUnsigned<std::uint32_t>(body, offset + 17));
+        object.used = body[offset + 21] != 0;
+        objects.push_back(object);
+    }
+
+    clientGameState.mapWidth = width;
+    clientGameState.mapHeight = height;
+    clientGameState.spawnX = ReadFloat(body, 8);
+    clientGameState.spawnY = ReadFloat(body, 12);
+    clientGameState.objects = std::move(objects);
+
+    return QueueTcpPacket(mapReadyType, {});
 }
 
 void ApplyServerEvent(const NetEvent& event)
