@@ -143,11 +143,13 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BeginRace.cpp" />
     <ClCompile Include="BeginRound.cpp" />
     <ClCompile Include="BroadcastPlayerStates.cpp" />
     <ClCompile Include="CloseSyncEvents.cpp" />
     <ClCompile Include="ColorRequest.cpp" />
     <ClCompile Include="EnDePacket.cpp" />
+    <ClCompile Include="EndRound.cpp" />
     <ClCompile Include="HandleDoubleJump.cpp" />
     <ClCompile Include="HandleMapReady.cpp" />
     <ClCompile Include="HandleMoveInput.cpp" />
@@ -176,10 +178,12 @@
     <ClCompile Include="UpdatePhysics.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BeginRace.h" />
     <ClInclude Include="BeginRound.h" />
     <ClInclude Include="BroadcastPlayerStates.h" />
     <ClInclude Include="CloseSyncEvents.h" />
     <ClInclude Include="ColorRequest.h" />
+    <ClInclude Include="EndRound.h" />
     <ClInclude Include="EventQueue.h" />
     <ClInclude Include="EnDePacket.h" />
     <ClInclude Include="HandleDoubleJump.h" />
