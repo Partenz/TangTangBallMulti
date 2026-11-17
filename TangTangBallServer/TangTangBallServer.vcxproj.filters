@@ -105,6 +105,9 @@
     <ClCompile Include="HandleMapReady.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="HandlePreview.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IsNewerSequence.h">
@@ -189,6 +192,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="HandleMapReady.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="HandlePreview.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

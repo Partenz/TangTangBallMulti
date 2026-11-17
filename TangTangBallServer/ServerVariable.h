@@ -5,6 +5,7 @@
 #include <queue>
 #include <unordered_map>
 #include <optional>
+#include <utility>
 
 // 프로그램 내부 사건 번호이며 네트워크 패킷 번호와는 별개입니다.
 enum NetEventKind : BYTE {
@@ -66,6 +67,8 @@ struct GameState {
     float spawnX, spawnY;
     bool electricityActive;
     uint8_t roundWinnerId;
+    // 참가자 ID별로 현재 접속의 UDP 키와 마지막 미리보기 순서 번호를 저장
+    std::unordered_map<std::uint8_t, std::pair<std::uint64_t, std::uint32_t>> lastPreviewSequences;
 };
 
 // 게임 요청 큐와 송신 큐에서 전달하는 이벤트

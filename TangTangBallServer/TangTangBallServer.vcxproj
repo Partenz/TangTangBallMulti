@@ -153,6 +153,7 @@
     <ClCompile Include="HandleMoveInput.cpp" />
     <ClCompile Include="HandleNewConnection.cpp" />
     <ClCompile Include="HandlePlace.cpp" />
+    <ClCompile Include="HandlePreview.cpp" />
     <ClCompile Include="HandleReady.cpp" />
     <ClCompile Include="InitSyncEvents.cpp" />
     <ClCompile Include="IsNewerSequence.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="HandleMapReady.h" />
     <ClInclude Include="HandleMoveInput.h" />
     <ClInclude Include="HandlePlace.h" />
+    <ClInclude Include="HandlePreview.h" />
     <ClInclude Include="HandleReady.h" />
     <ClInclude Include="InitSyncEvents.h" />
     <ClInclude Include="IsNewerSequence.h" />

@@ -12,18 +12,18 @@
 #include "HandleReady.h"
 #include "ColorRequest.h"
 #include "HandleMapReady.h"
-
+#include "HandlePreview.h"
 extern GameState gameState;
 
 //void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY) {}
 //void HandleDoubleJump(uint8_t playerId, uint16_t roundCnt, uint8_t direction) {}  // 상준 13일 -완료
-void HandlePreview(uint8_t playerId, uint16_t roundCnt, uint32_t sequence, int16_t gridX, int16_t gridY, bool visible) {} // 상준 17일
+// void HandlePreview(uint8_t playerId, uint16_t roundCnt, uint32_t sequence, int16_t gridX, int16_t gridY, bool visible) {} // 상준 17일 - 완료
 //void BeginRound() {}
 void BeginRace() {}                                                               // 준홍 17일
 void ReturnToLobby() {}                                                           // 준홍 18일
 //void UpdatePhysics(float deltaSeconds) {}                                         // 상준 13일 -완료
 //void CheckCollisions() {}                                                         // 준하 12일 -완료
-//void BroadcastPlayerStates() {}                                                   // 상준 15일
+//void BroadcastPlayerStates() {}                                                   // 상준 15일 - 완료
 
 namespace {
     constexpr BYTE placingPhase = 2;

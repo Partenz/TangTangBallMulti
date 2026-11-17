@@ -201,6 +201,7 @@
     <ClCompile Include="RequestDoubleJump.cpp" />
     <ClCompile Include="RequestPlaceBlock.cpp" />
     <ClCompile Include="SendMoveInput.cpp" />
+    <ClCompile Include="SendPreviewState.cpp" />
     <ClCompile Include="SetMapEditMode.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -234,6 +235,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ClientUDPSendThreadMain.h" />
     <ClInclude Include="SendMoveInput.h" />
+    <ClInclude Include="SendPreviewState.h" />
     <ClInclude Include="SyncEvents.h" />
     <ClInclude Include="TCPQueue.h" />
     <ClInclude Include="TcpRecvThread.h" />
