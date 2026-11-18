@@ -114,6 +114,12 @@
     <ClCompile Include="EndRound.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="HandleDisconnect.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ReturnToLobby.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IsNewerSequence.h">
@@ -207,6 +213,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="EndRound.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ReturnToLobby.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

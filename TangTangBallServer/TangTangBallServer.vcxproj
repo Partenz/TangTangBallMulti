@@ -150,6 +150,7 @@
     <ClCompile Include="ColorRequest.cpp" />
     <ClCompile Include="EnDePacket.cpp" />
     <ClCompile Include="EndRound.cpp" />
+    <ClCompile Include="HandleDisconnect.cpp" />
     <ClCompile Include="HandleDoubleJump.cpp" />
     <ClCompile Include="HandleMapReady.cpp" />
     <ClCompile Include="HandleMoveInput.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="IsNewerSequence.cpp" />
     <ClCompile Include="EventQueue.cpp" />
     <ClCompile Include="NetworkCommon.cpp" />
+    <ClCompile Include="ReturnToLobby.cpp" />
     <ClCompile Include="SendMap.cpp" />
     <ClCompile Include="ServerAcceptThreadMain.cpp" />
     <ClCompile Include="ServerCollision.cpp" />
@@ -195,6 +197,7 @@
     <ClInclude Include="InitSyncEvents.h" />
     <ClInclude Include="IsNewerSequence.h" />
     <ClInclude Include="NetworkCommon.h" />
+    <ClInclude Include="ReturnToLobby.h" />
     <ClInclude Include="SendMap.h" />
     <ClInclude Include="ServerAcceptThreadMain.h" />
     <ClInclude Include="ServerCollision.h" />
