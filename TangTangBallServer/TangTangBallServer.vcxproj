@@ -214,6 +214,9 @@
     <ClInclude Include="UpdatePhysics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyBaseMap" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\stage1.txt" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>

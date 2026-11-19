@@ -55,6 +55,7 @@ namespace {
         player.info = info;
         player.score = score;
         player.mapReady = mapReady;
+        player.assignedBlockType = 0xff; // No block until BLOCK_ASSIGN arrives.
         player.alive = true;
         player.motion = { info.playerId, spawnX, spawnY, 0.0f, 0.0f, false };
     }

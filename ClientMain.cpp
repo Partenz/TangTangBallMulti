@@ -2,6 +2,8 @@
 #include <WS2tcpip.h>
 #include <Windows.h>
 #include <mmsystem.h>
+#include <windowsx.h>
+#include <algorithm>
 #include <cwchar>
 #include <string>
 #include <vector>
@@ -18,6 +20,10 @@
 #include "ClientTcpSendThreadMain.h"
 #include "EventQueue.h"
 #include "ApplyServerEvent.h"
+#include "RequestDoubleJump.h"
+#include "RequestPlaceBlock.h"
+#include "SendMoveInput.h"
+#include "TCPQueue.h"
 #include "UpdatePlayerDisplays.h"
 #include "function.h"
 #include "resource.h"
@@ -32,6 +38,12 @@ constexpr int startButtonId = 100;
 constexpr int connectButtonId = 101;
 constexpr int backButtonId = 102;
 constexpr int exitButtonId = 103;
+constexpr int firstColorButtonId = 110;
+constexpr int readyButtonId = 116;
+constexpr BYTE lobbyPhase = 0;
+constexpr BYTE placingPhase = 2;
+constexpr BYTE racingPhase = 3;
+constexpr const wchar_t* lobbyColorNames[] = { L"빨강", L"초록", L"파랑", L"청록", L"자홍", L"노랑" };
 constexpr int windowWidth = 800;
 constexpr int windowHeight = 500;
 constexpr RECT menuPanel{ 178, 100, 622, 448 };
@@ -55,6 +67,10 @@ struct ClientWindow {
     HWND addressFields[3]{};
     HWND lobbyPlayer = nullptr;
     HWND lobbyList = nullptr;
+    HWND lobbyColorButtons[ARRAYSIZE(lobbyColorNames)]{};
+    HWND lobbyReadyButton = nullptr;
+    bool canPlaceBlock = false;
+    HBITMAP blockBitmaps[9]{};
     HBITMAP menuFrames[9]{};
     HBITMAP menuButtons[2]{};
     UINT menuFrame = 0;
@@ -75,6 +91,8 @@ struct ClientWindow {
 
     ~ClientWindow()
     {
+        for (HBITMAP bitmap : blockBitmaps)
+            DeleteObject(bitmap);
         for (HBITMAP frame : menuFrames)
             DeleteObject(frame);
         for (HBITMAP bitmap : menuButtons)
@@ -100,6 +118,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     }
 
     WNDCLASSW windowClass{};
+    windowClass.style = CS_DBLCLKS;
     windowClass.hInstance = hInstance;
     windowClass.lpfnWndProc = ClientWndProc;
     windowClass.lpszClassName = clientWindowClass;
@@ -260,22 +279,39 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
 {
     client.screen = screen;
     const bool showConnect = screen == ClientScreen::Connect;
-    const bool showLobby = screen == ClientScreen::Lobby;
+    const bool showLobby = screen == ClientScreen::Lobby && clientGameState.phase == lobbyPhase;
+
+    const bool placing = screen == ClientScreen::Lobby && clientGameState.phase == placingPhase;
+    const bool showStage = placing || (screen == ClientScreen::Lobby && clientGameState.phase == racingPhase);
+    if (!placing)
+        client.canPlaceBlock = false;
+    MoveWindow(client.title, showStage ? 12 : 70, showStage ? 0 : 26, showStage ? 260 : 660, 62, TRUE);
+    MoveWindow(client.status, showStage ? 275 : 196, showStage ? 20 : 345, showStage ? 505 : 408, 34, TRUE);
+    MoveWindow(client.backButton, showStage ? 16 : 209, showStage ? 449 : 385, 128, 42, TRUE);
 
     const wchar_t* title = L"Tang Tang Ball";
     if (showConnect)
         title = L"서버 접속";
     if (showLobby)
         title = L"로비";
+    if (screen == ClientScreen::Lobby && !showLobby) {
+        switch (clientGameState.phase) {
+        case 1: title = L"맵 로딩"; break;
+        case placingPhase: title = L"블록 설치"; break;
+        case racingPhase: title = L"레이스"; break;
+        default: title = L"게임 진행 중"; break;
+        }
+    }
     SetWindowTextW(client.title, title);
-    SetWindowTextW(client.status, status);
+    SetWindowTextW(client.status, clientGameState.phase == racingPhase && showStage ?
+        L"왼쪽 버튼 · 왼쪽 이동     오른쪽 버튼 · 오른쪽 이동" : status);
     ShowWindow(client.status, screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
 
     ShowWindow(client.startButton, screen == ClientScreen::Start ? SW_SHOW : SW_HIDE);
     ShowWindow(client.exitButton, screen == ClientScreen::Start ? SW_SHOW : SW_HIDE);
     ShowWindow(client.connectButton, showConnect ? SW_SHOW : SW_HIDE);
     ShowWindow(client.backButton, screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
-    SetWindowTextW(client.backButton, showLobby ? L"나가기" : L"뒤로");
+    SetWindowTextW(client.backButton, screen == ClientScreen::Lobby ? L"나가기" : L"뒤로");
     EnableWindow(client.connectButton, TRUE);
 
     for (HWND label : client.addressLabels)
@@ -287,6 +323,9 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
 
     ShowWindow(client.lobbyPlayer, showLobby ? SW_SHOW : SW_HIDE);
     ShowWindow(client.lobbyList, showLobby ? SW_SHOW : SW_HIDE);
+    for (HWND colorButton : client.lobbyColorButtons)
+        ShowWindow(colorButton, showLobby ? SW_SHOW : SW_HIDE);
+    ShowWindow(client.lobbyReadyButton, showLobby ? SW_SHOW : SW_HIDE);
 
     InvalidateRect(GetParent(client.title), nullptr, FALSE);
     if (showConnect)
@@ -359,12 +398,19 @@ static void UpdateLobby(ClientWindow& client)
     SetWindowTextW(client.lobbyPlayer, heading.c_str());
 
     SendMessageW(client.lobbyList, LB_RESETCONTENT, 0, 0);
-    const wchar_t* colors[] = { L"빨강", L"초록", L"파랑", L"청록", L"자홍", L"노랑" };
+    const auto localPlayer = clientGameState.players.find(clientPlayerId);
+    const bool hasLocalPlayer = localPlayer != clientGameState.players.end();
+    for (HWND colorButton : client.lobbyColorButtons)
+        EnableWindow(colorButton, hasLocalPlayer);
+    EnableWindow(client.lobbyReadyButton, hasLocalPlayer);
+    SetWindowTextW(client.lobbyReadyButton, hasLocalPlayer && localPlayer->second.info.ready ? L"준비 취소" : L"준비");
     for (const auto& entry : clientGameState.players) {
         const PlayerInfo& info = entry.second.info;
+        if (info.playerId != clientPlayerId)
+            EnableWindow(client.lobbyColorButtons[info.color], FALSE);
         const std::wstring row = L"참가자 " + std::to_wstring(info.playerId) +
             (info.playerId == clientPlayerId ? L" (나)" : L"") +
-            L"    |    " + colors[info.color] +
+            L"    |    " + lobbyColorNames[info.color] +
             (info.ready ? L"    |    준비 완료" : L"    |    준비 대기");
         SendMessageW(client.lobbyList, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(row.c_str()));
     }
@@ -424,26 +470,63 @@ static void UpdateNetwork(ClientWindow& client)
         return;
     }
 
+    const BYTE previousPhase = clientGameState.phase;
+    const wchar_t* placementStatus = nullptr;
     bool lobbyChanged = false;
-    const wchar_t* colorStatus = nullptr;
+    const wchar_t* lobbyRequestStatus = nullptr;
     for (const NetEvent& event : events) {
         if (event.eventKind == NetEventPacket && event.packetType == 4 &&
             event.packetData.size() == 1) {
-            colorStatus = event.packetData[0] == 1
+            lobbyRequestStatus = event.packetData[0] == 1
                 ? L"색상이 변경되었습니다."
                 : L"색상을 변경할 수 없습니다.";
             continue;
         }
+        if (event.eventKind == NetEventPacket && event.packetType == 6 && event.packetData.size() == 1) {
+            if (event.packetData[0] == 0)
+                lobbyRequestStatus = L"준비 상태를 변경할 수 없습니다.";
+            continue;
+        }
         ApplyServerEvent(event);
+        if (clientGameState.phase == placingPhase && event.eventKind == NetEventPacket) {
+            switch (event.packetType) {
+            case 20: // ROUND_BEGIN
+                client.canPlaceBlock = false;
+                placementStatus = L"블록을 배정받는 중입니다.";
+                break;
+            case 21: // BLOCK_ASSIGN
+                client.canPlaceBlock = true;
+                placementStatus = L"맵의 빈 칸을 클릭하세요.";
+                break;
+            case 23: // PLACE_RESPONSE
+                client.canPlaceBlock = event.packetData[0] == 0;
+                placementStatus = client.canPlaceBlock ? L"설치할 수 없는 칸입니다. 다른 칸을 선택하세요." :
+                    L"설치 완료 · 다른 참가자를 기다리는 중입니다.";
+                break;
+            }
+        }
         if (event.packetType == 2 || event.packetType == 8)
             lobbyChanged = true;
     }
-    if (lobbyChanged) {
+    if (previousPhase != clientGameState.phase) {
+        if (GetCapture() == GetParent(client.title))
+            ReleaseCapture();
+        ShowScreen(client, ClientScreen::Lobby, L"");
+    }
+    if (clientGameState.phase == placingPhase) {
+        if (placementStatus != nullptr)
+            SetWindowTextW(client.status, placementStatus);
+        InvalidateRect(GetParent(client.title), nullptr, FALSE);
+        return;
+    }
+    if (clientGameState.phase != lobbyPhase)
+        return;
+    if (lobbyChanged || previousPhase != lobbyPhase) {
         UpdateLobby(client);
         SetWindowTextW(client.status, L"서버에 연결되었습니다.");
     }
-    if (colorStatus != nullptr) {
-        SetWindowTextW(client.status, colorStatus);
+    if (lobbyRequestStatus != nullptr) {
+        SetWindowTextW(client.status, lobbyRequestStatus);
     }
 
 }
@@ -452,6 +535,14 @@ static bool LoadMenuResources(ClientWindow& client, HINSTANCE instance)
 {
     if (!LoadMenuBitmaps(instance, client.menuFrames, client.menuButtons))
         return false;
+
+    const int blockResources[] = { IDB_BITMAP1, IDB_BITMAP13, IDB_BITMAP12, IDB_BITMAP11, IDB_BITMAP14,
+        IDB_BITMAP15, IDB_BITMAP17, IDB_BITMAP27, IDB_BITMAP28 };
+    for (int blockType = 0; blockType < ARRAYSIZE(blockResources); ++blockType) {
+        client.blockBitmaps[blockType] = LoadBitmapW(instance, MAKEINTRESOURCEW(blockResources[blockType]));
+        if (!client.blockBitmaps[blockType])
+            return false;
+    }
 
     client.backgroundBrush = CreateSolidBrush(RGB(140, 238, 238));
     client.panelBrush = CreateSolidBrush(panelColor);
@@ -518,6 +609,22 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     if (client == nullptr)
         return DefWindowProcW(hWnd, message, wParam, lParam);
 
+    const bool placing = client->screen == ClientScreen::Lobby && clientGameState.phase == placingPhase;
+    const bool racing = client->screen == ClientScreen::Lobby && clientGameState.phase == racingPhase;
+    const bool showStage = placing || racing;
+    constexpr int gridSpacing = 40;
+    int cellPixels = 0;
+    RECT mapRect{};
+    if (showStage && clientGameState.mapWidth && clientGameState.mapHeight) {
+        cellPixels = (std::min)((windowWidth - 32) * gridSpacing / clientGameState.mapWidth,
+            368 * gridSpacing / clientGameState.mapHeight);
+        const int mapPixelWidth = clientGameState.mapWidth * cellPixels / gridSpacing;
+        mapRect.left = (windowWidth - mapPixelWidth) / 2;
+        mapRect.top = 72;
+        mapRect.right = mapRect.left + mapPixelWidth;
+        mapRect.bottom = mapRect.top + clientGameState.mapHeight * cellPixels / gridSpacing;
+    }
+
     switch (message) {
     case WM_CREATE: {
         const auto* create = reinterpret_cast<const CREATESTRUCTW*>(lParam);
@@ -557,7 +664,9 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 209, 385, 128, 42, backButtonId },
             { &client->lobbyPlayer, L"STATIC", L"", 0, 209, 129, 378, 28, 0 },
             { &client->lobbyList, L"LISTBOX", L"", WS_BORDER | WS_VSCROLL | LBS_SORT | LBS_NOSEL,
-                209, 168, 378, 158, 0 }
+                209, 162, 378, 128, 0 },
+            { &client->lobbyReadyButton, L"BUTTON", L"준비", WS_TABSTOP | BS_OWNERDRAW,
+                459, 385, 128, 42, readyButtonId }
         };
 
         for (const Control& control : controls) {
@@ -570,10 +679,20 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             SendMessageW(*control.handle, WM_SETFONT, reinterpret_cast<WPARAM>(font), FALSE);
         }
 
+        for (int colorIndex = 0; colorIndex < ARRAYSIZE(lobbyColorNames); ++colorIndex) {
+            HWND& colorButton = client->lobbyColorButtons[colorIndex];
+            colorButton = CreateWindowExW(0, L"BUTTON", lobbyColorNames[colorIndex], WS_CHILD | WS_TABSTOP,
+                209 + colorIndex * 64, 300, 58, 34, hWnd,
+                reinterpret_cast<HMENU>(static_cast<INT_PTR>(firstColorButtonId + colorIndex)), create->hInstance, nullptr);
+            if (colorButton == nullptr)
+                return -1;
+            SendMessageW(colorButton, WM_SETFONT, reinterpret_cast<WPARAM>(client->menuTextFont), FALSE);
+        }
+
         SendMessageW(client->addressFields[0], EM_SETLIMITTEXT, 15, 0);
         SendMessageW(client->addressFields[1], EM_SETLIMITTEXT, 5, 0);
         SendMessageW(client->addressFields[2], EM_SETLIMITTEXT, 5, 0);
-        if (SetTimer(hWnd, networkTimer, 50, nullptr) == 0 ||
+        if (SetTimer(hWnd, networkTimer, 1000 / 30, nullptr) == 0 ||
             SetTimer(hWnd, menuTimer, menuFrameInterval, nullptr) == 0)
             return -1;
 
@@ -583,6 +702,88 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     case WM_PAINT: {
         PAINTSTRUCT paint{};
         HDC target = BeginPaint(hWnd, &paint);
+        if (showStage) {
+            // 한 프레임의 맵과 공을 모두 그린 뒤 화면에 표시한다.
+            HDC frameDC = CreateCompatibleDC(target);
+            HBITMAP frameBitmap = CreateCompatibleBitmap(target, windowWidth, windowHeight);
+            HGDIOBJ previousBitmap = frameDC && frameBitmap ? SelectObject(frameDC, frameBitmap) : nullptr;
+            HDC stageDC = previousBitmap ? frameDC : target;
+            FillRect(stageDC, &paint.rcPaint, client->backgroundBrush);
+            FillRect(stageDC, &mapRect, client->panelBrush);
+            HDC blockDC = CreateCompatibleDC(target);
+            if (blockDC && cellPixels > 0) {
+                if (placing) {
+                    SelectObject(stageDC, GetStockObject(DC_PEN));
+                    SetDCPenColor(stageDC, RGB(196, 220, 219));
+                    for (int x = mapRect.left; x <= mapRect.right; x += cellPixels) {
+                        MoveToEx(stageDC, x, mapRect.top, nullptr);
+                        LineTo(stageDC, x, mapRect.bottom);
+                    }
+                    for (int y = mapRect.top; y <= mapRect.bottom; y += cellPixels) {
+                        MoveToEx(stageDC, mapRect.left, y, nullptr);
+                        LineTo(stageDC, mapRect.right, y);
+                    }
+                }
+                for (const ObjectInfo& object : clientGameState.objects) {
+                    if (racing && object.used)
+                        continue;
+                    const int left = mapRect.left + object.left * cellPixels / gridSpacing;
+                    const int right = mapRect.left + object.right * cellPixels / gridSpacing;
+                    const int bottom = mapRect.top + object.bottom * cellPixels / gridSpacing;
+                    const int top = object.blockType == 1 ? bottom - cellPixels :
+                        mapRect.top + object.top * cellPixels / gridSpacing;
+                    const int bitmapSize = object.blockType == 4 ? 32 : 100;
+                    const int margin = object.blockType >= 7 ? 4 : 0;
+                    BYTE displayType = object.blockType;
+                    if (racing && (displayType == 7 || displayType == 8))
+                        displayType = clientGameState.electricityActive ? 7 : 8;
+                    SelectObject(blockDC, client->blockBitmaps[displayType]);
+                    StretchBlt(stageDC, left, top, right - left, bottom - top, blockDC, margin, margin,
+                        bitmapSize - 2 * margin, bitmapSize - 2 * margin, SRCCOPY);
+                }
+                if (racing) {
+                    constexpr COLORREF ballColors[] = { RGB(235, 48, 48), RGB(28, 157, 65), RGB(43, 91, 224),
+                        RGB(0, 177, 183), RGB(192, 49, 179), RGB(244, 197, 34) };
+                    const int ballRadius = (std::max)(1, playerSize * cellPixels / gridSpacing);
+                    IntersectClipRect(stageDC, mapRect.left, mapRect.top, mapRect.right, mapRect.bottom);
+                    SelectObject(stageDC, GetStockObject(BLACK_PEN));
+                    for (const auto& entry : clientGameState.players) {
+                        const PlayerState& player = entry.second;
+                        if (player.alive) {
+                            const double x = mapRect.left + player.motion.x * cellPixels / gridSpacing;
+                            const double y = mapRect.top + player.motion.y * cellPixels / gridSpacing;
+                            DrawPlayer(stageDC, x, y, ballRadius, ballColors[player.info.color]);
+                        }
+                    }
+                }
+                const auto localPlayer = clientGameState.players.find(clientPlayerId);
+                if (placing && localPlayer != clientGameState.players.end() &&
+                    localPlayer->second.assignedBlockType < ARRAYSIZE(client->blockBitmaps)) {
+                    constexpr const wchar_t* blockNames[] = { L"일반", L"가시", L"일회용", L"점프", L"별",
+                        L"더블 점프", L"업다운", L"전기", L"전기" };
+                    const BYTE type = localPlayer->second.assignedBlockType;
+                    SelectObject(blockDC, client->blockBitmaps[type]);
+                    StretchBlt(stageDC, 172, 452, 32, 32, blockDC, 0, 0, 100, 100, SRCCOPY);
+                    SelectObject(stageDC, client->menuTextFont);
+                    SetBkMode(stageDC, TRANSPARENT);
+                    const std::wstring label = std::wstring(L"배정 블록 · ") + blockNames[type];
+                    TextOutW(stageDC, 216, 456, label.c_str(), static_cast<int>(label.size()));
+                }
+            }
+            if (blockDC)
+                DeleteDC(blockDC);
+            if (previousBitmap) {
+                BitBlt(target, paint.rcPaint.left, paint.rcPaint.top, paint.rcPaint.right - paint.rcPaint.left,
+                    paint.rcPaint.bottom - paint.rcPaint.top, frameDC, paint.rcPaint.left, paint.rcPaint.top, SRCCOPY);
+                SelectObject(frameDC, previousBitmap);
+            }
+            if (frameBitmap)
+                DeleteObject(frameBitmap);
+            if (frameDC)
+                DeleteDC(frameDC);
+            EndPaint(hWnd, &paint);
+            return 0;
+        }
         HDC bitmapDC = CreateCompatibleDC(target);
         if (bitmapDC != nullptr) {
             RECT clientRect{};
@@ -626,6 +827,21 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hWnd, GWLP_HINSTANCE)),
                 SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
         }
+        if (client->screen == ClientScreen::Lobby && clientGameState.phase == lobbyPhase && HIWORD(wParam) == BN_CLICKED) {
+            const int buttonId = LOWORD(wParam);
+            if (buttonId >= firstColorButtonId && buttonId < firstColorButtonId + ARRAYSIZE(lobbyColorNames)) {
+                if (!QueueTcpPacket(3, { static_cast<BYTE>(buttonId - firstColorButtonId) }))
+                    SetWindowTextW(client->status, L"색상 요청을 전송할 수 없습니다.");
+                return 0;
+            }
+            if (buttonId == readyButtonId) {
+                const auto localPlayer = clientGameState.players.find(clientPlayerId);
+                if (localPlayer != clientGameState.players.end() &&
+                    !QueueTcpPacket(5, { static_cast<BYTE>(!localPlayer->second.info.ready) }))
+                    SetWindowTextW(client->status, L"준비 요청을 전송할 수 없습니다.");
+                return 0;
+            }
+        }
         switch (LOWORD(wParam)) {
         case startButtonId:
             ShowScreen(*client, ClientScreen::Connect, L"");
@@ -647,13 +863,60 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             return 0;
         }
         break;
+    case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+    case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONDBLCLK:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+        if (placing && message == WM_LBUTTONDOWN && client->canPlaceBlock && cellPixels > 0) {
+            const POINT click{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+            if (PtInRect(&mapRect, click)) {
+                const auto gridX = static_cast<int16_t>((click.x - mapRect.left) / cellPixels);
+                const auto gridY = static_cast<int16_t>((click.y - mapRect.top) / cellPixels);
+                if (RequestPlaceBlock(gridX, gridY)) {
+                    client->canPlaceBlock = false;
+                    SetWindowTextW(client->status, L"설치 결과를 기다리는 중입니다.");
+                } else {
+                    SetWindowTextW(client->status, L"설치 요청을 보내지 못했습니다. 다시 클릭하세요.");
+                }
+            }
+            return 0;
+        }
+        if (client->screen == ClientScreen::Lobby && clientGameState.phase == racingPhase) {
+            const bool leftPressed = (wParam & MK_LBUTTON) != 0;
+            const bool rightPressed = (wParam & MK_RBUTTON) != 0;
+            if (leftPressed || rightPressed)
+                SetCapture(hWnd);
+            else if (GetCapture() == hWnd)
+                ReleaseCapture();
+
+            const BYTE moveDirection = leftPressed == rightPressed ? 0 : (leftPressed ? 1 : 2);
+            SendMoveInput(clientGameState.roundCnt, moveDirection);
+            if (message == WM_LBUTTONDBLCLK || message == WM_RBUTTONDBLCLK)
+                RequestDoubleJump(clientGameState.roundCnt, message == WM_LBUTTONDBLCLK ? 1 : 2);
+            return 0;
+        }
+        break;
+    case WM_ACTIVATEAPP:
+        if (!wParam && GetCapture() == hWnd)
+            ReleaseCapture();
+        break;
     case WM_TIMER:
         if (wParam == networkTimer) {
             UpdateNetwork(*client);
             UpdatePlayerDisplays(GetTickCount64());
+            if (client->screen == ClientScreen::Lobby && clientGameState.phase == racingPhase) {
+                const bool holdingMouse = GetCapture() == hWnd;
+                const bool leftPressed = holdingMouse && GetKeyState(VK_LBUTTON) < 0;
+                const bool rightPressed = holdingMouse && GetKeyState(VK_RBUTTON) < 0;
+                const BYTE moveDirection = leftPressed == rightPressed ? 0 : (leftPressed ? 1 : 2);
+                SendMoveInput(clientGameState.roundCnt, moveDirection);
+                InvalidateRect(hWnd, nullptr, FALSE);
+            }
             return 0;
         }
-        if (wParam == menuTimer) {
+        if (wParam == menuTimer && !showStage) {
             client->menuFrame = (client->menuFrame + 1) % ARRAYSIZE(client->menuFrames);
             InvalidateRect(hWnd, nullptr, FALSE);
             if (client->screen == ClientScreen::Start) {

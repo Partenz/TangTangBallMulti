@@ -14,8 +14,15 @@ void ColorRequest(std::uint8_t playerId, std::uint8_t color)
     constexpr BYTE maxColor = 5;
 
     const auto player = gameState.players.find(playerId);
+    bool colorAvailable = true;
+    for (const auto& [otherPlayerId, otherPlayer] : gameState.players) {
+        if (otherPlayerId != playerId && otherPlayer.info.color == color) {
+            colorAvailable = false;
+            break;
+        }
+    }
     const bool accepted = gameState.phase == lobbyPhase &&
-        player != gameState.players.end() && color <= maxColor;
+        player != gameState.players.end() && color <= maxColor && colorAvailable;
 
     // 요청자에게 색상 변경 승인 여부를 보낸다.
     const std::vector<BYTE> response{ static_cast<BYTE>(accepted) };

@@ -153,9 +153,7 @@
     <ClCompile Include="DrawGrid.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="DrawPlayer.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="DrawPlayer.cpp" />
     <ClCompile Include="DrawStage.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>

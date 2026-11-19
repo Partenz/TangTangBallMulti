@@ -78,6 +78,11 @@ void HandleNewConnection(std::uint8_t playerId)
 
     PlayerState player{};
     player.info.playerId = playerId;
+    bool usedColors[6]{};
+    for (const auto& entry : gameState.players)
+        usedColors[entry.second.info.color] = true;
+    while (usedColors[player.info.color])
+        ++player.info.color;
     gameState.players.emplace(playerId, player);
 
     if (WaitForSingleObject(hConnectionGate, INFINITE) != WAIT_OBJECT_0) {
