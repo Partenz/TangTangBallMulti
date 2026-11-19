@@ -44,6 +44,7 @@ constexpr BYTE lobbyPhase = 0;
 constexpr BYTE placingPhase = 2;
 constexpr BYTE racingPhase = 3;
 constexpr const wchar_t* lobbyColorNames[] = { L"빨강", L"초록", L"파랑", L"청록", L"자홍", L"노랑" };
+constexpr DWORD windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
 constexpr int windowWidth = 800;
 constexpr int windowHeight = 500;
 constexpr RECT menuPanel{ 178, 100, 622, 448 };
@@ -130,7 +131,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     }
 
     ClientWindow client{};
-    constexpr DWORD windowStyle = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_CLIPCHILDREN;
     RECT windowRect{ 0, 0, windowWidth, windowHeight };
     AdjustWindowRect(&windowRect, windowStyle, FALSE);
     HWND hWnd = CreateWindowExW(0, clientWindowClass, L"탱탱볼", windowStyle,
@@ -285,10 +285,6 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
     const bool showStage = placing || (screen == ClientScreen::Lobby && clientGameState.phase == racingPhase);
     if (!placing)
         client.canPlaceBlock = false;
-    MoveWindow(client.title, showStage ? 12 : 70, showStage ? 0 : 26, showStage ? 260 : 660, 62, TRUE);
-    MoveWindow(client.status, showStage ? 275 : 196, showStage ? 20 : 345, showStage ? 505 : 408, 34, TRUE);
-    MoveWindow(client.backButton, showStage ? 16 : 209, showStage ? 449 : 385, 128, 42, TRUE);
-
     const wchar_t* title = L"Tang Tang Ball";
     if (showConnect)
         title = L"서버 접속";
@@ -305,7 +301,8 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
     SetWindowTextW(client.title, title);
     SetWindowTextW(client.status, clientGameState.phase == racingPhase && showStage ?
         L"왼쪽 버튼 · 왼쪽 이동     오른쪽 버튼 · 오른쪽 이동" : status);
-    ShowWindow(client.status, screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
+    ShowWindow(client.title, placing ? SW_HIDE : SW_SHOW);
+    ShowWindow(client.status, placing || screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
 
     ShowWindow(client.startButton, screen == ClientScreen::Start ? SW_SHOW : SW_HIDE);
     ShowWindow(client.exitButton, screen == ClientScreen::Start ? SW_SHOW : SW_HIDE);
@@ -327,7 +324,10 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
         ShowWindow(colorButton, showLobby ? SW_SHOW : SW_HIDE);
     ShowWindow(client.lobbyReadyButton, showLobby ? SW_SHOW : SW_HIDE);
 
-    InvalidateRect(GetParent(client.title), nullptr, FALSE);
+    const HWND mainWindow = GetParent(client.title);
+    RECT bounds{};
+    GetClientRect(mainWindow, &bounds);
+    SendMessageW(mainWindow, WM_SIZE, SIZE_RESTORED, MAKELPARAM(bounds.right, bounds.bottom));
     if (showConnect)
         SetFocus(client.addressFields[0]);
     else
@@ -612,23 +612,39 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     const bool placing = client->screen == ClientScreen::Lobby && clientGameState.phase == placingPhase;
     const bool racing = client->screen == ClientScreen::Lobby && clientGameState.phase == racingPhase;
     const bool showStage = placing || racing;
+    RECT bounds{};
+    GetClientRect(hWnd, &bounds);
+    const int clientWidth = bounds.right;
+    const int clientHeight = bounds.bottom;
+    const int menuOffsetX = (clientWidth - windowWidth) / 2;
+    const int menuOffsetY = (clientHeight - windowHeight) / 2;
     constexpr int gridSpacing = 40;
     int cellPixels = 0;
     RECT mapRect{};
-    if (showStage && clientGameState.mapWidth && clientGameState.mapHeight) {
-        cellPixels = (std::min)((windowWidth - 32) * gridSpacing / clientGameState.mapWidth,
-            368 * gridSpacing / clientGameState.mapHeight);
+    if (showStage && clientWidth > 32 && clientHeight > 132 && clientGameState.mapWidth && clientGameState.mapHeight) {
+        cellPixels = (std::min)((clientWidth - 32) * gridSpacing / clientGameState.mapWidth,
+            (clientHeight - 132) * gridSpacing / clientGameState.mapHeight);
         const int mapPixelWidth = clientGameState.mapWidth * cellPixels / gridSpacing;
-        mapRect.left = (windowWidth - mapPixelWidth) / 2;
+        mapRect.left = (clientWidth - mapPixelWidth) / 2;
         mapRect.top = 72;
         mapRect.right = mapRect.left + mapPixelWidth;
         mapRect.bottom = mapRect.top + clientGameState.mapHeight * cellPixels / gridSpacing;
     }
 
     switch (message) {
+    case WM_GETMINMAXINFO: {
+        RECT minimumBounds{ 0, 0, 480, 450 };
+        AdjustWindowRect(&minimumBounds, windowStyle, FALSE);
+        auto* limits = reinterpret_cast<MINMAXINFO*>(lParam);
+        limits->ptMinTrackSize = { minimumBounds.right - minimumBounds.left, minimumBounds.bottom - minimumBounds.top };
+        return 0;
+    }
+    case WM_SIZE:
     case WM_CREATE: {
-        const auto* create = reinterpret_cast<const CREATESTRUCTW*>(lParam);
-        if (!LoadMenuResources(*client, create->hInstance)) {
+        if (message == WM_SIZE && (wParam == SIZE_MINIMIZED || !client->title))
+            return 0;
+        const HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hWnd, GWLP_HINSTANCE));
+        if (message == WM_CREATE && !LoadMenuResources(*client, instance)) {
             MessageBoxW(hWnd, L"시작 화면을 불러오지 못했습니다.", L"탱탱볼", MB_ICONERROR);
             return -1;
         }
@@ -641,10 +657,14 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             int x, y, width, height;
             int id;
         };
+        const int stageTitleWidth = (std::min)(260, clientWidth / 3);
         const Control controls[] = {
             { &client->title, L"STATIC", L"", WS_VISIBLE | SS_CENTER,
-                70, 26, 660, 62, 0 },
-            { &client->status, L"STATIC", L"", SS_CENTER, 196, 345, 408, 34, 0 },
+                showStage ? 12 - menuOffsetX : 70, showStage ? -menuOffsetY : 26,
+                showStage ? stageTitleWidth : 660, 62, 0 },
+            { &client->status, L"STATIC", L"", SS_CENTER,
+                showStage ? stageTitleWidth + 15 - menuOffsetX : 196, showStage ? 20 - menuOffsetY : 345,
+                showStage ? clientWidth - stageTitleWidth - 35 : 408, 34, 0 },
             { &client->startButton, L"BUTTON", L"START", WS_TABSTOP | BS_OWNERDRAW,
                 326, 175, 148, 52, startButtonId },
             { &client->exitButton, L"BUTTON", L"EXIT", WS_TABSTOP | BS_OWNERDRAW,
@@ -661,7 +681,7 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             { &client->connectButton, L"BUTTON", L"접속", WS_TABSTOP | BS_OWNERDRAW,
                 459, 385, 128, 42, connectButtonId },
             { &client->backButton, L"BUTTON", L"뒤로", WS_TABSTOP | BS_OWNERDRAW,
-                209, 385, 128, 42, backButtonId },
+                showStage ? 16 - menuOffsetX : 209, showStage ? clientHeight - 51 - menuOffsetY : 385, 128, 42, backButtonId },
             { &client->lobbyPlayer, L"STATIC", L"", 0, 209, 129, 378, 28, 0 },
             { &client->lobbyList, L"LISTBOX", L"", WS_BORDER | WS_VSCROLL | LBS_SORT | LBS_NOSEL,
                 209, 162, 378, 128, 0 },
@@ -670,9 +690,15 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         };
 
         for (const Control& control : controls) {
+            const int x = control.x + menuOffsetX;
+            const int y = control.y + menuOffsetY;
+            if (message == WM_SIZE) {
+                MoveWindow(*control.handle, x, y, control.width, control.height, TRUE);
+                continue;
+            }
             *control.handle = CreateWindowExW(0, control.kind, control.text, WS_CHILD | control.style,
-                control.x, control.y, control.width, control.height, hWnd,
-                reinterpret_cast<HMENU>(static_cast<INT_PTR>(control.id)), create->hInstance, nullptr);
+                x, y, control.width, control.height, hWnd,
+                reinterpret_cast<HMENU>(static_cast<INT_PTR>(control.id)), instance, nullptr);
             if (*control.handle == nullptr)
                 return -1;
             const HFONT font = control.handle == &client->title ? client->titleFont : client->menuTextFont;
@@ -681,14 +707,24 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
         for (int colorIndex = 0; colorIndex < ARRAYSIZE(lobbyColorNames); ++colorIndex) {
             HWND& colorButton = client->lobbyColorButtons[colorIndex];
+            const int x = 209 + colorIndex * 64 + menuOffsetX;
+            const int y = 300 + menuOffsetY;
+            if (message == WM_SIZE) {
+                MoveWindow(colorButton, x, y, 58, 34, TRUE);
+                continue;
+            }
             colorButton = CreateWindowExW(0, L"BUTTON", lobbyColorNames[colorIndex], WS_CHILD | WS_TABSTOP,
-                209 + colorIndex * 64, 300, 58, 34, hWnd,
-                reinterpret_cast<HMENU>(static_cast<INT_PTR>(firstColorButtonId + colorIndex)), create->hInstance, nullptr);
+                x, y, 58, 34, hWnd,
+                reinterpret_cast<HMENU>(static_cast<INT_PTR>(firstColorButtonId + colorIndex)), instance, nullptr);
             if (colorButton == nullptr)
                 return -1;
             SendMessageW(colorButton, WM_SETFONT, reinterpret_cast<WPARAM>(client->menuTextFont), FALSE);
         }
 
+        if (message == WM_SIZE) {
+            InvalidateRect(hWnd, nullptr, FALSE);
+            return 0;
+        }
         SendMessageW(client->addressFields[0], EM_SETLIMITTEXT, 15, 0);
         SendMessageW(client->addressFields[1], EM_SETLIMITTEXT, 5, 0);
         SendMessageW(client->addressFields[2], EM_SETLIMITTEXT, 5, 0);
@@ -705,7 +741,7 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         if (showStage) {
             // 한 프레임의 맵과 공을 모두 그린 뒤 화면에 표시한다.
             HDC frameDC = CreateCompatibleDC(target);
-            HBITMAP frameBitmap = CreateCompatibleBitmap(target, windowWidth, windowHeight);
+            HBITMAP frameBitmap = CreateCompatibleBitmap(target, clientWidth, clientHeight);
             HGDIOBJ previousBitmap = frameDC && frameBitmap ? SelectObject(frameDC, frameBitmap) : nullptr;
             HDC stageDC = previousBitmap ? frameDC : target;
             FillRect(stageDC, &paint.rcPaint, client->backgroundBrush);
@@ -763,15 +799,34 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                         L"더블 점프", L"업다운", L"전기", L"전기" };
                     const BYTE type = localPlayer->second.assignedBlockType;
                     SelectObject(blockDC, client->blockBitmaps[type]);
-                    StretchBlt(stageDC, 172, 452, 32, 32, blockDC, 0, 0, 100, 100, SRCCOPY);
+                    StretchBlt(stageDC, 172, clientHeight - 48, 32, 32, blockDC, 0, 0, 100, 100, SRCCOPY);
                     SelectObject(stageDC, client->menuTextFont);
                     SetBkMode(stageDC, TRANSPARENT);
                     const std::wstring label = std::wstring(L"배정 블록 · ") + blockNames[type];
-                    TextOutW(stageDC, 216, 456, label.c_str(), static_cast<int>(label.size()));
+                    TextOutW(stageDC, 216, clientHeight - 44, label.c_str(), static_cast<int>(label.size()));
                 }
             }
             if (blockDC)
                 DeleteDC(blockDC);
+            if (placing) {
+                // 설치 화면의 문구도 맵과 같은 버퍼에 그려 배경과 함께 갱신한다.
+                SetBkMode(stageDC, TRANSPARENT);
+                SetTextColor(stageDC, RGB(23, 61, 61));
+                const HWND labels[] = { client->title, client->status };
+                for (HWND label : labels) {
+                    RECT textBounds{};
+                    GetWindowRect(label, &textBounds);
+                    MapWindowPoints(nullptr, hWnd, reinterpret_cast<POINT*>(&textBounds), 2);
+                    wchar_t text[128]{};
+                    GetWindowTextW(label, text, ARRAYSIZE(text));
+                    SelectObject(stageDC, label == client->title ? client->titleFont : client->menuTextFont);
+                    RECT measured = textBounds;
+                    const int textHeight = DrawTextW(stageDC, text, -1, &measured, DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX);
+                    textBounds.top = (mapRect.top - textHeight) / 2;
+                    textBounds.bottom = mapRect.top;
+                    DrawTextW(stageDC, text, -1, &textBounds, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX);
+                }
+            }
             if (previousBitmap) {
                 BitBlt(target, paint.rcPaint.left, paint.rcPaint.top, paint.rcPaint.right - paint.rcPaint.left,
                     paint.rcPaint.bottom - paint.rcPaint.top, frameDC, paint.rcPaint.left, paint.rcPaint.top, SRCCOPY);
@@ -794,8 +849,10 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             FillRect(target, &paint.rcPaint, client->backgroundBrush);
         }
         if (client->screen != ClientScreen::Start) {
-            FillRect(target, &menuPanel, client->panelBrush);
-            FrameRect(target, &menuPanel, client->borderBrush);
+            RECT panelBounds = menuPanel;
+            OffsetRect(&panelBounds, menuOffsetX, menuOffsetY);
+            FillRect(target, &panelBounds, client->panelBrush);
+            FrameRect(target, &panelBounds, client->borderBrush);
         }
         EndPaint(hWnd, &paint);
         return 0;
@@ -880,6 +937,7 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 } else {
                     SetWindowTextW(client->status, L"설치 요청을 보내지 못했습니다. 다시 클릭하세요.");
                 }
+                InvalidateRect(hWnd, nullptr, FALSE);
             }
             return 0;
         }
