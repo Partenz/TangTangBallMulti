@@ -1,179 +1,157 @@
-﻿#include "ServerCollision.h"
+#include "ServerCollision.h"
+#include "ServerConnections.h"
 #include "ServerVariable.h"
+#include "UpdatePhysics.h"
 
-extern GameState gameState;
+#include <algorithm>
 
-// 블럭의 타입
 namespace {
-	constexpr BYTE racingphase = 3;
+    constexpr float ballRadius = 10.0f;
+    constexpr float landingHalfWidth = ballRadius / 4.0f;
+    constexpr float lightningMargin = 4.0f;
+    constexpr BYTE contactEventType = 30;
 
-	constexpr BYTE basicBlock = 0;
-	constexpr BYTE trornBlock = 1;
-	constexpr BYTE onceBlock = 2;
-	constexpr BYTE jumpBlock = 3;
-	constexpr BYTE starBlock = 4;
-	constexpr BYTE doubleBlock = 5;
-	constexpr BYTE lightningOnBlock = 7;
-	constexpr BYTE lightningOffBlock = 8;
+    enum BlockType : BYTE {
+        basic = 0, thorn = 1, once = 2, jump = 3, star = 4,
+        doubleJump = 5, upDown = 6, lightningOn = 7
+    };
 
-	// 공 크기와 시간 초
-	constexpr float ballRadius = 10.0f;
-	constexpr float tickSeconds = 0.015f;
+    enum class Contact : BYTE {
+        Thorn = 0, Lightning = 1, Once = 2, DoubleJump = 3, Goal = 4
+    };
 
-    // 반동 속도 일단 1로 초기화
-    constexpr float normalBounceSpeed = 1.0f;
-    constexpr float strongBounceSpeed = 1.0f;
-
-	enum ContactType : BYTE {
-		trornContact = 0,
-		lightningContact = 1,
-		onceBlockContact = 2,
-		doubleBlockContact = 3,
-		starContact = 4
-	};
-}
-
-void ApplyContact(std::uint8_t playerId, std::uint32_t objectId, std::uint8_t contactType)
-{
-	// 게임이 진행중이 아니거나 라운드 승자가 결정된 상태라면 리턴함.
-	if (gameState.phase != racingphase || gameState.roundWinnerId != 0) return;
-
-	// 플레이어를 찾고 없거나 살아있지 않다면 리턴함.
-	const auto it = gameState.players.find(playerId);
-	if (it == gameState.players.end() || !it->second.alive) return;
-
-	// 플레이어 상태
-	PlayerState& player = it->second;
-
-	for (ObjectInfo& object : gameState.objects) {
-		if (object.objectId != objectId || object.used) continue;
-
-		switch (contactType)
-		{
-		case trornContact:
-			if (object.blockType != trornBlock) return;
-			player.alive = false;
-			break;
-
-		case lightningContact:
-			if (object.blockType != lightningOnBlock) return;
-			player.alive = false;
-			break;
-
-		case onceBlockContact:
-			if (object.blockType != onceBlock) return;
-			object.used = true;
-			break;
-
-		case doubleBlockContact:
-			if (object.blockType != doubleBlock) return;
-			object.used = true;
-			player.doubleJumpReady = true;
-			break;
-
-		case starContact:
-			if (object.blockType != starBlock) return;
-			gameState.roundWinnerId = playerId;
-			break;
-
-		default:
-			return;
-		}
-	
-		// 이 부분은 EndRound() 부분
-		return;
-	}
-}
-
-void CheckCollisions()
-{
-    if (gameState.phase != racingphase || gameState.roundWinnerId != 0) {
-        return;
+    bool IsSolid(const ObjectInfo& object)
+    {
+        return object.blockType == basic || object.blockType == once || object.blockType == jump;
     }
 
-    for (auto& [playerId, player] : gameState.players) {
-        if (!player.alive) {
-            continue;
+    void ApplyContact(BYTE playerId, PlayerState& player, ObjectInfo& object, Contact contact)
+    {
+        switch (contact) {
+        case Contact::Thorn:
+        case Contact::Lightning:
+            player.alive = false;
+            player.doubleJumpReady = false;
+            break;
+        case Contact::Once:
+            object.used = true;
+            break;
+        case Contact::DoubleJump:
+            object.used = true;
+            player.doubleJumpReady = true;
+            break;
+        case Contact::Goal:
+            object.used = true;
+            gameState.roundWinnerId = playerId;
+            break;
         }
 
-        // 공의 collisionbox
-        auto& motion = player.motion;
-        const float left = motion.x - ballRadius;
-        const float right = motion.x + ballRadius;
-        const float top = motion.y - ballRadius;
-        const float bottom = motion.y + ballRadius;
-        const float previousBottom = bottom - motion.vy * tickSeconds;
+        const uint32_t objectId = object.objectId;
+        const std::vector<BYTE> body{
+            static_cast<BYTE>(gameState.roundCnt >> 8), static_cast<BYTE>(gameState.roundCnt), playerId,
+            static_cast<BYTE>(objectId >> 24), static_cast<BYTE>(objectId >> 16),
+            static_cast<BYTE>(objectId >> 8), static_cast<BYTE>(objectId), static_cast<BYTE>(contact)
+        };
+        for (const auto& entry : gameState.players) {
+            if (!QueueServerTcpPacket(entry.first, contactEventType, body))
+                RequestDisconnect(entry.first);
+        }
+    }
 
-        const ObjectInfo* landingBlock = nullptr;
-
+    // Resolve each axis against its nearest surface before checking item contacts.
+    void ResolveHorizontal(PlayerMotion& motion, float previousX, float previousY)
+    {
+        const bool movingRight = motion.x > previousX;
+        float resolvedX = motion.x;
         for (const ObjectInfo& object : gameState.objects) {
-            if (object.used || right < object.left || left > object.right) {
+            if (object.used || !IsSolid(object) || previousY < object.top || previousY > object.bottom)
                 continue;
-            }
 
-            // 하강 중 공의 아랫면이 블록 윗면을 지났는지 검사
-            const bool isBounceBlock = object.blockType == basicBlock ||
-                object.blockType == jumpBlock ||
-                object.blockType == onceBlock;
-
-            if (isBounceBlock) {
-                if (motion.vy > 0.0f &&
-                    previousBottom <= object.top && bottom >= object.top &&
-                    (landingBlock == nullptr || object.top < landingBlock->top)) {
-                    landingBlock = &object;
-                }
-                continue;
-            }
-
-            // 가시, 전기, 아이템, 별은 세로 범위도 겹쳐야 한다.
-            if (bottom < object.top || top > object.bottom) {
-                continue;
-            }
-
-            switch (object.blockType) {
-            case trornBlock:
-                ApplyContact(playerId, object.objectId, trornBlock);
-                break;
-
-            case lightningOnBlock:
-                ApplyContact(playerId, object.objectId, lightningContact);
-                break;
-
-            case doubleBlock:
-                ApplyContact(playerId, object.objectId, doubleBlock);
-                break;
-
-            case starBlock:
-                ApplyContact(playerId, object.objectId, starContact);
-                break;
-
-            default:
-                // OFF 전기 블록은 통과한다.
-                break;
-            }
-
-            if (gameState.roundWinnerId != 0) {
-                return;
-            }
-
-            if (!player.alive) {
-                break;
-            }
+            if (movingRight && previousX + ballRadius <= object.left && resolvedX + ballRadius >= object.left)
+                resolvedX = object.left - ballRadius;
+            else if (motion.x < previousX && previousX - ballRadius >= object.right && resolvedX - ballRadius <= object.right)
+                resolvedX = object.right + ballRadius;
         }
+        if (resolvedX != motion.x)
+            motion.vx = 0.0f;
+        motion.x = resolvedX;
+    }
 
-        if (!player.alive || landingBlock == nullptr) {
+    ObjectInfo* FindVerticalSurface(const PlayerMotion& motion, float previousY, bool falling)
+    {
+        ObjectInfo* nearest = nullptr;
+        for (ObjectInfo& object : gameState.objects) {
+            if (object.used || (!IsSolid(object) && (object.blockType != upDown || falling)) ||
+                motion.x + landingHalfWidth <= object.left || motion.x - landingHalfWidth >= object.right)
+                continue;
+
+            if (falling && previousY + ballRadius <= object.top && motion.y + ballRadius >= object.top &&
+                (nearest == nullptr || object.top < nearest->top))
+                nearest = &object;
+            else if (motion.y < previousY && previousY - ballRadius >= object.bottom && motion.y - ballRadius < object.bottom &&
+                (nearest == nullptr || object.bottom > nearest->bottom))
+                nearest = &object;
+        }
+        return nearest;
+    }
+
+    bool TouchesAlongPath(const ObjectInfo& object, float previousX, float previousY, const PlayerMotion& motion)
+    {
+        const float margin = object.blockType == lightningOn ? lightningMargin : 0.0f;
+        const auto overlaps = [&](float left, float top, float right, float bottom) {
+            return right + ballRadius >= object.left + margin && left - ballRadius <= object.right - margin &&
+                bottom + ballRadius >= object.top + margin && top - ballRadius <= object.bottom - margin;
+        };
+        return overlaps((std::min)(previousX, motion.x), previousY, (std::max)(previousX, motion.x), previousY) ||
+            overlaps(motion.x, (std::min)(previousY, motion.y), motion.x, (std::max)(previousY, motion.y));
+    }
+
+    std::optional<Contact> GetTouchContact(BYTE blockType)
+    {
+        switch (blockType) {
+        case thorn: return Contact::Thorn;
+        case lightningOn: return Contact::Lightning;
+        case doubleJump: return Contact::DoubleJump;
+        case star: return Contact::Goal;
+        default: return std::nullopt;
+        }
+    }
+}
+
+void ResolvePlayerCollisions(BYTE playerId, PlayerState& player, float previousX, float previousY)
+{
+    PlayerMotion& motion = player.motion;
+    ResolveHorizontal(motion, previousX, previousY);
+    const bool falling = motion.y > previousY;
+    ObjectInfo* surface = FindVerticalSurface(motion, previousY, falling);
+    if (surface != nullptr && surface->blockType != upDown)
+        motion.y = falling ? surface->top - ballRadius : surface->bottom + ballRadius;
+
+    for (ObjectInfo& object : gameState.objects) {
+        if (object.used)
             continue;
-        }
 
-        // 공을 블록 위로 맞춘 뒤 위쪽으로 튕긴다.
-        motion.y = landingBlock->top - ballRadius;
-        motion.vy = landingBlock->blockType == jumpBlock
-            ? -strongBounceSpeed
-            : -normalBounceSpeed;
-        motion.falling = false;
-
-        if (landingBlock->blockType == onceBlock) {
-            ApplyContact(playerId, landingBlock->objectId, onceBlockContact);
+        const auto contact = GetTouchContact(object.blockType);
+        if (contact && TouchesAlongPath(object, previousX, previousY, motion)) {
+            ApplyContact(playerId, player, object, *contact);
+            if (!player.alive || gameState.roundWinnerId != 0)
+                return;
         }
+    }
+
+    if (surface != nullptr) {
+        if (falling || surface->blockType == upDown) {
+            motion.vy = -JumpSpeedForCells(surface->blockType == jump ? 3 : 2);
+            if (surface->blockType == once)
+                ApplyContact(playerId, player, *surface, Contact::Once);
+        } else {
+            motion.vy = 0.0f;
+        }
+    }
+    motion.falling = motion.vy > 0.0f;
+
+    if (gameState.mapHeight != 0 && motion.y - ballRadius > gameState.mapHeight) {
+        player.alive = false;
+        player.doubleJumpReady = false;
     }
 }

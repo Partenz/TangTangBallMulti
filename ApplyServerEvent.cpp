@@ -1,4 +1,5 @@
 ﻿#include <algorithm>
+#include <bitset>
 #include <cstdint>
 #include <cstring>
 #include <utility>
@@ -6,6 +7,8 @@
 
 #include "ApplyServerEvent.h"
 #include "TCPQueue.h"
+#include "resource.h"
+#include <mmsystem.h>
 
 
 namespace {
@@ -214,27 +217,37 @@ void ApplyServerEvent(const NetEvent& event)
         const uint32_t objectId = ReadUnsigned<uint32_t>(body, 3);
         const uint8_t contactType = body[7];
         const auto player = state.players.find(playerId);
+        int soundResource = 0;
 
         switch (contactType) {
         case 0: // Thorn
         case 1: // Electricity
-            if (player != state.players.end())
+            if (player != state.players.end()) {
                 player->second.alive = false;
+                player->second.doubleJumpReady = false;
+            }
+            soundResource = IDW_DEAD;
             break;
         case 2: // Single-use block
-        case 3: { // Double jump item
+        case 3: // Double jump item
+        case 4: { // Goal
             const auto object = std::find_if(state.objects.begin(), state.objects.end(),
                 [objectId](const ObjectInfo& entry) { return entry.objectId == objectId; });
             if (object != state.objects.end())
                 object->used = true;
             if (contactType == 3 && player != state.players.end())
                 player->second.doubleJumpReady = true;
+            if (contactType == 2)
+                soundResource = IDW_ONCE_BLOCK;
+            if (contactType == 4) {
+                state.roundWinnerId = playerId;
+                soundResource = IDW_STAR;
+            }
             break;
         }
-        case 4: // Goal
-            state.roundWinnerId = playerId;
-            break;
         }
+        if (soundResource != 0)
+            PlaySoundW(MAKEINTRESOURCEW(soundResource), GetModuleHandleW(nullptr), SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
         break;
     }
     case 40: // ROUND_RESULT
@@ -276,8 +289,10 @@ void ApplyServerEvent(const NetEvent& event)
             state.phase != racingPhase || ReadUnsigned<uint16_t>(body, 0) != state.roundCnt)
             return;
 
+        std::bitset<256> alivePlayers;
         for (std::size_t offset = 7; offset < body.size(); offset += 18) {
             const uint8_t playerId = body[offset];
+            alivePlayers.set(playerId);
             const auto player = state.players.find(playerId);
             if (player == state.players.end() || !player->second.alive)
                 continue;
@@ -291,6 +306,13 @@ void ApplyServerEvent(const NetEvent& event)
                 body[offset + 17] != 0
             };
             player->second.lastMoveTime = GetTickCount64();
+        }
+        // The server sends a complete list of survivors, including after a fall off the map.
+        for (auto& [playerId, player] : state.players) {
+            if (!alivePlayers.test(playerId)) {
+                player.alive = false;
+                player.doubleJumpReady = false;
+            }
         }
         break;
     }

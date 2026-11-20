@@ -6,7 +6,6 @@
 #include "ServerConnections.h"
 #include "HandleDoubleJump.h"
 #include "UpdatePhysics.h"
-#include "ServerCollision.h"
 #include "BroadcastPlayerStates.h"
 #include "ServerVariable.h"
 #include "HandleReady.h"
@@ -24,7 +23,6 @@ extern GameState gameState;
 //void BeginRace() {}                                                               // 준홍 17일
 //void ReturnToLobby() {}                                                           // 준홍 18일
 //void UpdatePhysics(float deltaSeconds) {}                                         // 상준 13일 -완료
-//void CheckCollisions() {}                                                         // 준하 12일 -완료
 //void BroadcastPlayerStates() {}                                                   // 상준 15일 - 완료
 
 namespace {
@@ -179,7 +177,6 @@ DWORD WINAPI ServerGameThreadMain(LPVOID unused)
             if (tickTime >= nextPhysics) {
                 nextPhysics += physicsIntervalMs;
                 UpdatePhysics(physicsIntervalMs / 1000.0f);
-                CheckCollisions();
             }
             if (gameState.phase == racingPhase && tickTime >= nextBroadcast) {
                 nextBroadcast = tickTime + broadcastIntervalMs;

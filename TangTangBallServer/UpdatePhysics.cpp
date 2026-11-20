@@ -1,18 +1,30 @@
 ﻿#include <cmath>
+#include <algorithm>
+#include "EndRound.h"
 #include "UpdatePhysics.h"
 #include "ServerVariable.h"
 #include "ServerCollision.h"
 
 extern GameState gameState;
 
+namespace {
+    constexpr float physicsStepSeconds = 0.015f;
+    constexpr float gravity = 1000.0f;
+    constexpr float cellSize = 40.0f;
+}
+
+float JumpSpeedForCells(int heightInCells)
+{
+    // Gravity is applied before position each step, so compensate for half a step.
+    return std::sqrt(2.0f * gravity * cellSize * heightInCells) + gravity * physicsStepSeconds / 2.0f;
+}
+
 void UpdatePhysics(float deltaSeconds)
 {
     constexpr BYTE racingPhase = 3;
     constexpr std::uint8_t leftDirection = 1;
     constexpr std::uint8_t rightDirection = 2;
-    constexpr float physicsStepSeconds = 0.015f;
     constexpr float horizontalSpeed = 140.0f;
-    constexpr float gravity = 1000.0f;
 
     static double accumulatedSeconds = 0.0;
     static std::uint16_t physicsRoundCnt = 0;
@@ -52,15 +64,21 @@ void UpdatePhysics(float deltaSeconds)
                 motion.vx = horizontalSpeed;
             }
 
+            const float previousX = motion.x;
+            const float previousY = motion.y;
             motion.vy += gravity * physicsStepSeconds;
             motion.x += motion.vx * physicsStepSeconds;
             motion.y += motion.vy * physicsStepSeconds;
-            motion.falling = motion.vy > 0.0f;
+            ResolvePlayerCollisions(entry.first, player, previousX, previousY);
+            if (gameState.roundWinnerId != 0)
+                break;
         }
 
-        CheckCollisions();
-
-        if (gameState.phase != racingPhase or gameState.roundWinnerId != 0) {
+        const bool allEliminated = !gameState.players.empty() &&
+            std::none_of(gameState.players.begin(), gameState.players.end(),
+                [](const auto& entry) { return entry.second.alive; });
+        if (gameState.roundWinnerId != 0 || allEliminated) {
+            EndRound(gameState.roundWinnerId);
             accumulatedSeconds = 0.0;
             break;
         }
