@@ -21,6 +21,7 @@
 #include "EventQueue.h"
 #include "ApplyServerEvent.h"
 #include "RequestDoubleJump.h"
+#include "BlockAction.h"
 #include "RequestPlaceBlock.h"
 #include "SendMoveInput.h"
 #include "TCPQueue.h"
@@ -293,7 +294,7 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
     if (screen == ClientScreen::Lobby && !showLobby) {
         switch (clientGameState.phase) {
         case 1: title = L"맵 로딩"; break;
-        case placingPhase: title = L"블록 설치"; break;
+        case placingPhase: title = L"블록 설치·삭제"; break;
         case racingPhase: title = L"레이스"; break;
         default: title = L"게임 진행 중"; break;
         }
@@ -496,12 +497,13 @@ static void UpdateNetwork(ClientWindow& client)
                 break;
             case 21: // BLOCK_ASSIGN
                 client.canPlaceBlock = true;
-                placementStatus = L"맵의 빈 칸을 클릭하세요.";
+                placementStatus = event.packetData[0] == BlockAction::deleteAssignment ?
+                    L"삭제할 블록을 클릭하세요. 별은 삭제할 수 없습니다." : L"맵의 빈 칸을 클릭하세요.";
                 break;
             case 23: // PLACE_RESPONSE
                 client.canPlaceBlock = event.packetData[0] == 0;
-                placementStatus = client.canPlaceBlock ? L"설치할 수 없는 칸입니다. 다른 칸을 선택하세요." :
-                    L"설치 완료 · 다른 참가자를 기다리는 중입니다.";
+                placementStatus = client.canPlaceBlock ? L"선택할 수 없는 칸입니다. 다른 칸을 선택하세요." :
+                    L"선택 완료 · 다른 참가자를 기다리는 중입니다.";
                 break;
             }
         }
@@ -794,15 +796,17 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 }
                 const auto localPlayer = clientGameState.players.find(clientPlayerId);
                 if (placing && localPlayer != clientGameState.players.end() &&
-                    localPlayer->second.assignedBlockType < ARRAYSIZE(client->blockBitmaps)) {
+                    localPlayer->second.assignedBlockType <= BlockAction::deleteAssignment) {
                     constexpr const wchar_t* blockNames[] = { L"일반", L"가시", L"일회용", L"점프", L"별",
                         L"더블 점프", L"업다운", L"전기", L"전기" };
                     const BYTE type = localPlayer->second.assignedBlockType;
-                    SelectObject(blockDC, client->blockBitmaps[type]);
-                    StretchBlt(stageDC, 172, clientHeight - 48, 32, 32, blockDC, 0, 0, 100, 100, SRCCOPY);
+                    if (type < ARRAYSIZE(client->blockBitmaps)) {
+                        SelectObject(blockDC, client->blockBitmaps[type]);
+                        StretchBlt(stageDC, 172, clientHeight - 48, 32, 32, blockDC, 0, 0, 100, 100, SRCCOPY);
+                    }
                     SelectObject(stageDC, client->menuTextFont);
                     SetBkMode(stageDC, TRANSPARENT);
-                    const std::wstring label = std::wstring(L"배정 블록 · ") + blockNames[type];
+                    const std::wstring label = type == BlockAction::deleteAssignment ? L"배정 · 블록 삭제" : std::wstring(L"배정 블록 · ") + blockNames[type];
                     TextOutW(stageDC, 216, clientHeight - 44, label.c_str(), static_cast<int>(label.size()));
                 }
             }
@@ -931,11 +935,15 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             if (PtInRect(&mapRect, click)) {
                 const auto gridX = static_cast<int16_t>((click.x - mapRect.left) / cellPixels);
                 const auto gridY = static_cast<int16_t>((click.y - mapRect.top) / cellPixels);
-                if (RequestPlaceBlock(gridX, gridY)) {
+                const auto player = clientGameState.players.find(clientPlayerId);
+                if (player == clientGameState.players.end())
+                    return 0;
+                const bool deleteRequested = player->second.assignedBlockType == BlockAction::deleteAssignment;
+                if (RequestPlaceBlock(gridX, gridY, deleteRequested)) {
                     client->canPlaceBlock = false;
-                    SetWindowTextW(client->status, L"설치 결과를 기다리는 중입니다.");
+                    SetWindowTextW(client->status, deleteRequested ? L"삭제 결과를 기다리는 중입니다." : L"설치 결과를 기다리는 중입니다.");
                 } else {
-                    SetWindowTextW(client->status, L"설치 요청을 보내지 못했습니다. 다시 클릭하세요.");
+                    SetWindowTextW(client->status, L"요청을 보내지 못했습니다. 다시 클릭하세요.");
                 }
                 InvalidateRect(hWnd, nullptr, FALSE);
             }

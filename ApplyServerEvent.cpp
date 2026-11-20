@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 
+#include "BlockAction.h"
 #include "ApplyServerEvent.h"
 #include "TCPQueue.h"
 #include "resource.h"
@@ -192,6 +193,21 @@ void ApplyServerEvent(const NetEvent& event)
         else
             *existing = object;
 
+        const auto player = state.players.find(body[0]);
+        if (player != state.players.end()) {
+            player->second.placed = true;
+            player->second.previewVisible = false;
+        }
+        break;
+    }
+    case BlockAction::blockDeleted: {
+        if (body.size() != 5 || state.phase != placingPhase)
+            return;
+        const auto objectId = ReadUnsigned<uint32_t>(body, 1);
+        const auto target = std::find_if(state.objects.begin(), state.objects.end(),
+            [objectId](const ObjectInfo& object) { return object.objectId == objectId; });
+        if (target != state.objects.end())
+            state.objects.erase(target);
         const auto player = state.players.find(body[0]);
         if (player != state.players.end()) {
             player->second.placed = true;

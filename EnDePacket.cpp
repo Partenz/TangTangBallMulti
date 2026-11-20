@@ -1,4 +1,5 @@
-﻿#include "EnDePacket.h"
+﻿#include "BlockAction.h"
+#include "EnDePacket.h"
 #include <cstdint>
 #include <cstring>
 #include <cmath>
@@ -95,10 +96,11 @@ bool DecodePacket(const std::vector<BYTE>& bytes, BYTE& packetType,
         expectedSize = 10;
         floatPositions = { 2, 6 };
         break;
-    case 21: // BLOCK_ASSIGN: blockType (기존 프로젝트의 블록 번호 0~8)
+    case 21: // BLOCK_ASSIGN: blockType or delete assignment
         expectedSize = 1;
-        if (data.size() != 1 || data[0] > 8) return false;
+        if (data.size() != 1 || data[0] > BlockAction::deleteAssignment) return false;
         break;
+    case BlockAction::deleteRequest:
     case 22: // PLACE_REQUEST: gridX:int16, gridY:int16
         expectedSize = 4;
         break;
@@ -106,6 +108,10 @@ bool DecodePacket(const std::vector<BYTE>& bytes, BYTE& packetType,
         expectedSize = 23;
         if (data.size() != expectedSize || data[0] == 0) return false;
         objectPositions = { 1 };
+        break;
+    case BlockAction::blockDeleted: // playerId, objectId
+        expectedSize = 5;
+        if (data.size() != expectedSize || data[0] == 0) return false;
         break;
     case 30: // CONTACT_EVENT: roundCnt, playerId, objectId, contactType
         expectedSize = 8;
@@ -151,7 +157,7 @@ bool DecodePacket(const std::vector<BYTE>& bytes, BYTE& packetType,
         break;
     case 121: // PLAYERS_PREVIEW: roundCnt, udpSequence, playerId, blockType, gridX, gridY, visible
         expectedSize = 13;
-        if (data.size() != expectedSize || data[6] == 0 || data[7] > 8)
+        if (data.size() != expectedSize || data[6] == 0 || data[7] > BlockAction::deleteAssignment)
             return false;
         boolPositions = { 12 };
         break;

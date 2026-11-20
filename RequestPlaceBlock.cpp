@@ -1,10 +1,11 @@
 #include <cstdint>
 #include <vector>
 
+#include "BlockAction.h"
 #include "RequestPlaceBlock.h"
 #include "TCPQueue.h"
 
-bool RequestPlaceBlock(int16_t gridX, int16_t gridY)
+bool RequestPlaceBlock(int16_t gridX, int16_t gridY, bool deleteRequested)
 {
     constexpr BYTE placeRequestType = 22;
     const uint16_t x = static_cast<uint16_t>(gridX);
@@ -14,5 +15,5 @@ bool RequestPlaceBlock(int16_t gridX, int16_t gridY)
         static_cast<BYTE>(y >> 8), static_cast<BYTE>(y)
     };
 
-    return QueueTcpPacket(placeRequestType, body);
+    return QueueTcpPacket(deleteRequested ? BlockAction::deleteRequest : placeRequestType, body);
 }

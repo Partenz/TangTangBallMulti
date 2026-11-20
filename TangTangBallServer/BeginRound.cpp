@@ -1,8 +1,11 @@
+#include <algorithm>
+#include <iterator>
 #include <cstdint>
 #include <cstring>
 #include <random>
 #include <vector>
 
+#include "../BlockAction.h"
 #include "BeginRound.h"
 #include "EnDePacket.h"
 #include "EventQueue.h"
@@ -69,9 +72,10 @@ void BeginRound()
         return;
 
     // 별은 맵에 하나만 두고, 전기 블록은 비활성 상태로 배정한다.
-    constexpr BYTE blockTypes[] = { 0, 1, 2, 3, 5, 6, 8 };
+    constexpr BYTE blockTypes[] = { 0, 1, 2, 3, 5, 6, 8, BlockAction::deleteAssignment };
     static std::mt19937 randomEngine{ std::random_device{}() };
-    std::uniform_int_distribution<int> chooseBlock(0, 6);
+    auto remainingTargets = std::count_if(gameState.objects.begin(), gameState.objects.end(),
+        [](const ObjectInfo& object) { return object.blockType != BlockAction::starBlock; });
 
     ++gameState.roundCnt;
     gameState.phase = placingPhase;
@@ -99,7 +103,12 @@ void BeginRound()
         player.previewGridX = 0;
         player.previewGridY = 0;
         player.previewVisible = false;
+        const int lastChoice = static_cast<int>(std::size(blockTypes)) - (remainingTargets > 0 ? 1 : 2);
+        std::uniform_int_distribution<int> chooseBlock(0, lastChoice);
         player.assignedBlockType = blockTypes[chooseBlock(randomEngine)];
+
+        if (player.assignedBlockType == BlockAction::deleteAssignment)
+            --remainingTargets;
 
         SendPacket(playerId, roundBeginType, roundBody);
         SendPacket(playerId, blockAssignType, { player.assignedBlockType });

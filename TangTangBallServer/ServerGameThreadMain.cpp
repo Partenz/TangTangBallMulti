@@ -1,4 +1,5 @@
-﻿#include "ServerGameThreadMain.h"
+﻿#include "../BlockAction.h"
+#include "ServerGameThreadMain.h"
 #include "BeginRound.h"
 #include "HandlePlace.h"
 #include "EventQueue.h"
@@ -84,11 +85,12 @@ namespace {
             if (body.empty())
                 HandleMapReady(playerId);
             break;
+        case BlockAction::deleteRequest:
         case 22: // PLACE_REQUEST
             if (body.size() == 4) {
                 HandlePlace(playerId,
                     static_cast<int16_t>(ReadUnsigned<uint16_t>(body, 0)),
-                    static_cast<int16_t>(ReadUnsigned<uint16_t>(body, 2)));
+                    static_cast<int16_t>(ReadUnsigned<uint16_t>(body, 2)), event.packetType == BlockAction::deleteRequest);
                 if (gameState.phase == placingPhase)
                     BeginRace();
             }

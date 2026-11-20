@@ -3,6 +3,7 @@
 #include <limits>
 #include <vector>
 
+#include "../BlockAction.h"
 #include "HandlePlace.h"
 #include "EnDePacket.h"
 #include "EventQueue.h"
@@ -55,7 +56,7 @@ namespace {
     constexpr BYTE thornBlockType = 1;
 }
 
-void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY)
+void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY, bool deleteRequested)
 {
     const auto player = gameState.players.find(playerId);
     if (player == gameState.players.end())
@@ -68,16 +69,35 @@ void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY)
     const int bottom = top + gridSpacing;
 
     if (gameState.phase != placingPhase || player->second.placed ||
+        deleteRequested != (player->second.assignedBlockType == BlockAction::deleteAssignment) ||
         left < 0 || top < 0 || right > gameState.mapWidth || bottom > gameState.mapHeight) {
         SendPacket(playerId, placeResponseType, { 0 });
         return;
     }
 
-    const bool overlaps = std::any_of(gameState.objects.begin(), gameState.objects.end(),
+    const auto target = std::find_if(gameState.objects.begin(), gameState.objects.end(),
         [&](const ObjectInfo& object) {
-            return left < object.right && right > object.left &&
+            return (!deleteRequested || object.blockType != BlockAction::starBlock) &&
+                left < object.right && right > object.left &&
                 top < object.bottom && bottom > object.top;
         });
+
+    if (deleteRequested) {
+        if (target == gameState.objects.end()) {
+            SendPacket(playerId, placeResponseType, { 0 });
+            return;
+        }
+
+        std::vector<BYTE> deletedBody{ playerId };
+        AppendUint32(deletedBody, target->objectId);
+        gameState.objects.erase(target);
+        player->second.placed = true;
+        player->second.previewVisible = false;
+        SendPacket(playerId, placeResponseType, { 1 });
+        for (const auto& entry : gameState.players)
+            SendPacket(entry.first, BlockAction::blockDeleted, deletedBody);
+        return;
+    }
 
     // 맵에 이미 저장된 번호와 겹치지 않도록 다음 번호를 보정한다.
     constexpr uint32_t maxObjectId = (std::numeric_limits<uint32_t>::max)();
@@ -87,7 +107,7 @@ void HandlePlace(uint8_t playerId, int16_t gridX, int16_t gridY)
             objectId = object.objectId == maxObjectId ? maxObjectId : object.objectId + 1;
     }
 
-    if (overlaps || objectId == maxObjectId) {
+    if (target != gameState.objects.end() || objectId == maxObjectId) {
         SendPacket(playerId, placeResponseType, { 0 });
         return;
     }
