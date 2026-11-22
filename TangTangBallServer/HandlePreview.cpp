@@ -1,4 +1,7 @@
-﻿#include "HandlePreview.h"
+﻿#include <algorithm>
+
+#include "../BlockAction.h"
+#include "HandlePreview.h"
 #include "EnDePacket.h"
 #include "EventQueue.h"
 #include "IsNewerSequence.h"
@@ -56,11 +59,14 @@ void HandlePreview(std::uint8_t playerId, std::uint16_t roundCnt, std::uint32_t 
         if (left < 0 || top < 0 || right > gameState.mapWidth || bottom > gameState.mapHeight)
             return;
 
-        for (const ObjectInfo& object : gameState.objects) {
-            if (left < object.right && right > object.left &&
-                top < object.bottom && bottom > object.top)
-                return;
-        }
+        const bool deleteAssigned = playerEntry->second.assignedBlockType == BlockAction::deleteAssignment;
+        const bool hasTarget = std::any_of(gameState.objects.begin(), gameState.objects.end(),
+            [&](const ObjectInfo& object) {
+                return (!deleteAssigned || object.blockType != BlockAction::starBlock) &&
+                    left < object.right && right > object.left && top < object.bottom && bottom > object.top;
+            });
+        if (deleteAssigned != hasTarget)
+            return;
     }
 
     gameState.lastPreviewSequences.insert_or_assign(playerId, std::pair{ senderUdpKey, sequence });

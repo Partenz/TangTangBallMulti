@@ -24,6 +24,7 @@
 #include "BlockAction.h"
 #include "RequestPlaceBlock.h"
 #include "SendMoveInput.h"
+#include "SendPreviewState.h"
 #include "TCPQueue.h"
 #include "UpdatePlayerDisplays.h"
 #include "function.h"
@@ -44,6 +45,8 @@ constexpr int readyButtonId = 116;
 constexpr BYTE lobbyPhase = 0;
 constexpr BYTE placingPhase = 2;
 constexpr BYTE racingPhase = 3;
+constexpr COLORREF playerColors[] = { RGB(235, 48, 48), RGB(28, 157, 65), RGB(43, 91, 224),
+    RGB(0, 177, 183), RGB(192, 49, 179), RGB(244, 197, 34) };
 constexpr const wchar_t* lobbyColorNames[] = { L"빨강", L"초록", L"파랑", L"청록", L"자홍", L"노랑" };
 constexpr DWORD windowStyle = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
 constexpr int windowWidth = 800;
@@ -283,7 +286,7 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
     const bool showLobby = screen == ClientScreen::Lobby && clientGameState.phase == lobbyPhase;
 
     const bool placing = screen == ClientScreen::Lobby && clientGameState.phase == placingPhase;
-    const bool showStage = placing || (screen == ClientScreen::Lobby && clientGameState.phase == racingPhase);
+    const bool racing = screen == ClientScreen::Lobby && clientGameState.phase == racingPhase;
     if (!placing)
         client.canPlaceBlock = false;
     const wchar_t* title = L"Tang Tang Ball";
@@ -300,15 +303,14 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
         }
     }
     SetWindowTextW(client.title, title);
-    SetWindowTextW(client.status, clientGameState.phase == racingPhase && showStage ?
-        L"왼쪽 버튼 · 왼쪽 이동     오른쪽 버튼 · 오른쪽 이동" : status);
-    ShowWindow(client.title, placing ? SW_HIDE : SW_SHOW);
-    ShowWindow(client.status, placing || screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
+    SetWindowTextW(client.status, status);
+    ShowWindow(client.title, placing || racing ? SW_HIDE : SW_SHOW);
+    ShowWindow(client.status, placing || racing || screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
 
     ShowWindow(client.startButton, screen == ClientScreen::Start ? SW_SHOW : SW_HIDE);
     ShowWindow(client.exitButton, screen == ClientScreen::Start ? SW_SHOW : SW_HIDE);
     ShowWindow(client.connectButton, showConnect ? SW_SHOW : SW_HIDE);
-    ShowWindow(client.backButton, screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
+    ShowWindow(client.backButton, racing || screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
     SetWindowTextW(client.backButton, screen == ClientScreen::Lobby ? L"나가기" : L"뒤로");
     EnableWindow(client.connectButton, TRUE);
 
@@ -329,7 +331,9 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
     RECT bounds{};
     GetClientRect(mainWindow, &bounds);
     SendMessageW(mainWindow, WM_SIZE, SIZE_RESTORED, MAKELPARAM(bounds.right, bounds.bottom));
-    if (showConnect)
+    if (racing)
+        SetFocus(mainWindow);
+    else if (showConnect)
         SetFocus(client.addressFields[0]);
     else
         SetFocus(showLobby ? client.backButton : client.startButton);
@@ -621,16 +625,88 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     const int menuOffsetX = (clientWidth - windowWidth) / 2;
     const int menuOffsetY = (clientHeight - windowHeight) / 2;
     constexpr int gridSpacing = 40;
+    constexpr int placementHeaderHeight = 104;
+    constexpr int placementFooterHeight = 60;
     int cellPixels = 0;
     RECT mapRect{};
-    if (showStage && clientWidth > 32 && clientHeight > 132 && clientGameState.mapWidth && clientGameState.mapHeight) {
-        cellPixels = (std::min)((clientWidth - 32) * gridSpacing / clientGameState.mapWidth,
-            (clientHeight - 132) * gridSpacing / clientGameState.mapHeight);
-        const int mapPixelWidth = clientGameState.mapWidth * cellPixels / gridSpacing;
-        mapRect.left = (clientWidth - mapPixelWidth) / 2;
-        mapRect.top = 72;
-        mapRect.right = mapRect.left + mapPixelWidth;
-        mapRect.bottom = mapRect.top + clientGameState.mapHeight * cellPixels / gridSpacing;
+    double scaleX = 0.0;
+    double scaleY = 0.0;
+    if (showStage && clientGameState.mapWidth && clientGameState.mapHeight) {
+        if (racing) {
+            mapRect = bounds;
+            scaleX = static_cast<double>(clientWidth) / clientGameState.mapWidth;
+            scaleY = static_cast<double>(clientHeight) / clientGameState.mapHeight;
+        } else if (clientWidth > 32 && clientHeight > placementHeaderHeight + placementFooterHeight) {
+            cellPixels = (std::min)((clientWidth - 32) * gridSpacing / clientGameState.mapWidth,
+                (clientHeight - placementHeaderHeight - placementFooterHeight) * gridSpacing / clientGameState.mapHeight);
+            const int mapPixelWidth = clientGameState.mapWidth * cellPixels / gridSpacing;
+            mapRect.left = (clientWidth - mapPixelWidth) / 2;
+            mapRect.top = placementHeaderHeight;
+            mapRect.right = mapRect.left + mapPixelWidth;
+            mapRect.bottom = mapRect.top + clientGameState.mapHeight * cellPixels / gridSpacing;
+            scaleX = scaleY = static_cast<double>(cellPixels) / gridSpacing;
+        }
+    }
+
+    const bool placementClick = message == WM_LBUTTONDOWN;
+    const bool previewTick = message == WM_TIMER && wParam == networkTimer;
+    if (placing && (placementClick || previewTick)) {
+        const auto player = clientGameState.players.find(clientPlayerId);
+        if (player != clientGameState.players.end() && !player->second.placed) {
+            const BYTE assignedBlock = player->second.assignedBlockType;
+            const bool deleteRequested = assignedBlock == BlockAction::deleteAssignment;
+            POINT cursor{};
+            bool cursorOnMap = false;
+            if (placementClick) {
+                cursor = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+                cursorOnMap = cellPixels > 0 && PtInRect(&mapRect, cursor);
+            } else if (cellPixels > 0 && GetForegroundWindow() == hWnd && GetCursorPos(&cursor) &&
+                WindowFromPoint(cursor) == hWnd && ScreenToClient(hWnd, &cursor)) {
+                cursorOnMap = PtInRect(&mapRect, cursor);
+            }
+
+            const auto gridX = static_cast<int16_t>(cursorOnMap ? (cursor.x - mapRect.left) / cellPixels : 0);
+            const auto gridY = static_cast<int16_t>(cursorOnMap ? (cursor.y - mapRect.top) / cellPixels : 0);
+            if (placementClick && cursorOnMap && client->canPlaceBlock) {
+                if (RequestPlaceBlock(gridX, gridY, deleteRequested)) {
+                    client->canPlaceBlock = false;
+                    player->second.previewVisible = false;
+                    SetWindowTextW(client->status, deleteRequested ? L"삭제 결과를 기다리는 중입니다." : L"설치 결과를 기다리는 중입니다.");
+                } else {
+                    SetWindowTextW(client->status, L"요청을 보내지 못했습니다. 다시 클릭하세요.");
+                }
+                InvalidateRect(hWnd, nullptr, FALSE);
+            }
+            if (previewTick && assignedBlock <= BlockAction::deleteAssignment) {
+                const int left = gridX * gridSpacing;
+                const int top = gridY * gridSpacing;
+                const int right = left + gridSpacing;
+                const int bottom = top + gridSpacing;
+                bool visible = client->canPlaceBlock && cursorOnMap &&
+                    right <= clientGameState.mapWidth && bottom <= clientGameState.mapHeight;
+                if (visible) {
+                    const bool hasTarget = std::any_of(clientGameState.objects.begin(), clientGameState.objects.end(),
+                        [&](const ObjectInfo& object) {
+                            return (!deleteRequested || object.blockType != BlockAction::starBlock) &&
+                                left < object.right && right > object.left && top < object.bottom && bottom > object.top;
+                        });
+                    visible = deleteRequested == hasTarget;
+                }
+                PlayerState& localPlayer = player->second;
+                if (localPlayer.previewVisible != visible ||
+                    (visible && (localPlayer.previewGridX != gridX || localPlayer.previewGridY != gridY))) {
+                    localPlayer.previewGridX = gridX;
+                    localPlayer.previewGridY = gridY;
+                    localPlayer.previewVisible = visible;
+                    InvalidateRect(hWnd, &mapRect, FALSE);
+                }
+
+                // 표시와 숨김을 반복 전송해 UDP 패킷이 누락되어도 다음 입력을 반영한다.
+                SendPreviewState(clientGameState.roundCnt, gridX, gridY, visible);
+            }
+        }
+        if (placementClick)
+            return 0;
     }
 
     switch (message) {
@@ -659,14 +735,10 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             int x, y, width, height;
             int id;
         };
-        const int stageTitleWidth = (std::min)(260, clientWidth / 3);
         const Control controls[] = {
             { &client->title, L"STATIC", L"", WS_VISIBLE | SS_CENTER,
-                showStage ? 12 - menuOffsetX : 70, showStage ? -menuOffsetY : 26,
-                showStage ? stageTitleWidth : 660, 62, 0 },
-            { &client->status, L"STATIC", L"", SS_CENTER,
-                showStage ? stageTitleWidth + 15 - menuOffsetX : 196, showStage ? 20 - menuOffsetY : 345,
-                showStage ? clientWidth - stageTitleWidth - 35 : 408, 34, 0 },
+                70, 26, 660, 62, 0 },
+            { &client->status, L"STATIC", L"", SS_CENTER, 196, 345, 408, 34, 0 },
             { &client->startButton, L"BUTTON", L"START", WS_TABSTOP | BS_OWNERDRAW,
                 326, 175, 148, 52, startButtonId },
             { &client->exitButton, L"BUTTON", L"EXIT", WS_TABSTOP | BS_OWNERDRAW,
@@ -683,7 +755,7 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             { &client->connectButton, L"BUTTON", L"접속", WS_TABSTOP | BS_OWNERDRAW,
                 459, 385, 128, 42, connectButtonId },
             { &client->backButton, L"BUTTON", L"뒤로", WS_TABSTOP | BS_OWNERDRAW,
-                showStage ? 16 - menuOffsetX : 209, showStage ? clientHeight - 51 - menuOffsetY : 385, 128, 42, backButtonId },
+                placing ? 16 - menuOffsetX : 209, placing ? clientHeight - 51 - menuOffsetY : 385, 128, 42, backButtonId },
             { &client->lobbyPlayer, L"STATIC", L"", 0, 209, 129, 378, 28, 0 },
             { &client->lobbyList, L"LISTBOX", L"", WS_BORDER | WS_VSCROLL | LBS_SORT | LBS_NOSEL,
                 209, 162, 378, 128, 0 },
@@ -746,10 +818,11 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             HBITMAP frameBitmap = CreateCompatibleBitmap(target, clientWidth, clientHeight);
             HGDIOBJ previousBitmap = frameDC && frameBitmap ? SelectObject(frameDC, frameBitmap) : nullptr;
             HDC stageDC = previousBitmap ? frameDC : target;
-            FillRect(stageDC, &paint.rcPaint, client->backgroundBrush);
-            FillRect(stageDC, &mapRect, client->panelBrush);
+            const HBRUSH whiteBrush = static_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
+            FillRect(stageDC, &paint.rcPaint, racing ? whiteBrush : client->backgroundBrush);
+            FillRect(stageDC, &mapRect, whiteBrush);
             HDC blockDC = CreateCompatibleDC(target);
-            if (blockDC && cellPixels > 0) {
+            if (blockDC && scaleX > 0 && scaleY > 0) {
                 if (placing) {
                     SelectObject(stageDC, GetStockObject(DC_PEN));
                     SetDCPenColor(stageDC, RGB(196, 220, 219));
@@ -765,11 +838,11 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 for (const ObjectInfo& object : clientGameState.objects) {
                     if (racing && object.used)
                         continue;
-                    const int left = mapRect.left + object.left * cellPixels / gridSpacing;
-                    const int right = mapRect.left + object.right * cellPixels / gridSpacing;
-                    const int bottom = mapRect.top + object.bottom * cellPixels / gridSpacing;
-                    const int top = object.blockType == 1 ? bottom - cellPixels :
-                        mapRect.top + object.top * cellPixels / gridSpacing;
+                    const int left = mapRect.left + static_cast<int>(object.left * scaleX);
+                    const int right = mapRect.left + static_cast<int>(object.right * scaleX);
+                    const int bottom = mapRect.top + static_cast<int>(object.bottom * scaleY);
+                    const int blockTop = object.blockType == 1 ? object.bottom - gridSpacing : object.top;
+                    const int top = mapRect.top + static_cast<int>(blockTop * scaleY);
                     const int bitmapSize = object.blockType == 4 ? 32 : 100;
                     const int margin = object.blockType >= 7 ? 4 : 0;
                     BYTE displayType = object.blockType;
@@ -779,19 +852,50 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     StretchBlt(stageDC, left, top, right - left, bottom - top, blockDC, margin, margin,
                         bitmapSize - 2 * margin, bitmapSize - 2 * margin, SRCCOPY);
                 }
-                if (racing) {
-                    constexpr COLORREF ballColors[] = { RGB(235, 48, 48), RGB(28, 157, 65), RGB(43, 91, 224),
-                        RGB(0, 177, 183), RGB(192, 49, 179), RGB(244, 197, 34) };
-                    const int ballRadius = (std::max)(1, playerSize * cellPixels / gridSpacing);
-                    IntersectClipRect(stageDC, mapRect.left, mapRect.top, mapRect.right, mapRect.bottom);
-                    SelectObject(stageDC, GetStockObject(BLACK_PEN));
+                if (placing) {
                     for (const auto& entry : clientGameState.players) {
                         const PlayerState& player = entry.second;
-                        if (player.alive) {
-                            const double x = mapRect.left + player.motion.x * cellPixels / gridSpacing;
-                            const double y = mapRect.top + player.motion.y * cellPixels / gridSpacing;
-                            DrawPlayer(stageDC, x, y, ballRadius, ballColors[player.info.color]);
+                        if (player.placed || !player.previewVisible)
+                            continue;
+
+                        const int left = mapRect.left + player.previewGridX * cellPixels;
+                        const int top = mapRect.top + player.previewGridY * cellPixels;
+                        RECT previewRect{ left, top, left + cellPixels, top + cellPixels };
+                        RECT clippedPreview{};
+                        if (!IntersectRect(&clippedPreview, &previewRect, &mapRect))
+                            continue;
+
+                        SelectObject(stageDC, GetStockObject(DC_PEN));
+                        SetDCPenColor(stageDC, playerColors[player.info.color]);
+                        const BYTE blockType = player.assignedBlockType;
+                        if (blockType < ARRAYSIZE(client->blockBitmaps)) {
+                            SelectObject(blockDC, client->blockBitmaps[blockType]);
+                            const BLENDFUNCTION previewBlend{ AC_SRC_OVER, 0, 115, 0 };
+                            AlphaBlend(stageDC, left, top, cellPixels, cellPixels, blockDC, 0, 0, 100, 100, previewBlend);
+                        } else if (blockType == BlockAction::deleteAssignment) {
+                            MoveToEx(stageDC, left, top, nullptr);
+                            LineTo(stageDC, previewRect.right - 1, previewRect.bottom - 1);
+                            MoveToEx(stageDC, previewRect.right - 1, top, nullptr);
+                            LineTo(stageDC, left, previewRect.bottom - 1);
                         }
+
+                        SelectObject(stageDC, GetStockObject(NULL_BRUSH));
+                        Rectangle(stageDC, clippedPreview.left, clippedPreview.top, clippedPreview.right, clippedPreview.bottom);
+                    }
+                }
+                if (racing) {
+                    const int previousDC = SaveDC(stageDC);
+                    if (previousDC != 0) {
+                        SetMapMode(stageDC, MM_ANISOTROPIC);
+                        SetWindowExtEx(stageDC, clientGameState.mapWidth, clientGameState.mapHeight, nullptr);
+                        SetViewportExtEx(stageDC, clientWidth, clientHeight, nullptr);
+                        SelectObject(stageDC, GetStockObject(BLACK_PEN));
+                        for (const auto& entry : clientGameState.players) {
+                            const PlayerState& player = entry.second;
+                            if (player.alive)
+                                DrawPlayer(stageDC, player.motion.x, player.motion.y, playerSize, playerColors[player.info.color]);
+                        }
+                        RestoreDC(stageDC, previousDC);
                     }
                 }
                 const auto localPlayer = clientGameState.players.find(clientPlayerId);
@@ -807,7 +911,8 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                     SelectObject(stageDC, client->menuTextFont);
                     SetBkMode(stageDC, TRANSPARENT);
                     const std::wstring label = type == BlockAction::deleteAssignment ? L"배정 · 블록 삭제" : std::wstring(L"배정 블록 · ") + blockNames[type];
-                    TextOutW(stageDC, 216, clientHeight - 44, label.c_str(), static_cast<int>(label.size()));
+                    RECT assignmentBounds{ 216, clientHeight - placementFooterHeight, clientWidth - 16, clientHeight };
+                    DrawTextW(stageDC, label.c_str(), -1, &assignmentBounds, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
                 }
             }
             if (blockDC)
@@ -816,20 +921,16 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 // 설치 화면의 문구도 맵과 같은 버퍼에 그려 배경과 함께 갱신한다.
                 SetBkMode(stageDC, TRANSPARENT);
                 SetTextColor(stageDC, RGB(23, 61, 61));
-                const HWND labels[] = { client->title, client->status };
-                for (HWND label : labels) {
-                    RECT textBounds{};
-                    GetWindowRect(label, &textBounds);
-                    MapWindowPoints(nullptr, hWnd, reinterpret_cast<POINT*>(&textBounds), 2);
-                    wchar_t text[128]{};
-                    GetWindowTextW(label, text, ARRAYSIZE(text));
-                    SelectObject(stageDC, label == client->title ? client->titleFont : client->menuTextFont);
-                    RECT measured = textBounds;
-                    const int textHeight = DrawTextW(stageDC, text, -1, &measured, DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX);
-                    textBounds.top = (mapRect.top - textHeight) / 2;
-                    textBounds.bottom = mapRect.top;
-                    DrawTextW(stageDC, text, -1, &textBounds, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX);
-                }
+                wchar_t text[128]{};
+                RECT titleBounds{ 16, 4, clientWidth - 16, 62 };
+                GetWindowTextW(client->title, text, ARRAYSIZE(text));
+                SelectObject(stageDC, client->titleFont);
+                DrawTextW(stageDC, text, -1, &titleBounds, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+
+                RECT statusBounds{ 16, 62, clientWidth - 16, placementHeaderHeight };
+                GetWindowTextW(client->status, text, ARRAYSIZE(text));
+                SelectObject(stageDC, client->menuTextFont);
+                DrawTextW(stageDC, text, -1, &statusBounds, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX);
             }
             if (previousBitmap) {
                 BitBlt(target, paint.rcPaint.left, paint.rcPaint.top, paint.rcPaint.right - paint.rcPaint.left,
@@ -930,25 +1031,6 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     case WM_RBUTTONDBLCLK:
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
-        if (placing && message == WM_LBUTTONDOWN && client->canPlaceBlock && cellPixels > 0) {
-            const POINT click{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
-            if (PtInRect(&mapRect, click)) {
-                const auto gridX = static_cast<int16_t>((click.x - mapRect.left) / cellPixels);
-                const auto gridY = static_cast<int16_t>((click.y - mapRect.top) / cellPixels);
-                const auto player = clientGameState.players.find(clientPlayerId);
-                if (player == clientGameState.players.end())
-                    return 0;
-                const bool deleteRequested = player->second.assignedBlockType == BlockAction::deleteAssignment;
-                if (RequestPlaceBlock(gridX, gridY, deleteRequested)) {
-                    client->canPlaceBlock = false;
-                    SetWindowTextW(client->status, deleteRequested ? L"삭제 결과를 기다리는 중입니다." : L"설치 결과를 기다리는 중입니다.");
-                } else {
-                    SetWindowTextW(client->status, L"요청을 보내지 못했습니다. 다시 클릭하세요.");
-                }
-                InvalidateRect(hWnd, nullptr, FALSE);
-            }
-            return 0;
-        }
         if (client->screen == ClientScreen::Lobby && clientGameState.phase == racingPhase) {
             const bool leftPressed = (wParam & MK_LBUTTON) != 0;
             const bool rightPressed = (wParam & MK_RBUTTON) != 0;
