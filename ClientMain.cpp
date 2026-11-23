@@ -823,17 +823,17 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             FillRect(stageDC, &mapRect, whiteBrush);
             HDC blockDC = CreateCompatibleDC(target);
             if (blockDC && scaleX > 0 && scaleY > 0) {
-                if (placing) {
-                    SelectObject(stageDC, GetStockObject(DC_PEN));
-                    SetDCPenColor(stageDC, RGB(196, 220, 219));
-                    for (int x = mapRect.left; x <= mapRect.right; x += cellPixels) {
-                        MoveToEx(stageDC, x, mapRect.top, nullptr);
-                        LineTo(stageDC, x, mapRect.bottom);
-                    }
-                    for (int y = mapRect.top; y <= mapRect.bottom; y += cellPixels) {
-                        MoveToEx(stageDC, mapRect.left, y, nullptr);
-                        LineTo(stageDC, mapRect.right, y);
-                    }
+                SelectObject(stageDC, GetStockObject(DC_PEN));
+                SetDCPenColor(stageDC, RGB(196, 220, 219));
+                for (int mapX = 0; mapX <= clientGameState.mapWidth; mapX += gridSpacing) {
+                    const int x = mapRect.left + static_cast<int>(mapX * scaleX);
+                    MoveToEx(stageDC, x, mapRect.top, nullptr);
+                    LineTo(stageDC, x, mapRect.bottom);
+                }
+                for (int mapY = 0; mapY <= clientGameState.mapHeight; mapY += gridSpacing) {
+                    const int y = mapRect.top + static_cast<int>(mapY * scaleY);
+                    MoveToEx(stageDC, mapRect.left, y, nullptr);
+                    LineTo(stageDC, mapRect.right, y);
                 }
                 for (const ObjectInfo& object : clientGameState.objects) {
                     if (racing && object.used)
