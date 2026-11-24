@@ -45,6 +45,8 @@ constexpr int readyButtonId = 116;
 constexpr BYTE lobbyPhase = 0;
 constexpr BYTE placingPhase = 2;
 constexpr BYTE racingPhase = 3;
+constexpr BYTE roundResultPhase = 4;
+constexpr BYTE gameResultPhase = 5;
 constexpr COLORREF playerColors[] = { RGB(235, 48, 48), RGB(28, 157, 65), RGB(43, 91, 224),
     RGB(0, 177, 183), RGB(192, 49, 179), RGB(244, 197, 34) };
 constexpr const wchar_t* lobbyColorNames[] = { L"빨강", L"초록", L"파랑", L"청록", L"자홍", L"노랑" };
@@ -604,6 +606,55 @@ static void DrawMenuButton(HWND hWnd, const ClientWindow& client, const DRAWITEM
         RestoreDC(item.hDC, savedDC);
 }
 
+static void DrawScoreboard(HDC dc, const RECT& bounds, const ClientWindow& client)
+{
+    if (clientGameState.players.empty())
+        return;
+
+    std::vector<const PlayerState*> players;
+    players.reserve(clientGameState.players.size());
+    for (const auto& entry : clientGameState.players)
+        players.push_back(&entry.second);
+    std::sort(players.begin(), players.end(), [](const PlayerState* left, const PlayerState* right) {
+        return left->info.playerId < right->info.playerId;
+    });
+
+    const int savedDC = SaveDC(dc);
+    if (savedDC == 0)
+        return;
+
+    constexpr int margin = 16;
+    constexpr int width = 104;
+    constexpr int padding = 10;
+    constexpr int rowHeight = 26;
+    constexpr int markerRadius = 8;
+    const int right = bounds.right - margin;
+    const RECT panel{ right - width, bounds.top + margin, right,
+        bounds.top + margin + 2 * padding + rowHeight * (1 + static_cast<int>(players.size())) };
+    FillRect(dc, &panel, client.panelBrush);
+    FrameRect(dc, &panel, client.borderBrush);
+
+    SelectObject(dc, client.menuTextFont);
+    SelectObject(dc, GetStockObject(BLACK_PEN));
+    SetBkMode(dc, TRANSPARENT);
+    SetTextColor(dc, RGB(23, 61, 61));
+    const int left = panel.left + padding;
+    int top = panel.top + padding;
+    RECT heading{ left, top, panel.right - padding, top + rowHeight };
+    DrawTextW(dc, L"점수", -1, &heading, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+    top += rowHeight;
+    for (const PlayerState* player : players) {
+        DrawPlayer(dc, left + markerRadius + 6, top + rowHeight / 2, markerRadius,
+            playerColors[player->info.color]);
+        const std::wstring score = std::to_wstring(player->score);
+        RECT scoreBounds{ left + 2 * markerRadius + 16, top, panel.right - padding - 6, top + rowHeight };
+        DrawTextW(dc, score.c_str(), -1, &scoreBounds, DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+        top += rowHeight;
+    }
+    RestoreDC(dc, savedDC);
+}
+
 LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (message == WM_NCCREATE) {
@@ -618,6 +669,8 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     const bool placing = client->screen == ClientScreen::Lobby && clientGameState.phase == placingPhase;
     const bool racing = client->screen == ClientScreen::Lobby && clientGameState.phase == racingPhase;
     const bool showStage = placing || racing;
+    const bool showResult = client->screen == ClientScreen::Lobby &&
+        (clientGameState.phase == roundResultPhase || clientGameState.phase == gameResultPhase);
     RECT bounds{};
     GetClientRect(hWnd, &bounds);
     const int clientWidth = bounds.right;
@@ -932,6 +985,8 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 SelectObject(stageDC, client->menuTextFont);
                 DrawTextW(stageDC, text, -1, &statusBounds, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX);
             }
+            if (racing)
+                DrawScoreboard(stageDC, bounds, *client);
             if (previousBitmap) {
                 BitBlt(target, paint.rcPaint.left, paint.rcPaint.top, paint.rcPaint.right - paint.rcPaint.left,
                     paint.rcPaint.bottom - paint.rcPaint.top, frameDC, paint.rcPaint.left, paint.rcPaint.top, SRCCOPY);
@@ -959,6 +1014,8 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             FillRect(target, &panelBounds, client->panelBrush);
             FrameRect(target, &panelBounds, client->borderBrush);
         }
+        if (showResult)
+            DrawScoreboard(target, bounds, *client);
         EndPaint(hWnd, &paint);
         return 0;
     }
