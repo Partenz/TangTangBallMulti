@@ -1,4 +1,4 @@
-#include "ServerCollision.h"
+ï»¿#include "ServerCollision.h"
 #include "ServerConnections.h"
 #include "ServerVariable.h"
 #include "UpdatePhysics.h"
@@ -64,14 +64,14 @@ namespace {
         const bool movingRight = motion.x > previousX;
         float resolvedX = motion.x;
         for (const ObjectInfo& object : gameState.objects) {
-            // ÀÏ¹İ¡¤ÀÏÈ¸¿ë¡¤Á¡ÇÁ¡¤¾÷´Ù¿î ºí·ÏÀÇ ¿·¸éÀ» ¸·´Â´Ù.
+            // ì¼ë°˜Â·ì¼íšŒìš©Â·ì í”„Â·ì—…ë‹¤ìš´ ë¸”ë¡ì˜ ì˜†ë©´ì„ ë§‰ëŠ”ë‹¤.
             if (object.used || (!IsSolid(object) && object.blockType != upDown))
                 continue;
 
             const float ballTop = previousY - ballRadius;
             const float ballBottom = previousY + ballRadius;
 
-            // °ø°ú ºí·ÏÀÇ ³ôÀÌ°¡ °ãÄ¥ ¶§¸¸ ¿·¸é Ãæµ¹À» °Ë»çÇÑ´Ù.
+            // ê³µê³¼ ë¸”ë¡ì˜ ë†’ì´ê°€ ê²¹ì¹  ë•Œë§Œ ì˜†ë©´ ì¶©ëŒì„ ê²€ì‚¬í•œë‹¤.
             if (ballBottom <= object.top || ballTop >= object.bottom)
                 continue;
 
@@ -92,14 +92,14 @@ namespace {
             if (object.used)
                 continue;
 
-            // ±âº»°ªÀº ±âÁ¸ ÂøÁö ÆÇÁ¤ ÆøÀÎ 2.5px´Ù.
+            // ê¸°ë³¸ê°’ì€ ê¸°ì¡´ ì°©ì§€ íŒì • í­ì¸ 2.5pxë‹¤.
             float halfWidth = landingHalfWidth;
 
             if (IsSolid(object)) {
                 halfWidth = ballRadius;
             }
             else if (object.blockType == thorn) {
-                // °øÀÌ À§·Î ¿Ã¶ó°¥ ¶§ °¡½Ã ¾Æ·§¸éÀ» ÃµÀåÀ¸·Î °Ë»çÇÑ´Ù.
+                // ê³µì´ ìœ„ë¡œ ì˜¬ë¼ê°ˆ ë•Œ ê°€ì‹œ ì•„ë«ë©´ì„ ì²œì¥ìœ¼ë¡œ ê²€ì‚¬í•œë‹¤.
                 if (motion.y >= previousY)
                     continue;
 
@@ -114,7 +114,7 @@ namespace {
             }
 
             if (object.blockType == thorn) {
-                // °¡½Ã ¾Æ·§¸éÀº ¸ğ¼­¸®¿¡ Á¤È®È÷ ´êÀº °æ¿ìµµ Æ÷ÇÔÇÑ´Ù.
+                // ê°€ì‹œ ì•„ë«ë©´ì€ ëª¨ì„œë¦¬ì— ì •í™•íˆ ë‹¿ì€ ê²½ìš°ë„ í¬í•¨í•œë‹¤.
                 if (motion.x + halfWidth < object.left ||
                     motion.x - halfWidth > object.right)
                     continue;
