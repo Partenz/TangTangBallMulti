@@ -64,7 +64,15 @@ namespace {
         const bool movingRight = motion.x > previousX;
         float resolvedX = motion.x;
         for (const ObjectInfo& object : gameState.objects) {
-            if (object.used || !IsSolid(object) || previousY < object.top || previousY > object.bottom)
+            // 일반·일회용·점프·업다운 블록의 옆면을 막는다.
+            if (object.used || (!IsSolid(object) && object.blockType != upDown))
+                continue;
+
+            const float ballTop = previousY - ballRadius;
+            const float ballBottom = previousY + ballRadius;
+
+            // 공과 블록의 높이가 겹칠 때만 옆면 충돌을 검사한다.
+            if (ballBottom <= object.top || ballTop >= object.bottom)
                 continue;
 
             if (movingRight && previousX + ballRadius <= object.left && resolvedX + ballRadius >= object.left)
@@ -81,14 +89,46 @@ namespace {
     {
         ObjectInfo* nearest = nullptr;
         for (ObjectInfo& object : gameState.objects) {
-            if (object.used || (!IsSolid(object) && (object.blockType != upDown || falling)) ||
-                motion.x + landingHalfWidth <= object.left || motion.x - landingHalfWidth >= object.right)
+            if (object.used)
                 continue;
+
+            // 기본값은 기존 착지 판정 폭인 2.5px다.
+            float halfWidth = landingHalfWidth;
+
+            if (IsSolid(object)) {
+                halfWidth = ballRadius;
+            }
+            else if (object.blockType == thorn) {
+                // 공이 위로 올라갈 때 가시 아랫면을 천장으로 검사한다.
+                if (motion.y >= previousY)
+                    continue;
+
+                halfWidth = ballRadius;
+            }
+            else if (object.blockType == upDown) {
+                if (falling)
+                    continue;
+            }
+            else if (!IsSolid(object)) {
+                continue;
+            }
+
+            if (object.blockType == thorn) {
+                // 가시 아랫면은 모서리에 정확히 닿은 경우도 포함한다.
+                if (motion.x + halfWidth < object.left ||
+                    motion.x - halfWidth > object.right)
+                    continue;
+            }
+            else {
+                if (motion.x + halfWidth <= object.left ||
+                    motion.x - halfWidth >= object.right)
+                    continue;
+            }
 
             if (falling && previousY + ballRadius <= object.top && motion.y + ballRadius >= object.top &&
                 (nearest == nullptr || object.top < nearest->top))
                 nearest = &object;
-            else if (motion.y < previousY && previousY - ballRadius >= object.bottom && motion.y - ballRadius < object.bottom &&
+            else if (motion.y < previousY && previousY - ballRadius >= object.bottom && motion.y - ballRadius <= object.bottom &&
                 (nearest == nullptr || object.bottom > nearest->bottom))
                 nearest = &object;
         }
@@ -99,6 +139,8 @@ namespace {
     {
         const float margin = object.blockType == lightningOn ? lightningMargin : 0.0f;
         const auto overlaps = [&](float left, float top, float right, float bottom) {
+            if (object.blockType == thorn && top - ballRadius >= object.bottom)
+                return false;
             return right + ballRadius >= object.left + margin && left - ballRadius <= object.right - margin &&
                 bottom + ballRadius >= object.top + margin && top - ballRadius <= object.bottom - margin;
         };
