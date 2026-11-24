@@ -36,13 +36,16 @@ constexpr wchar_t clientWindowClass[] = L"TangTangBallClient";
 constexpr UINT_PTR networkTimer = 1;
 constexpr UINT_PTR menuTimer = 2;
 constexpr UINT menuFrameInterval = 120;
+constexpr ULONGLONG resultLoadingDurationMs = 600;
 constexpr int startButtonId = 100;
 constexpr int connectButtonId = 101;
 constexpr int backButtonId = 102;
 constexpr int exitButtonId = 103;
 constexpr int firstColorButtonId = 110;
 constexpr int readyButtonId = 116;
+constexpr int continueButtonId = 117;
 constexpr BYTE lobbyPhase = 0;
+constexpr BYTE loadingPhase = 1;
 constexpr BYTE placingPhase = 2;
 constexpr BYTE racingPhase = 3;
 constexpr BYTE roundResultPhase = 4;
@@ -76,6 +79,11 @@ struct ClientWindow {
     HWND lobbyList = nullptr;
     HWND lobbyColorButtons[ARRAYSIZE(lobbyColorNames)]{};
     HWND lobbyReadyButton = nullptr;
+    HWND continueButton = nullptr;
+    ULONGLONG resultVisibleAt = 0;
+    bool showFinalResult = false;
+    bool continueRequested = false;
+    std::wstring resultSummary;
     bool canPlaceBlock = false;
     HBITMAP blockBitmaps[9]{};
     HBITMAP menuFrames[9]{};
@@ -276,6 +284,10 @@ static void CloseClientConnection(ClientWindow& client)
     clientUdpKey = 0;
     clientUdpSendSequence = 0;
     clientGameState = {};
+    client.resultVisibleAt = 0;
+    client.showFinalResult = false;
+    client.continueRequested = false;
+    client.resultSummary.clear();
     clientTcpSendQueue = {};
     clientUdpSendQueue = {};
     clientReceiveQueue = {};
@@ -285,10 +297,13 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
 {
     client.screen = screen;
     const bool showConnect = screen == ClientScreen::Connect;
-    const bool showLobby = screen == ClientScreen::Lobby && clientGameState.phase == lobbyPhase;
+    const bool showLobby = screen == ClientScreen::Lobby && clientGameState.phase == lobbyPhase && !client.showFinalResult;
 
     const bool placing = screen == ClientScreen::Lobby && clientGameState.phase == placingPhase;
     const bool racing = screen == ClientScreen::Lobby && clientGameState.phase == racingPhase;
+    const bool loading = screen == ClientScreen::Lobby &&
+        (clientGameState.phase == loadingPhase || clientGameState.phase == roundResultPhase || client.resultVisibleAt != 0);
+    const bool showResult = screen == ClientScreen::Lobby && !loading && client.showFinalResult;
     if (!placing)
         client.canPlaceBlock = false;
     const wchar_t* title = L"Tang Tang Ball";
@@ -298,21 +313,28 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
         title = L"로비";
     if (screen == ClientScreen::Lobby && !showLobby) {
         switch (clientGameState.phase) {
-        case 1: title = L"맵 로딩"; break;
+        case loadingPhase: title = L"로딩 중"; break;
         case placingPhase: title = L"블록 설치·삭제"; break;
         case racingPhase: title = L"레이스"; break;
-        default: title = L"게임 진행 중"; break;
+        default: title = L"로딩 중"; break;
         }
     }
+    if (loading)
+        title = L"로딩 중";
+    else if (showResult)
+        title = L"최종 결과";
     SetWindowTextW(client.title, title);
     SetWindowTextW(client.status, status);
-    ShowWindow(client.title, placing || racing ? SW_HIDE : SW_SHOW);
-    ShowWindow(client.status, placing || racing || screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
+    ShowWindow(client.title, placing || racing || loading ? SW_HIDE : SW_SHOW);
+    ShowWindow(client.status, placing || racing || loading || showResult || screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
 
     ShowWindow(client.startButton, screen == ClientScreen::Start ? SW_SHOW : SW_HIDE);
     ShowWindow(client.exitButton, screen == ClientScreen::Start ? SW_SHOW : SW_HIDE);
     ShowWindow(client.connectButton, showConnect ? SW_SHOW : SW_HIDE);
-    ShowWindow(client.backButton, racing || screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
+    ShowWindow(client.backButton, racing || loading || screen == ClientScreen::Start ? SW_HIDE : SW_SHOW);
+    ShowWindow(client.continueButton, showResult ? SW_SHOW : SW_HIDE);
+    EnableWindow(client.continueButton, !client.continueRequested);
+    SetWindowTextW(client.continueButton, client.continueRequested ? L"이동 중" : L"이어하기");
     SetWindowTextW(client.backButton, screen == ClientScreen::Lobby ? L"나가기" : L"뒤로");
     EnableWindow(client.connectButton, TRUE);
 
@@ -333,7 +355,9 @@ static void ShowScreen(ClientWindow& client, ClientScreen screen, const wchar_t*
     RECT bounds{};
     GetClientRect(mainWindow, &bounds);
     SendMessageW(mainWindow, WM_SIZE, SIZE_RESTORED, MAKELPARAM(bounds.right, bounds.bottom));
-    if (racing)
+    if (showResult && !client.continueRequested)
+        SetFocus(client.continueButton);
+    else if (racing || loading || showResult)
         SetFocus(mainWindow);
     else if (showConnect)
         SetFocus(client.addressFields[0]);
@@ -480,6 +504,7 @@ static void UpdateNetwork(ClientWindow& client)
     const BYTE previousPhase = clientGameState.phase;
     const wchar_t* placementStatus = nullptr;
     bool lobbyChanged = false;
+    bool receivedFinalResult = false;
     const wchar_t* lobbyRequestStatus = nullptr;
     for (const NetEvent& event : events) {
         if (event.eventKind == NetEventPacket && event.packetType == 4 &&
@@ -494,7 +519,37 @@ static void UpdateNetwork(ClientWindow& client)
                 lobbyRequestStatus = L"준비 상태를 변경할 수 없습니다.";
             continue;
         }
+        const BYTE phaseBeforeEvent = clientGameState.phase;
         ApplyServerEvent(event);
+        if (phaseBeforeEvent != gameResultPhase && clientGameState.phase == gameResultPhase) {
+            receivedFinalResult = true;
+            client.resultVisibleAt = GetTickCount64() + resultLoadingDurationMs;
+            client.showFinalResult = true;
+
+            const auto winner = clientGameState.players.find(clientGameState.roundWinnerId);
+            if (winner != clientGameState.players.end()) {
+                client.resultSummary = L"최종 승자 · 참가자 ";
+                client.resultSummary += std::to_wstring(winner->first);
+                if (winner->first == clientPlayerId)
+                    client.resultSummary += L" (나)";
+            } else {
+                client.resultSummary = L"승자 없이 종료";
+            }
+
+            std::vector<BYTE> playerIds;
+            for (const auto& entry : clientGameState.players)
+                playerIds.push_back(entry.first);
+            std::sort(playerIds.begin(), playerIds.end());
+            client.resultSummary += L"\n";
+            for (const BYTE playerId : playerIds) {
+                const PlayerState& player = clientGameState.players.at(playerId);
+                client.resultSummary += L"\n참가자 " + std::to_wstring(playerId);
+                if (playerId == clientPlayerId)
+                    client.resultSummary += L" (나)";
+                client.resultSummary += std::wstring(L" · ") + lobbyColorNames[player.info.color] +
+                    L"   " + std::to_wstring(player.score) + L"점";
+            }
+        }
         if (clientGameState.phase == placingPhase && event.eventKind == NetEventPacket) {
             switch (event.packetType) {
             case 20: // ROUND_BEGIN
@@ -516,7 +571,13 @@ static void UpdateNetwork(ClientWindow& client)
         if (event.packetType == 2 || event.packetType == 8)
             lobbyChanged = true;
     }
-    if (previousPhase != clientGameState.phase) {
+    if (client.showFinalResult && client.continueRequested && clientGameState.phase == lobbyPhase) {
+        client.showFinalResult = false;
+        client.continueRequested = false;
+        client.resultSummary.clear();
+        lobbyChanged = true;
+    }
+    if (previousPhase != clientGameState.phase || receivedFinalResult) {
         if (GetCapture() == GetParent(client.title))
             ReleaseCapture();
         ShowScreen(client, ClientScreen::Lobby, L"");
@@ -669,14 +730,17 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     const bool placing = client->screen == ClientScreen::Lobby && clientGameState.phase == placingPhase;
     const bool racing = client->screen == ClientScreen::Lobby && clientGameState.phase == racingPhase;
     const bool showStage = placing || racing;
-    const bool showResult = client->screen == ClientScreen::Lobby &&
-        (clientGameState.phase == roundResultPhase || clientGameState.phase == gameResultPhase);
+    const bool loading = client->screen == ClientScreen::Lobby &&
+        (clientGameState.phase == loadingPhase || clientGameState.phase == roundResultPhase || client->resultVisibleAt != 0);
+    const bool showResult = client->screen == ClientScreen::Lobby && !loading && client->showFinalResult;
     RECT bounds{};
     GetClientRect(hWnd, &bounds);
     const int clientWidth = bounds.right;
     const int clientHeight = bounds.bottom;
     const int menuOffsetX = (clientWidth - windowWidth) / 2;
     const int menuOffsetY = (clientHeight - windowHeight) / 2;
+    const RECT resultPanel{ clientWidth / 8, clientHeight / 5, clientWidth - clientWidth / 8, clientHeight - clientHeight / 10 };
+    const int resultButtonY = resultPanel.bottom - 62 - menuOffsetY;
     constexpr int gridSpacing = 40;
     constexpr int placementHeaderHeight = 104;
     constexpr int placementFooterHeight = 60;
@@ -790,7 +854,7 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         };
         const Control controls[] = {
             { &client->title, L"STATIC", L"", WS_VISIBLE | SS_CENTER,
-                70, 26, 660, 62, 0 },
+                70, showResult ? resultPanel.top - 70 - menuOffsetY : 26, 660, 62, 0 },
             { &client->status, L"STATIC", L"", SS_CENTER, 196, 345, 408, 34, 0 },
             { &client->startButton, L"BUTTON", L"START", WS_TABSTOP | BS_OWNERDRAW,
                 326, 175, 148, 52, startButtonId },
@@ -808,10 +872,13 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             { &client->connectButton, L"BUTTON", L"접속", WS_TABSTOP | BS_OWNERDRAW,
                 459, 385, 128, 42, connectButtonId },
             { &client->backButton, L"BUTTON", L"뒤로", WS_TABSTOP | BS_OWNERDRAW,
-                placing ? 16 - menuOffsetX : 209, placing ? clientHeight - 51 - menuOffsetY : 385, 128, 42, backButtonId },
+                placing ? 16 - menuOffsetX : 209, placing ? clientHeight - 51 - menuOffsetY : (showResult ? resultButtonY : 385),
+                128, 42, backButtonId },
             { &client->lobbyPlayer, L"STATIC", L"", 0, 209, 129, 378, 28, 0 },
             { &client->lobbyList, L"LISTBOX", L"", WS_BORDER | WS_VSCROLL | LBS_SORT | LBS_NOSEL,
                 209, 162, 378, 128, 0 },
+            { &client->continueButton, L"BUTTON", L"이어하기", WS_TABSTOP | BS_OWNERDRAW,
+                459, resultButtonY, 128, 42, continueButtonId },
             { &client->lobbyReadyButton, L"BUTTON", L"준비", WS_TABSTOP | BS_OWNERDRAW,
                 459, 385, 128, 42, readyButtonId }
         };
@@ -865,6 +932,16 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     case WM_PAINT: {
         PAINTSTRUCT paint{};
         HDC target = BeginPaint(hWnd, &paint);
+        if (loading) {
+            FillRect(target, &paint.rcPaint, client->backgroundBrush);
+            RECT textBounds = bounds;
+            SelectObject(target, client->titleFont);
+            SetBkMode(target, TRANSPARENT);
+            SetTextColor(target, RGB(23, 61, 61));
+            DrawTextW(target, L"로딩 중", -1, &textBounds, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+            EndPaint(hWnd, &paint);
+            return 0;
+        }
         if (showStage) {
             // 한 프레임의 맵과 공을 모두 그린 뒤 화면에 표시한다.
             HDC frameDC = CreateCompatibleDC(target);
@@ -1009,13 +1086,34 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             FillRect(target, &paint.rcPaint, client->backgroundBrush);
         }
         if (client->screen != ClientScreen::Start) {
-            RECT panelBounds = menuPanel;
-            OffsetRect(&panelBounds, menuOffsetX, menuOffsetY);
+            RECT panelBounds = showResult ? resultPanel : menuPanel;
+            if (!showResult)
+                OffsetRect(&panelBounds, menuOffsetX, menuOffsetY);
             FillRect(target, &panelBounds, client->panelBrush);
             FrameRect(target, &panelBounds, client->borderBrush);
         }
-        if (showResult)
-            DrawScoreboard(target, bounds, *client);
+        if (showResult) {
+            RECT resultBounds{ resultPanel.left + 24, resultPanel.top + 24,
+                resultPanel.right - 24, resultPanel.bottom - 78 };
+            const LONG availableWidth = resultBounds.right - resultBounds.left;
+            const LONG availableHeight = resultBounds.bottom - resultBounds.top;
+            LOGFONTW resultFontInfo{};
+            GetObjectW(client->menuTextFont, sizeof(resultFontInfo), &resultFontInfo);
+            resultFontInfo.lfHeight = -std::clamp((std::min)(availableWidth / 12, availableHeight / 7), 22L, 72L);
+            const HFONT resultFont = CreateFontIndirectW(&resultFontInfo);
+            const HGDIOBJ previousFont = SelectObject(target, resultFont ? resultFont : client->menuTextFont);
+            SetBkMode(target, TRANSPARENT);
+            SetTextColor(target, RGB(23, 61, 61));
+
+            constexpr UINT resultTextStyle = DT_CENTER | DT_WORDBREAK | DT_NOPREFIX;
+            RECT measuredBounds = resultBounds;
+            const int textHeight = DrawTextW(target, client->resultSummary.c_str(), -1, &measuredBounds, resultTextStyle | DT_CALCRECT);
+            resultBounds.top += (std::max)(0L, (availableHeight - textHeight) / 2);
+            DrawTextW(target, client->resultSummary.c_str(), -1, &resultBounds, resultTextStyle);
+            SelectObject(target, previousFont);
+            if (resultFont)
+                DeleteObject(resultFont);
+        }
         EndPaint(hWnd, &paint);
         return 0;
     }
@@ -1046,7 +1144,7 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(hWnd, GWLP_HINSTANCE)),
                 SND_ASYNC | SND_RESOURCE | SND_NODEFAULT);
         }
-        if (client->screen == ClientScreen::Lobby && clientGameState.phase == lobbyPhase && HIWORD(wParam) == BN_CLICKED) {
+        if (client->screen == ClientScreen::Lobby && clientGameState.phase == lobbyPhase && !client->showFinalResult && HIWORD(wParam) == BN_CLICKED) {
             const int buttonId = LOWORD(wParam);
             if (buttonId >= firstColorButtonId && buttonId < firstColorButtonId + ARRAYSIZE(lobbyColorNames)) {
                 if (!QueueTcpPacket(3, { static_cast<BYTE>(buttonId - firstColorButtonId) }))
@@ -1074,6 +1172,20 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                 ShowScreen(*client, ClientScreen::Connect, L"");
             else if (client->screen == ClientScreen::Connect)
                 StartConnection(*client);
+            return 0;
+        case continueButtonId:
+            if (showResult && !client->continueRequested) {
+                if (clientGameState.phase == lobbyPhase) {
+                    client->showFinalResult = false;
+                    client->resultSummary.clear();
+                    ShowScreen(*client, ClientScreen::Lobby, L"서버에 연결되었습니다.");
+                    UpdateLobby(*client);
+                } else {
+                    client->continueRequested = true;
+                    EnableWindow(client->continueButton, FALSE);
+                    SetWindowTextW(client->continueButton, L"이동 중");
+                }
+            }
             return 0;
         case backButtonId:
         case IDCANCEL:
@@ -1110,7 +1222,12 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
     case WM_TIMER:
         if (wParam == networkTimer) {
             UpdateNetwork(*client);
-            UpdatePlayerDisplays(GetTickCount64());
+            const ULONGLONG now = GetTickCount64();
+            if (client->resultVisibleAt != 0 && now >= client->resultVisibleAt) {
+                client->resultVisibleAt = 0;
+                ShowScreen(*client, ClientScreen::Lobby, L"");
+            }
+            UpdatePlayerDisplays(now);
             if (client->screen == ClientScreen::Lobby && clientGameState.phase == racingPhase) {
                 const bool holdingMouse = GetCapture() == hWnd;
                 const bool leftPressed = holdingMouse && GetKeyState(VK_LBUTTON) < 0;
@@ -1121,7 +1238,7 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             }
             return 0;
         }
-        if (wParam == menuTimer && !showStage) {
+        if (wParam == menuTimer && !showStage && !loading) {
             client->menuFrame = (client->menuFrame + 1) % ARRAYSIZE(client->menuFrames);
             InvalidateRect(hWnd, nullptr, FALSE);
             if (client->screen == ClientScreen::Start) {

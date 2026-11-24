@@ -61,6 +61,7 @@ struct GameState {
     std::uint8_t phase = 0; // 로비 단계
     uint16_t roundCnt;
     std::unordered_map<std::uint8_t, PlayerState> players;
+    std::vector<ObjectInfo> baseMapObjects;
     std::vector<ObjectInfo> objects;
     uint32_t nextObjectId;
     uint16_t mapWidth, mapHeight;

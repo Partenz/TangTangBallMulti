@@ -66,6 +66,9 @@ void EndRound(uint8_t winnerId)
         SendPacket(entry.first, roundResultType, roundBody);
 
     if (gameFinished) {
+        gameState.objects = gameState.baseMapObjects;
+        gameState.nextObjectId = static_cast<std::uint32_t>(gameState.objects.size()) + 1;
+        gameState.electricityActive = false;
         gameState.phase = gameResultPhase;
         // GAME_RESULT는 ROUND_RESULT에서 roundCnt 두 바이트를 뺀 형식이다.
         const std::vector<BYTE> gameBody(roundBody.begin() + 2, roundBody.end());

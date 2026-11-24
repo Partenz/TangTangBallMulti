@@ -55,6 +55,7 @@ int main()
         if (object.bottom > gameState.mapHeight)
             gameState.mapHeight = static_cast<uint16_t>(object.bottom);
     }
+    gameState.baseMapObjects = gameState.objects;
     gameState.nextObjectId = objectCount + 1;
 
     WSADATA wsa{};

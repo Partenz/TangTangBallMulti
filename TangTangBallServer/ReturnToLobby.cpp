@@ -16,12 +16,9 @@ void ReturnToLobby()
     gameState.electricityActive = false;
     gameState.lastPreviewSequences.clear();
 
-    // SendMap이 다시 사용할 맵 크기, 시작 위치, 객체 목록은 보관한다.
-    for (ObjectInfo& object : gameState.objects) {
-        object.used = false;
-        if (object.blockType == 7)
-            object.blockType = 8;
-    }
+    // 다음 경기에는 처음 읽은 기본 맵의 객체를 전송한다.
+    gameState.objects = gameState.baseMapObjects;
+    gameState.nextObjectId = static_cast<std::uint32_t>(gameState.objects.size()) + 1;
 
     std::vector<BYTE> lobbyBody{ static_cast<BYTE>(gameState.players.size()) };
     for (auto& [playerId, player] : gameState.players) {
