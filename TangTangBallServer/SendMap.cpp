@@ -1,5 +1,11 @@
 ﻿#include <bit>
 #include <cstddef>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <random>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "SendMap.h"
@@ -34,6 +40,70 @@ bool SendMap(std::uint8_t playerId)
     constexpr std::size_t mapFieldsSize = 18;
     constexpr std::size_t objectSize = 22;
     constexpr std::size_t maxObjectCount = (65535 - headerSize - mapFieldsSize) / objectSize;
+
+    constexpr BYTE lobbyPhase = 0;
+    constexpr BYTE loadingPhase = 1;
+    if (gameState.phase == lobbyPhase) {
+        // 첫 MAP_DATA를 보내기 전에 이번 경기의 맵을 한 번만 고른다.
+        static std::mt19937 randomEngine{ std::random_device{}() };
+        const int stageNumber = std::uniform_int_distribution<int>{ 1, 3 }(randomEngine);
+        const std::string stageFileName = "stage" + std::to_string(stageNumber) + ".txt";
+
+        wchar_t executablePath[MAX_PATH]{};
+        const DWORD pathLength = GetModuleFileNameW(nullptr, executablePath, MAX_PATH);
+        if (pathLength == 0 || pathLength >= MAX_PATH) {
+            std::cerr << stageFileName << ": server executable path unavailable\n";
+            return false;
+        }
+
+        std::ifstream mapFile(std::filesystem::path(executablePath).parent_path() / stageFileName);
+        int objectCount = 0;
+        int starCount = 0;
+        float spawnX = 0.0f;
+        float spawnY = 0.0f;
+        if (!(mapFile >> objectCount >> starCount >> spawnX >> spawnY) ||
+            objectCount <= 0 || static_cast<std::size_t>(objectCount) > maxObjectCount || starCount != 1) {
+            std::cerr << stageFileName << ": invalid or missing map header\n";
+            return false;
+        }
+
+        std::vector<ObjectInfo> mapObjects;
+        mapObjects.reserve(objectCount);
+        uint16_t mapWidth = 0;
+        uint16_t mapHeight = 0;
+        for (int index = 0; index < objectCount; ++index) {
+            ObjectInfo object{};
+            int blockType = 0;
+            if (!(mapFile >> blockType >> object.left >> object.top >> object.right >> object.bottom) ||
+                blockType < 0 || blockType > 8 || object.left < 0 || object.top < 0 ||
+                object.left >= object.right || object.top >= object.bottom ||
+                object.right > 65535 || object.bottom > 65535) {
+                std::cerr << stageFileName << ": invalid object " << index + 1 << '\n';
+                return false;
+            }
+
+            object.objectId = index + 1;
+            object.blockType = static_cast<BYTE>(blockType);
+            mapObjects.push_back(object);
+            if (object.right > mapWidth)
+                mapWidth = static_cast<uint16_t>(object.right);
+            if (object.bottom > mapHeight)
+                mapHeight = static_cast<uint16_t>(object.bottom);
+        }
+
+        gameState.baseMapObjects = mapObjects;
+        gameState.objects = std::move(mapObjects);
+        gameState.mapWidth = mapWidth;
+        gameState.mapHeight = mapHeight;
+        gameState.spawnX = spawnX;
+        gameState.spawnY = spawnY;
+        gameState.nextObjectId = static_cast<std::uint32_t>(objectCount) + 1;
+        for (auto& entry : gameState.players)
+            entry.second.mapReady = false;
+
+        gameState.phase = loadingPhase;
+        std::cout << "Selected map: " << stageFileName << '\n';
+    }
 
     const auto& objects = gameState.objects;
     const auto objectCount = objects.size();

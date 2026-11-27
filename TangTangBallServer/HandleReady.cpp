@@ -63,22 +63,11 @@ void HandleReady(std::uint8_t playerId, bool ready)
         [](const auto& entry) { return entry.second.info.ready; });
 
     if (queuedToEveryone && allReady) {
-        constexpr BYTE loadingPhase = 1;
-
-        // 기본 맵이 준비된 뒤 전송을 시작한다.
-        if (gameState.mapWidth == 0 || gameState.mapHeight == 0) {
-            return;
-        }
-
-        gameState.phase = loadingPhase;
-
-        for (auto& [id, player] : gameState.players) {
-            player.mapReady = false;
-        }
-
-        for (const auto& [id, player] : gameState.players) {
-            if (!SendMap(id)) {
-                RequestDisconnect(id);
+        for (const auto& entry : gameState.players) {
+            if (!SendMap(entry.first)) {
+                if (gameState.phase == lobbyPhase)
+                    return; // 맵 파일 오류가 나면 로비에서 다시 시작할 수 있다.
+                RequestDisconnect(entry.first);
             }
         }
     }

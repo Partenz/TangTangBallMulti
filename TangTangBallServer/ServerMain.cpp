@@ -1,7 +1,5 @@
 ﻿#include <WinSock2.h>
 #include <Windows.h>
-#include <filesystem>
-#include <fstream>
 #include <iostream>
 
 #include "ServerVariable.h"
@@ -21,43 +19,6 @@ constexpr unsigned short udpPort = 9001;
 
 int main()
 {
-    // Visual Studio와 실행 파일 직접 실행 모두 같은 기본 맵을 사용한다.
-    wchar_t executablePath[MAX_PATH]{};
-    const DWORD pathLength = GetModuleFileNameW(nullptr, executablePath, MAX_PATH);
-    if (pathLength == 0 || pathLength >= MAX_PATH)
-        return 1;
-
-    std::ifstream mapFile(std::filesystem::path(executablePath).parent_path() / L"stage1.txt");
-    int objectCount = 0;
-    int starCount = 0;
-    if (!(mapFile >> objectCount >> starCount >> gameState.spawnX >> gameState.spawnY) ||
-        objectCount <= 0 || objectCount > (65535 - 21) / 22 || starCount != 1) {
-        std::cerr << "stage1.txt: invalid or missing map header\n";
-        return 1;
-    }
-
-    // stage1에는 맵 크기 필드가 없어 가장 오른쪽과 아래쪽 객체 경계를 사용한다.
-    for (int index = 0; index < objectCount; ++index) {
-        ObjectInfo object{};
-        int blockType = 0;
-        if (!(mapFile >> blockType >> object.left >> object.top >> object.right >> object.bottom) ||
-            blockType < 0 || blockType > 8 || object.left < 0 || object.top < 0 ||
-            object.left >= object.right || object.top >= object.bottom ||
-            object.right > 65535 || object.bottom > 65535) {
-            std::cerr << "stage1.txt: invalid object " << index + 1 << '\n';
-            return 1;
-        }
-        object.objectId = index + 1;
-        object.blockType = static_cast<BYTE>(blockType);
-        gameState.objects.push_back(object);
-        if (object.right > gameState.mapWidth)
-            gameState.mapWidth = static_cast<uint16_t>(object.right);
-        if (object.bottom > gameState.mapHeight)
-            gameState.mapHeight = static_cast<uint16_t>(object.bottom);
-    }
-    gameState.baseMapObjects = gameState.objects;
-    gameState.nextObjectId = objectCount + 1;
-
     WSADATA wsa{};
     int retval = WSAStartup(MAKEWORD(2, 2), &wsa);
     if (retval != 0) {

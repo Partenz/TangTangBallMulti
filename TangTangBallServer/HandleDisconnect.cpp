@@ -52,13 +52,13 @@ void HandleDisconnect(uint8_t playerId)
         }
 
         const bool allReady = std::all_of(gameState.players.begin(), gameState.players.end(), [](const auto& entry) { return entry.second.info.ready; });
-        if (queuedToEveryone && allReady && gameState.mapWidth != 0 && gameState.mapHeight != 0) {
-            gameState.phase = loadingPhase;
-            for (auto& entry : gameState.players)
-                entry.second.mapReady = false;
+        if (queuedToEveryone && allReady) {
             for (const auto& entry : gameState.players) {
-                if (!SendMap(entry.first))
+                if (!SendMap(entry.first)) {
+                    if (gameState.phase == lobbyPhase)
+                        break;
                     RequestDisconnect(entry.first);
+                }
             }
         }
         break;

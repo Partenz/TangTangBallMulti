@@ -16,7 +16,7 @@ void ReturnToLobby()
     gameState.electricityActive = false;
     gameState.lastPreviewSequences.clear();
 
-    // 다음 경기에는 처음 읽은 기본 맵의 객체를 전송한다.
+    // 이번 경기에서 선택한 맵을 원래 상태로 되돌린다.
     gameState.objects = gameState.baseMapObjects;
     gameState.nextObjectId = static_cast<std::uint32_t>(gameState.objects.size()) + 1;
 
