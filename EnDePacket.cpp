@@ -115,7 +115,7 @@ bool DecodePacket(const std::vector<BYTE>& bytes, BYTE& packetType,
         break;
     case 30: // CONTACT_EVENT: roundCnt, playerId, objectId, contactType
         expectedSize = 8;
-        if (data.size() != expectedSize || data[2] == 0 || data[7] > 4)
+        if (data.size() != expectedSize || data[2] == 0 || data[7] > 6)
             return false;
         break;
     case 31: // DOUBLE_JUMP_REQUEST: roundCnt, direction

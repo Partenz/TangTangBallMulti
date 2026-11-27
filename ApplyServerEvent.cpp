@@ -236,6 +236,12 @@ void ApplyServerEvent(const NetEvent& event)
         int soundResource = 0;
 
         switch (contactType) {
+        case 5: // Basic block bounce
+            soundResource = IDW_DEFAULT_JUMP;
+            break;
+        case 6: // Jump block bounce
+            soundResource = IDW_JUMP_BLOCK;
+            break;
         case 0: // Thorn
         case 1: // Electricity
             if (player != state.players.end()) {

@@ -1,9 +1,9 @@
-﻿#include "ServerCollision.h"
+﻿#include <algorithm>
+
+#include "ServerCollision.h"
 #include "ServerConnections.h"
 #include "ServerVariable.h"
 #include "UpdatePhysics.h"
-
-#include <algorithm>
 
 namespace {
     constexpr float ballRadius = 10.0f;
@@ -17,7 +17,7 @@ namespace {
     };
 
     enum class Contact : BYTE {
-        Thorn = 0, Lightning = 1, Once = 2, DoubleJump = 3, Goal = 4
+        Thorn = 0, Lightning = 1, Once = 2, DoubleJump = 3, Goal = 4, BasicBounce = 5, JumpBlockBounce = 6
     };
 
     bool IsSolid(const ObjectInfo& object)
@@ -43,6 +43,9 @@ namespace {
         case Contact::Goal:
             object.used = true;
             gameState.roundWinnerId = playerId;
+            break;
+        case Contact::BasicBounce:
+        case Contact::JumpBlockBounce:
             break;
         }
 
@@ -186,6 +189,10 @@ void ResolvePlayerCollisions(BYTE playerId, PlayerState& player, float previousX
             motion.vy = -JumpSpeedForCells(surface->blockType == jump ? 3 : 2);
             if (surface->blockType == once)
                 ApplyContact(playerId, player, *surface, Contact::Once);
+            else if (surface->blockType == basic)
+                ApplyContact(playerId, player, *surface, Contact::BasicBounce);
+            else if (surface->blockType == jump)
+                ApplyContact(playerId, player, *surface, Contact::JumpBlockBounce);
         } else {
             motion.vy = 0.0f;
         }
